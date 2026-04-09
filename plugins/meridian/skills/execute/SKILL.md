@@ -13,37 +13,50 @@ Implement an approved spec. Break it into tasks, verify as you go, review at the
 
 ## Before Starting
 
-**Ask commit preferences** (only for plan-based execution — for ad-hoc work, assume the user commits themselves):
-> "Do you want me to commit as I go, commit at the end, or leave committing to you?"
-
-Respect the answer for the session. If commits are requested, all commits — including from subagents — follow `meridian:commit` rules: no AI attribution, verify staging, present messages for approval.
-
-## Process
-
 ### 1. Read and Review the Spec
 
 Load the spec file. Review it critically. If you have concerns — ambiguities, gaps, things that will cause problems during implementation — raise them with the user before writing code. Don't start and hope it works out.
 
-### 2. Break Into Tasks
+### 2. Execution Preferences
+
+Ask once, respect for the entire session. Present as a single-shot question:
+
+> **Execution preferences** (answer in one message, e.g. "subagent, per-task"):
+>
+> 1. **Execution:** subagent (parallel where possible) / inline (you do everything)
+> 2. **Commits:** per-task / at-the-end / you-handle-it
+
+Accept any natural phrasing — "sub, end", "inline, per-task", "subagent and I'll handle commits", etc. Parse intent, don't demand exact format.
+
+**Execution mode governs task dispatch:**
+- **Subagent:** default to dispatching independent tasks via `meridian:delegate`. Only implement inline when a task requires judgment, architectural decisions, or deep codebase understanding.
+- **Inline:** implement everything directly. Do not dispatch subagents.
+
+**Commit strategy governs when `meridian:commit` runs:**
+- **Per-task:** commit after each task is verified.
+- **At-the-end:** commit once after all tasks pass final verification.
+- **You-handle-it:** never commit. User handles it.
+
+All commits — including from subagents — follow `meridian:commit` rules: no AI attribution, verify staging, present messages for approval.
+
+## Process
+
+### 3. Break Into Tasks
 
 Identify discrete implementation units from the spec. Use TaskCreate/TaskUpdate to track progress. Sequence tasks logically — dependencies first.
 
-For each task, decide: implement directly, or delegate to a subagent via `meridian:delegate`?
-
-- **Delegate** when: the task is independent, well-defined, and isolating it preserves your context for coordination
-- **Implement directly** when: the task requires judgment, architectural decisions, or deep codebase understanding
-
-### 3. Implement Each Task
+### 4. Implement Each Task
 
 For each task:
 1. Mark it in progress
-2. Implement (or dispatch subagent using `implementer-prompt.md` in this directory)
+2. Implement directly or dispatch via `meridian:delegate` (per execution mode preference)
 3. Run verification — tests, typecheck, lint, whatever the project uses
 4. If verification fails: invoke `meridian:debug`. Do not guess-fix.
 5. If subagent was used: verify independently. Check the diff. Run tests yourself. Do not trust the subagent's success report.
-6. Mark complete
+6. If commit strategy is per-task: invoke `meridian:commit`
+7. Mark complete
 
-### 4. Final Verification and Review
+### 5. Final Verification and Review
 
 After all tasks:
 1. Run the full verification suite — not just the tests you think are relevant
@@ -52,9 +65,9 @@ After all tasks:
 4. Re-verify after fixes
 5. If changes from fixes were substantial, re-review
 
-### 5. Completion
+### 6. Completion
 
-Report what was built, what was verified, and present any open concerns. If the user asked for commits, ensure everything is committed per their preference.
+Report what was built, what was verified, and present any open concerns. Ensure everything is committed per the chosen commit strategy.
 
 ## Compaction Resilience
 
