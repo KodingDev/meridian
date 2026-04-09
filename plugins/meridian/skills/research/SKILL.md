@@ -49,3 +49,9 @@ Verify before you build. Training data is a starting point — live documentatio
 - Speculation about unverified behavior
 
 Use `$ARGUMENTS` as the research query if invoked directly by the user.
+
+## Integration
+
+- **Predecessors:** `brainstorm`, `debug`, `execute`, or direct invocation
+- **Successors:** Returns to caller
+- **May invoke:** —

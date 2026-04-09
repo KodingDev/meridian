@@ -57,3 +57,9 @@ The reviewer returns:
 - Verdict: **ship / fix and ship / do not ship**
 
 No "strengths" section. Working code is the baseline, not an achievement.
+
+## Integration
+
+- **Predecessors:** `execute`, or direct invocation
+- **Successors:** Fix defects (back to implementation)
+- **May invoke:** —

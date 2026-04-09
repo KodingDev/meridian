@@ -58,3 +58,9 @@ Match capability to task complexity:
 - **Architecture and review tasks**: most capable model
 
 When the platform supports it, consider using lower `effort` settings for mechanical subagents — they don't need deep thinking for straightforward implementation work.
+
+## Integration
+
+- **Predecessors:** `execute`, or direct invocation
+- **Successors:** Returns to caller
+- **May invoke:** —

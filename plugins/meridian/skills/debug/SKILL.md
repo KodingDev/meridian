@@ -66,3 +66,9 @@ If systematic investigation reveals the issue is truly environmental, timing-dep
 4. Consider invoking `meridian:document` to capture the investigation for future sessions
 
 95% of "no root cause" cases are incomplete investigation.
+
+## Integration
+
+- **Predecessors:** `meridian` routing, or direct invocation
+- **Successors:** `commit` (if fix applied)
+- **May invoke:** `research`

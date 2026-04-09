@@ -59,3 +59,9 @@ Do NOT invoke any implementation skill, write any code, scaffold any project, or
 - Follow existing patterns unless they're actively harmful
 - Where existing code has problems that affect the work (overgrown files, tangled responsibilities), include targeted improvements as part of the design
 - Don't propose unrelated refactoring — stay focused on what serves the goal
+
+## Integration
+
+- **Predecessors:** `meridian` routing, or direct invocation
+- **Successors:** `execute`
+- **May invoke:** `research`

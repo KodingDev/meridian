@@ -57,3 +57,9 @@ How: use technical reasoning. Reference working code or tests. Ask specific ques
 State the correction factually and move on:
 - "You were right — I checked [X] and it does [Y]. Fixing."
 - No long apology. No defending why you pushed back. Correct and continue.
+
+## Integration
+
+- **Predecessors:** External review feedback (human, PR comments)
+- **Successors:** `commit` (if changes made)
+- **May invoke:** —

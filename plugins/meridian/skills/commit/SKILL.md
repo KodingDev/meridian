@@ -65,3 +65,9 @@ When subagents commit during `execute`, their prompts must include:
 - Stage only files created or modified for the task
 - If unsure about a file, report it as a concern — don't stage it
 - Commit message describes the change in the project's existing style
+
+## Integration
+
+- **Predecessors:** `execute`, `debug`, `respond`, or direct invocation
+- **Successors:** None (terminal)
+- **May invoke:** —

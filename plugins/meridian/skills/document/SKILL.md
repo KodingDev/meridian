@@ -65,3 +65,9 @@ Lives in `docs/` or as a comment near the relevant code, depending on scope.
 - **Link to sources.** If the fix came from a GitHub issue, a docs page, or a forum post — include the URL.
 - **Keep it current.** If you're updating code that has associated docs, update the docs too.
 - **Don't write documentation for the sake of documentation.** If the code is self-explanatory and there are no gotchas, there's nothing to document.
+
+## Integration
+
+- **Predecessors:** `execute`, or direct invocation after completed work
+- **Successors:** None (terminal)
+- **May invoke:** —

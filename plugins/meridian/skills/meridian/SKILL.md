@@ -72,3 +72,9 @@ When dispatching subagents:
 **For everything else:** Assume the user handles commits. Don't ask, don't commit unprompted. If they want a commit, they'll ask or invoke `/meridian:commit`.
 
 Spec files are never committed or staged automatically.
+
+## Integration
+
+- **Predecessors:** None — entry point
+- **Successors:** Any skill via routing
+- **May invoke:** —

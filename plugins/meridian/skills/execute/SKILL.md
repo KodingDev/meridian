@@ -80,3 +80,9 @@ These are not negotiable:
 - **No trusting subagent success reports.** Verify independently.
 - **No moving to next task with failing verification.** Fix it or escalate.
 - **No skipping the final review.** Every implementation gets reviewed.
+
+## Integration
+
+- **Predecessors:** `brainstorm`, or direct invocation with clear requirements
+- **Successors:** `commit`, `document`
+- **May invoke:** `delegate`, `review`, `research`
