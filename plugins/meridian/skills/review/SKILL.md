@@ -1,6 +1,6 @@
 ---
 name: review
-description: Principal-engineer-grade code review via isolated subagent. Use after completing implementation, before merging, or when the user asks for a review. Every review is thorough — there is no lenient mode.
+description: Use after completing implementation, before merging, or when the user asks for a review
 ---
 
 # Review

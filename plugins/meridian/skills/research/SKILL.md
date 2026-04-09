@@ -1,6 +1,6 @@
 ---
 name: research
-description: Verify assumptions against live documentation before implementation. Use when touching external APIs, libraries, or patterns where training data may be outdated. Auto-triggered by brainstorm and debug when knowledge gaps are detected.
+description: Use when touching external APIs, libraries, or patterns where training data may be outdated
 argument-hint: "[query or topic to research]"
 ---
 

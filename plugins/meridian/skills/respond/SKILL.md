@@ -1,6 +1,6 @@
 ---
 name: respond
-description: Evaluate review feedback with technical rigor before implementing. Use when receiving code review results (from subagent, human reviewer, or PR comments). Verify first, implement second.
+description: Use when receiving code review results from a subagent, human reviewer, or PR comments
 ---
 
 # Respond

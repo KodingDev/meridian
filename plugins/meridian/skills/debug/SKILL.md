@@ -1,6 +1,6 @@
 ---
 name: debug
-description: Systematic root-cause investigation before any fix attempts. Use when encountering any bug, test failure, or unexpected behavior. No fixes without understanding what's actually broken.
+description: Use when encountering any bug, test failure, or unexpected behavior
 ---
 
 # Debug

@@ -1,6 +1,6 @@
 ---
 name: commit
-description: Create clean, verified git commits. Checks staging area for surprises, unstages local-only files safely, drafts commit messages in the project's style, and never adds AI attribution. Use when ready to commit, or auto-triggered during execute.
+description: Use when ready to commit changes, or auto-triggered during execute
 ---
 
 # Commit

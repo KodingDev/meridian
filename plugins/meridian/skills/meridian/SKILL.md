@@ -1,6 +1,6 @@
 ---
 name: meridian
-description: Use when starting any conversation - establishes development principles, routes to appropriate skills, and enforces research-first workflows with ruthless quality standards.
+description: Use when starting any conversation or when unsure which skill applies
 ---
 
 <SUBAGENT-STOP>

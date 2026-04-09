@@ -1,6 +1,6 @@
 ---
 name: execute
-description: Implement an approved spec with quality gates, verification after each task, and optional subagent delegation. Use after brainstorm produces an approved spec, or when the user has clear requirements ready to implement.
+description: Use after brainstorm produces an approved spec, or when the user has clear requirements ready to implement
 ---
 
 # Execute

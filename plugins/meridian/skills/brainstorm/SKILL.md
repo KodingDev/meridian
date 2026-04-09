@@ -1,6 +1,6 @@
 ---
 name: brainstorm
-description: Turn ideas into thorough design specs through collaborative dialogue. Use before any new feature, significant change, or architectural decision. Produces a spec file for subagent review and user approval.
+description: Use before any new feature, significant change, or architectural decision
 argument-hint: "[feature or idea to design]"
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: delegate
-description: Dispatch subagents with proper context hygiene for isolated parallel work. Use when you have 2+ independent tasks, or when isolating heavy work preserves orchestrator context.
+description: Use when you have 2+ independent tasks, or when isolating heavy work preserves orchestrator context
 ---
 
 # Delegate

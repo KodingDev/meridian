@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+cat <<'EOF'
+[MERIDIAN] You MUST invoke the meridian:meridian skill using the Skill tool before responding to the user. This is non-negotiable. Do it now.
+EOF

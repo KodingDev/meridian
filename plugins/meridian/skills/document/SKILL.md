@@ -1,6 +1,6 @@
 ---
 name: document
-description: Write human-readable documentation from resolved work. Use after completing features, resolving complex bugs, or when hard-won knowledge would otherwise be lost between sessions.
+description: Use after completing features, resolving complex bugs, or when hard-won knowledge would otherwise be lost
 argument-hint: "[what to document]"
 ---
 
