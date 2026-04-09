@@ -1,0 +1,18 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "meridian",
+  "description": "Research-first workflows, ruthless code review, and orchestrator-led reasoning for Claude Code.",
+  "owner": {
+    "name": "KodingDev"
+  },
+  "plugins": [
+    {
+      "name": "meridian",
+      "description": "Research-first workflows, ruthless code review, orchestrator-led reasoning, and opaque subagent isolation for the entire development lifecycle.",
+      "version": "0.1.0",
+      "source": "./plugins/meridian",
+      "category": "development",
+      "homepage": "https://github.com/KodingDev/claude-plugins"
+    }
+  ]
+}

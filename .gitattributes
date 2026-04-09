@@ -1,0 +1,9 @@
+# Normalize line endings
+* text=auto
+
+# Markdown and JSON are always LF
+*.md text eol=lf
+*.json text eol=lf
+
+# License
+LICENSE text eol=lf
