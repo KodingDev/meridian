@@ -3,6 +3,10 @@ name: delegate
 description: Use when you have 2+ independent tasks, or when isolating heavy work preserves orchestrator context
 ---
 
+<HARD-GATE>
+Do NOT pass conversation history, prior subagent results, or orchestrator reasoning to subagents. Include only the task scope, relevant code context, constraints, and output format.
+</HARD-GATE>
+
 # Delegate
 
 Dispatch subagents for isolated work. You think, they execute.

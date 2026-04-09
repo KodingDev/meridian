@@ -4,6 +4,10 @@ description: Use when touching external APIs, libraries, or patterns where train
 argument-hint: "[query or topic to research]"
 ---
 
+<HARD-GATE>
+Do NOT trust training data for external API signatures, library behavior, or version compatibility. Verify against live documentation before returning results.
+</HARD-GATE>
+
 # Research
 
 Verify before you build. Training data is a starting point — live documentation is truth.

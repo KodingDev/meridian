@@ -3,6 +3,10 @@ name: commit
 description: Use when ready to commit changes, or auto-triggered during execute
 ---
 
+<HARD-GATE>
+Do NOT include AI attribution (no "Co-Authored-By: Claude" or similar). Do NOT commit secrets, .env files, binary artifacts, or spec documents.
+</HARD-GATE>
+
 # Commit
 
 Clean commits. No surprises, no slop, no AI branding.

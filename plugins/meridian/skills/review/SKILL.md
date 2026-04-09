@@ -3,6 +3,10 @@ name: review
 description: Use after completing implementation, before merging, or when the user asks for a review
 ---
 
+<HARD-GATE>
+Do NOT skip automated checks (lint, typecheck, build, test) before dispatching the review subagent. Do NOT approve merging with unaddressed defects.
+</HARD-GATE>
+
 # Review
 
 Code review that catches what matters. Dispatched as an isolated subagent so the orchestrator's prior reasoning doesn't contaminate the assessment.

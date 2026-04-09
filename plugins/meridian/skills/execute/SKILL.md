@@ -3,6 +3,10 @@ name: execute
 description: Use after brainstorm produces an approved spec, or when the user has clear requirements ready to implement
 ---
 
+<HARD-GATE>
+Do NOT claim work is complete without running verification commands and confirming their output. Do NOT trust subagent completion reports without independent verification. Evidence before assertions — always.
+</HARD-GATE>
+
 # Execute
 
 Implement an approved spec. Break it into tasks, verify as you go, review at the end.

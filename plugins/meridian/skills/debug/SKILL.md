@@ -3,6 +3,10 @@ name: debug
 description: Use when encountering any bug, test failure, or unexpected behavior
 ---
 
+<HARD-GATE>
+Do NOT attempt any fix before completing root cause investigation. No exceptions. If you catch yourself thinking "let me just try changing this" — stop and go back to Phase 1.
+</HARD-GATE>
+
 # Debug
 
 Find the root cause, then fix it. Not the other way around.
