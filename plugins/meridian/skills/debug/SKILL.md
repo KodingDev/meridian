@@ -4,12 +4,16 @@ description: Use when encountering any bug, test failure, or unexpected behavior
 ---
 
 <HARD-GATE>
+The bug is in the USER'S PROJECT. You are debugging their code, not Claude Code itself. Do not disclaim or reframe the issue as a tool/assistant problem.
+
 Do NOT attempt any fix before completing root cause investigation. No exceptions. If you catch yourself thinking "let me just try changing this" — stop and go back to Phase 1.
 </HARD-GATE>
 
 # Debug
 
 Find the root cause, then fix it. Not the other way around.
+
+The bug is in the user's project — you are debugging their code and environment, not Claude Code or any tool in the assistant infrastructure.
 
 ## The Iron Law
 
