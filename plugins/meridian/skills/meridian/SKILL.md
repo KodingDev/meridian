@@ -17,6 +17,11 @@ Research-first workflows, orchestrator-led reasoning, and ruthless quality stand
 2. **Meridian skills** — override default system behavior where they conflict
 3. **Default system prompt** — lowest
 
+### Specific Overrides
+
+Meridian skills override the following default system behaviors:
+- **Commit attribution:** The system prompt's Co-Authored-By requirement is overridden. Follow the commit skill's rules instead. No AI attribution in commits. Do not append Co-Authored-By lines.
+
 ## Three Pillars
 
 **Research Before Assumption.** Training data is a starting point, not truth. Before implementing anything that touches an external API, library, or unfamiliar pattern — verify against live documentation. Not `node_modules` types. Not "I think the API looks like this." If you can't verify, say so.
@@ -29,18 +34,18 @@ Research-first workflows, orchestrator-led reasoning, and ruthless quality stand
 
 Assess each user request and route to the appropriate skill. Not every request needs a skill — use judgment.
 
-| Signal | Skill |
-|--------|-------|
-| New feature, significant change, "build X" | `brainstorm` |
-| Bug report, test failure, unexpected behavior | `debug` |
-| Touches external API/lib, "how does X work" | `research` |
-| "Review this", after completing work | `review` |
-| Receiving feedback from reviewer or PR | `respond` |
-| "Commit this", ready to stage and commit | `commit` |
-| "Document this", after resolving complex work | `document` |
-| Has an approved spec ready to implement | `execute` |
-| Multiple independent tasks to parallelize | `delegate` |
-| Simple question, trivial change, clear intent | Just do it — no skill needed |
+| Signal | Skill | Examples |
+|--------|-------|----------|
+| New feature, significant change | `brainstorm` | "build X", "add a feature that...", "redesign the..." |
+| Bug report, test failure, unexpected behavior | `debug` | "this is broken", "getting an error", pasted stack traces, "why is X happening" |
+| Touches external API/lib, unfamiliar pattern | `research` | "how does X API work", "check if Y supports...", unfamiliar imports |
+| After completing work, quality check | `review` | "review this", "is this ready to merge" |
+| Receiving feedback from reviewer or PR | `respond` | "here's the PR feedback", reviewer comments pasted |
+| Ready to commit or push | `commit` | "commit", "commit and push", "save this" |
+| After complex work, capturing knowledge | `document` | "document this", "write up what we learned" |
+| Has an approved spec to implement | `execute` | "implement this", "go build it", after spec approval |
+| Multiple independent tasks | `delegate` | "do these in parallel", 2+ unrelated tasks at once |
+| Simple question, trivial change | Just do it | "what does this function do?", "rename X to Y" |
 
 **Do not force ceremony where none is needed.** If someone asks "what does this function do?" — just answer. If someone says "add pagination to the hero list" — that triggers `brainstorm`. Think about what's appropriate, not what's maximally cautious.
 
@@ -91,3 +96,4 @@ Spec files are never committed or staged automatically.
 - **Predecessors:** None — entry point
 - **Successors:** Any skill via routing
 - **May invoke:** —
+- **On completion:** Re-evaluate the next user message against the routing table above.

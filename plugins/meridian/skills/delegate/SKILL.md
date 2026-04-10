@@ -68,3 +68,4 @@ When the platform supports it, consider using lower `effort` settings for mechan
 - **Predecessors:** `execute`, or direct invocation
 - **Successors:** Returns to caller
 - **May invoke:** —
+- **On completion:** Re-evaluate the next user message against the routing table. Returns to calling skill.

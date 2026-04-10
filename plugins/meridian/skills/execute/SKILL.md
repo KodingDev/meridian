@@ -49,17 +49,19 @@ For each task:
 3. Run verification — tests, typecheck, lint, whatever the project uses
 4. If verification fails: invoke `meridian:debug`. Do not guess-fix.
 5. If subagent was used: verify independently. Check the diff. Run tests yourself. Do not trust the subagent's success report.
-6. If commit strategy is per-task: invoke `meridian:commit`
-7. Mark complete
+6. Present a brief verification summary to the user: what was checked (tests, typecheck, lint, diff review), results (pass/fail with specifics), any discrepancies between subagent's report and your verification. Keep it to 2-4 lines — facts only.
+7. If commit strategy is per-task: invoke `meridian:commit`
+8. Mark complete
 
 ### 5. Final Verification and Review
 
 After all tasks:
 1. Run the full verification suite — not just the tests you think are relevant
-2. Invoke `meridian:review` for code review
-3. Fix all defects from the review
-4. Re-verify after fixes
-5. If changes from fixes were substantial, re-review
+2. Present the final verification results: full suite results (all passed / N failures), files changed summary (count + key files), any open concerns. Keep it to 2-4 lines.
+3. Invoke `meridian:review` for code review
+4. Fix all defects from the review
+5. Re-verify after fixes
+6. If changes from fixes were substantial, re-review
 
 ### 6. Completion
 
@@ -67,13 +69,7 @@ Report what was built, what was verified, and present any open concerns. Ensure 
 
 ## Compaction Resilience
 
-Long sessions will have their context compacted automatically. Before this happens — or when you sense you're deep into a session — save progress state:
-- Which tasks are done, which remain
-- Key decisions made and why
-- Current state of the implementation
-- Any open concerns
-
-Write this to a progress file or task notes so a fresh context window can pick up where you left off.
+In long sessions, save progress state (tasks done/remaining, key decisions, open concerns) to task notes before context compacts.
 
 ## Overengineering Guard
 
@@ -99,3 +95,4 @@ These are not negotiable:
 - **Predecessors:** `brainstorm`, or direct invocation with clear requirements
 - **Successors:** `commit`, `document`
 - **May invoke:** `delegate`, `review`, `research`
+- **On completion:** Re-evaluate the next user message against the routing table. Common next: `review`, `commit`.

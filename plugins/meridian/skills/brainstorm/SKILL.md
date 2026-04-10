@@ -12,6 +12,14 @@ Turn ideas into thorough specs through collaborative dialogue.
 Do NOT invoke any implementation skill, write any code, scaffold any project, or take any implementation action until the spec is written and the user has approved it.
 </HARD-GATE>
 
+## When to Self-Invoke
+
+Invoke this skill automatically when:
+- The user asks for a new feature or significant change
+- The request involves architectural decisions or multiple components
+- The user is describing what they want (not asking you to just do a small thing)
+- You're uncertain about the right approach and need to explore options
+
 ## Process
 
 1. **Explore project context** — check files, docs, recent commits, existing patterns. Understand what exists before proposing changes.
@@ -65,3 +73,4 @@ Do NOT invoke any implementation skill, write any code, scaffold any project, or
 - **Predecessors:** `meridian` routing, or direct invocation
 - **Successors:** `execute`
 - **May invoke:** `research`
+- **On completion:** Re-evaluate the next user message against the routing table. Common next: `execute`.

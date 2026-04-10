@@ -15,6 +15,14 @@ Find the root cause, then fix it. Not the other way around.
 
 The bug is in the user's project — you are debugging their code and environment, not Claude Code or any tool in the assistant infrastructure.
 
+## When to Self-Invoke
+
+Invoke this skill automatically when:
+- The user pastes an error message or stack trace
+- A test failure occurs during execute
+- Build or lint fails unexpectedly
+- The user describes unexpected behavior, even casually ("this is weird", "why is X happening")
+
 ## The Iron Law
 
 ```
@@ -80,3 +88,4 @@ If systematic investigation reveals the issue is truly environmental, timing-dep
 - **Predecessors:** `meridian` routing, or direct invocation
 - **Successors:** `commit` (if fix applied)
 - **May invoke:** `research`
+- **On completion:** Re-evaluate the next user message against the routing table. Common next: `commit`.

@@ -63,3 +63,4 @@ State the correction factually and move on:
 - **Predecessors:** External review feedback (human, PR comments)
 - **Successors:** `commit` (if changes made)
 - **May invoke:** —
+- **On completion:** Re-evaluate the next user message against the routing table. Common next: `commit`.

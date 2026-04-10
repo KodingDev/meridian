@@ -14,11 +14,13 @@ Verify before you build. Training data is a starting point — live documentatio
 
 ## When This Triggers
 
-**Auto (orchestrator detects the need):**
-- Task involves an external API not verified this session
-- Library version where behavior may have changed
+**Auto (invoke this automatically — don't wait for the user to ask):**
+- You're about to use an external API and aren't certain of the current signature
+- A brainstorm or debug session touches a library you haven't verified
+- The user mentions a tool/service/API you don't have verified knowledge of
+- Task involves a library version where behavior may have changed
 - About to write code based on memory of an API
-- Brainstorm or debug identifies a knowledge gap
+- Any HARD-GATE would fire if you proceeded without verification
 
 **Manual:** User invokes `/meridian:research "query"`
 
@@ -59,3 +61,4 @@ Use `$ARGUMENTS` as the research query if invoked directly by the user.
 - **Predecessors:** `brainstorm`, `debug`, `execute`, or direct invocation
 - **Successors:** Returns to caller
 - **May invoke:** —
+- **On completion:** Re-evaluate the next user message against the routing table. Returns to calling skill.
