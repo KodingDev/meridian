@@ -20,11 +20,11 @@ Do NOT invoke any implementation skill, write any code, scaffold any project, or
 
 3. **Identify research needs** — if the task involves external APIs, libraries, or patterns you haven't verified, invoke `meridian:research` before continuing. Do not design around assumptions about how an API works.
 
-4. **Ask clarifying questions** — one at a time. Prefer multiple choice when possible. Focus on purpose, constraints, and success criteria. Don't overwhelm.
+4. **Ask clarifying questions** — use `AskUserQuestion` with concrete options when possible. Focus on purpose, constraints, and success criteria. Batch related questions (up to 4) in a single call rather than asking one at a time across multiple turns.
 
 5. **Challenge if needed** — if you believe the approach is wrong, follow the Challenge Protocol (see `meridian` bootstrap skill). Present all viable alternatives with genuine merits. Once the user decides, proceed with their choice fully.
 
-6. **Propose approaches** — present 2-3 approaches with tradeoffs, genuine merits for each, and your recommendation with reasoning.
+6. **Propose approaches** — present 2-3 approaches via `AskUserQuestion`. Each option's label is the approach name, description covers tradeoffs and merits. Use the `preview` field for code snippets or architecture sketches when they'd help the user compare. Put your recommendation first with "(Recommended)" in the label.
 
 7. **Present design in sections** — scaled to complexity. Simple sections get a few sentences. Complex sections get detail. Get user approval after each section before moving on.
 
@@ -47,7 +47,7 @@ Do NOT invoke any implementation skill, write any code, scaffold any project, or
 
 ## Key Principles
 
-- **One question at a time** — don't overwhelm with multiple questions
+- **Structured questions** — use `AskUserQuestion` for choices and approvals; batch related questions rather than spreading them across turns
 - **YAGNI ruthlessly** — cut unnecessary features from every design
 - **Explore alternatives** — always propose 2-3 approaches before settling
 - **Research gaps, don't guess** — if you're not sure how an API works, invoke research

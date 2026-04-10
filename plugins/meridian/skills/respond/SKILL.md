@@ -11,7 +11,7 @@ Evaluate review feedback technically before acting on it. This applies to all fe
 
 1. **Read** the complete feedback without reacting.
 
-2. **Understand** — restate each item in your own words. If ANY item is unclear, stop and ask about ALL unclear items before implementing anything. Don't implement half the feedback and ask about the rest later — items may be related.
+2. **Understand** — restate each item in your own words. If ANY item is unclear, use `AskUserQuestion` to ask about ALL unclear items before implementing anything. Batch them into a single call (up to 4 questions). Don't implement half the feedback and ask about the rest later — items may be related.
 
 3. **Verify** — check each suggestion against codebase reality.
    - Does the code actually do what the reviewer claims?

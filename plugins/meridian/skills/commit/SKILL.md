@@ -28,10 +28,7 @@ Check for files that shouldn't be committed:
 
 ### 3. Handle Uncertain Files
 
-If any staged files are ambiguous — could be intentional or accidental — ask:
-> "These are staged — should they be included?"
-
-List the specific files. Don't assume.
+If any staged files are ambiguous — could be intentional or accidental — use `AskUserQuestion` to ask whether each ambiguous file (or group) should be included. Options: "Include" / "Exclude". List the specific files in the question text. Don't assume.
 
 ### 4. Handle Local-Only Files
 
@@ -52,11 +49,7 @@ If files appear to be local-only (personal config overrides, local dev scripts, 
 
 ### 6. Present for Approval
 
-Show the user:
-- Files that will be committed
-- The draft commit message
-
-User approves, edits, or cancels.
+Show the files and draft commit message in plain text, then use `AskUserQuestion` with options: "Commit" / "Edit message" / "Cancel". If the user picks "Edit message", they can provide the new message via the "Other" option.
 
 ### 7. Commit
 

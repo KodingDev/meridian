@@ -19,14 +19,10 @@ Load the spec file. Review it critically. If you have concerns — ambiguities, 
 
 ### 2. Execution Preferences
 
-Ask once, respect for the entire session. Present as a single-shot question:
+Ask once via `AskUserQuestion`, respect for the entire session. Use two questions in a single call:
 
-> **Execution preferences** (answer in one message, e.g. "subagent, per-task"):
->
-> 1. **Execution:** subagent (parallel where possible) / inline (you do everything)
-> 2. **Commits:** per-task / at-the-end / you-handle-it
-
-Accept any natural phrasing — "sub, end", "inline, per-task", "subagent and I'll handle commits", etc. Parse intent, don't demand exact format.
+1. **Execution mode** — options: "Subagent (Recommended)" (parallel where possible), "Inline" (you do everything)
+2. **Commit strategy** — options: "Per-task", "At the end", "I'll handle it"
 
 **Execution mode governs task dispatch:**
 - **Subagent:** default to dispatching independent tasks via `meridian:delegate`. Only implement inline when a task requires judgment, architectural decisions, or deep codebase understanding.

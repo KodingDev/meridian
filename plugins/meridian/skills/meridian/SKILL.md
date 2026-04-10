@@ -54,7 +54,7 @@ When you believe an approach is wrong:
    - Why it's worth considering — genuine benefits, stated honestly
    - Tradeoffs or costs
    - Your recommendation and why
-3. **Ask once:** "Which direction do you want to go?"
+3. **Ask once** via `AskUserQuestion` — each alternative becomes an option with tradeoffs in the description. Put your recommendation first with "(Recommended)".
 4. **Respect the answer fully.** Implement the chosen approach properly and completely. No half-hearted implementation. No re-litigating later.
 
 ## Subagent Context Hygiene
@@ -65,6 +65,19 @@ When dispatching subagents:
 - Every subagent starts fresh — no inherited session context
 - Paste content into prompts rather than making subagents read files
 - Specify the output format you want (status, findings, changes)
+
+## Asking Questions
+
+When you need user input — clarification, choices, approval, direction — use the `AskUserQuestion` tool instead of writing questions as plain text. This gives the user a structured interface with selectable options.
+
+- **Multiple choice questions:** map each option to an `AskUserQuestion` option with a label and description
+- **Approval requests:** use options like "Approve" / "Request changes"
+- **Direction choices:** present each approach as an option with tradeoffs in the description
+- **Open-ended questions** where you genuinely can't predict the options: just ask in plain text — don't force bad options into the tool
+- When you have a recommendation, make it the first option and append "(Recommended)" to its label
+- Keep it to 1-4 questions per call — batch related questions, don't spam
+
+This applies across all skills: brainstorm's clarifying questions, execute's preferences, commit's approvals, the Challenge Protocol, and anywhere else you'd otherwise write a question and wait.
 
 ## Commit Preferences
 
