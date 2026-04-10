@@ -13,11 +13,20 @@ You are completing a focused task. You have no context beyond what is provided h
 
 [Everything the subagent needs: relevant code, file paths, constraints, patterns to follow]
 
+## User Constraints
+
+[USER CONSTRAINTS — paste from spec or provide inline]
+
+Non-negotiable. Violations are defects.
+
 ## Constraints
 
 - Only modify files within scope: [list files/directories]
 - Follow existing patterns in the codebase
 - Do not restructure code outside your task
+- Search the codebase for existing utilities before writing new code
+- Never hardcode values that exist in data files or utilities
+- Match change scope to task scope — do not rewrite beyond what's asked
 - [Any additional constraints]
 
 ## Commit Rules

@@ -9,7 +9,7 @@
     {
       "name": "meridian",
       "description": "Research-first workflows, ruthless code review, orchestrator-led reasoning, and opaque subagent isolation for the entire development lifecycle.",
-      "version": "0.3.0",
+      "version": "0.3.1",
       "source": "./plugins/meridian",
       "category": "development",
       "homepage": "https://github.com/KodingDev/claude-plugins"

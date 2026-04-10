@@ -30,6 +30,8 @@ Invoke this skill automatically when:
 
 4. **Ask clarifying questions** — use `AskUserQuestion` with concrete options when possible. Focus on purpose, constraints, and success criteria. Batch related questions (up to 4) in a single call rather than asking one at a time across multiple turns.
 
+   When the user states a constraint or preference ("no X", "always use Y", "don't Z"), note it immediately for the spec's User Constraints section. These accumulate throughout the brainstorm. If the spec is already written, update it — constraints discovered during later discussion are just as binding.
+
 5. **Challenge if needed** — if you believe the approach is wrong, follow the Challenge Protocol (see `meridian` bootstrap skill). Present all viable alternatives with genuine merits. Once the user decides, proceed with their choice fully.
 
 6. **Propose approaches** — present 2-3 approaches via `AskUserQuestion`. Each option's label is the approach name, description covers tradeoffs and merits. Use the `preview` field for code snippets or architecture sketches when they'd help the user compare. Put your recommendation first with "(Recommended)" in the label.
@@ -38,7 +40,8 @@ Invoke this skill automatically when:
 
 8. **Write spec file** — save to `docs/meridian/specs/YYYY-MM-DD-<topic>.md`.
    - Do NOT commit. Do NOT stage. The spec is a working artifact, not a git artifact.
-   - Required sections: **Overview**, **Requirements** (numbered, unambiguous), **Technical Design**, **Constraints**, **Acceptance Criteria**.
+   - Required sections: **Overview**, **Requirements** (numbered, unambiguous), **Technical Design**, **Constraints**, **User Constraints**, **Acceptance Criteria**.
+   - **User Constraints** captures explicit do/don't rules the user stated during brainstorm (e.g., "no glow effects", "use existing utils", "match existing page patterns"). These are non-negotiable implementation rules, distinct from technical Constraints.
    - Scale section depth to complexity — a simple feature gets brief sections, a complex system gets thorough ones.
 
 9. **Self-review the spec** — before dispatching the subagent reviewer:

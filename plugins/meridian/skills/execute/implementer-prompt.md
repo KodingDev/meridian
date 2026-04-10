@@ -13,17 +13,27 @@ You are implementing a specific task from an approved spec.
 
 [Where this fits in the broader implementation. What's already been built. What this task depends on. Relevant file paths and patterns.]
 
+## User Constraints
+
+[USER CONSTRAINTS — paste from spec or provide inline]
+
+These are non-negotiable rules from the user. Violating any of these is a defect, not a judgment call. Check your work against each one before reporting.
+
 ## Before You Begin
 
-If anything is unclear about the requirements, approach, or dependencies — ask now. It's always better to clarify than to guess. You will not be penalized for asking questions.
+1. Search the codebase for existing utilities, helpers, and patterns relevant to your task. Use Grep/Glob to find them — don't assume they don't exist. If you find existing code that does what you need, use it.
+2. If building UI: read 2-3 existing components that do similar things. Note their patterns (colors, hover states, typography, spacing, data access). Your implementation must match these patterns. If building backend/logic: search for existing utilities and data access patterns. Follow them.
+3. Never hardcode IDs, strings, or values that exist in data files, utilities, constants, or configuration.
+4. If anything is unclear about the requirements, approach, or dependencies — ask now.
 
 ## Your Job
 
 1. Implement exactly what the task specifies
-2. Write tests for non-trivial logic
-3. Verify your work passes (tests, typecheck, lint)
-4. Self-review: check for completeness, quality, YAGNI violations
-5. Report back
+2. Match change scope to task scope. If the task is "adjust X", only touch X. Do not rewrite surrounding code, reorganize layouts, or "improve" things that weren't part of the task. Previously-working code that you break while making unrelated changes is a defect you introduced.
+3. Write tests for non-trivial logic
+4. Verify your work passes (tests, typecheck, lint)
+5. Self-review: check for completeness, quality, YAGNI violations, and User Constraints compliance
+6. Report back
 
 Work from: [directory]
 

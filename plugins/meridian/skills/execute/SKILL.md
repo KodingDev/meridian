@@ -45,13 +45,16 @@ Identify discrete implementation units from the spec. Use TaskCreate/TaskUpdate 
 
 For each task:
 1. Mark it in progress
-2. Implement directly or dispatch via `meridian:delegate` (per execution mode preference)
-3. Run verification — tests, typecheck, lint, whatever the project uses
-4. If verification fails: invoke `meridian:debug`. Do not guess-fix.
-5. If subagent was used: verify independently. Check the diff. Run tests yourself. Do not trust the subagent's success report.
-6. Present a brief verification summary to the user: what was checked (tests, typecheck, lint, diff review), results (pass/fail with specifics), any discrepancies between subagent's report and your verification. Keep it to 2-4 lines — facts only.
-7. If commit strategy is per-task: invoke `meridian:commit`
-8. Mark complete
+2. Search the codebase for existing utilities, similar features, and data access patterns relevant to this task. Do not hardcode values that exist in data files or utilities. Do not reimplement existing logic.
+3. Implement directly or dispatch via `meridian:delegate` (per execution mode preference). If dispatching: include User Constraints from the spec in the subagent prompt. If inline: consult User Constraints before implementing.
+4. Run verification — tests, typecheck, lint, whatever the project uses
+5. If verification fails: invoke `meridian:debug`. Do not guess-fix.
+6. If subagent was used: verify independently. Check the diff. Run tests yourself.
+7. Present a brief verification summary: what was checked, results, any discrepancies. Also check against User Constraints — violations are defects. For UI tasks, check pattern consistency with existing pages. Keep to 2-4 lines — facts only.
+8. If commit strategy is per-task: invoke `meridian:commit`
+9. Mark complete
+
+When user feedback introduces new constraints ("stop using partial opacity"), update the spec's User Constraints section (or note in task notes if no spec exists). This persists for future subagents.
 
 ### 5. Final Verification and Review
 
@@ -79,6 +82,15 @@ Opus 4.6 has a documented tendency to overengineer — creating extra files, add
 - Don't add error handling for impossible scenarios
 - Don't create abstractions for one-time operations
 - If a subagent returns extra work that wasn't in the spec, remove it
+
+## Change Proportionality
+
+Match the scope of your change to the scope of the request:
+- User says "fix X" → change only what's needed to fix X
+- User says "tweak Y" → adjust Y, nothing else
+- User says "redesign Z" → then a broader rewrite is appropriate
+
+If a small fix requires touching more code than expected, explain why before doing it. Never rewrite what works to fix what doesn't. If you changed files the user didn't mention, you probably over-scoped.
 
 ## Quality Gates
 
