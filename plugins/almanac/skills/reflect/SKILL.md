@@ -56,11 +56,16 @@ Render `title-template` with the same variables to produce the note title.
 
 ## Lens execution
 
-Execute the rendered prompt body as if it were your own instructions. Follow it literally. If the lens instructs you to run `WebSearch`, do so. If it instructs you to produce specific sections, produce exactly those.
+Execute the rendered prompt body as if it were your own instructions. Follow it literally. If the lens instructs you to run `WebSearch`, do so.
+
+Lenses prescribe one of two output modes:
+
+- **Voice-prescribed** (e.g. `learning`, `pain-points`) — the lens describes a sensibility and forbids template fingerprints. Write to that voice. Do not add headings, lists, or labels the lens did not ask for. Do not retreat into a familiar template shape just because the lens didn't give you one.
+- **Structure-prescribed** (e.g. `skill-candidates`, `workflow`) — the lens specifies sections and field shapes. Produce exactly those sections, in that shape.
 
 The lens body MUST produce body content only — no YAML frontmatter blocks. `scribe` owns frontmatter rendering. If a lens emits a `---` block, strip it before handoff.
 
-Do NOT add sections the lens did not ask for. Do NOT skip sections it did ask for. Do NOT soften challenging prompts. The lens is contracted output.
+Do NOT soften challenging prompts. The lens is contracted output.
 
 ## Redaction
 

@@ -20,11 +20,11 @@ The split matters. Primitives are mechanical. Lenses are taste. Mixing them prod
 
 ## Research is confrontational
 
-`investigate` does not summarize consensus. It searches for dissent, surfaces multiple schools of thought, and asks "in what situation does this apply — and not?". A research note that only cites agreement fails the bar.
+`investigate` does not summarize consensus. It searches for dissent, engages it as an argument worth sitting with, and asks "in what situation does this apply — and not?" A research note that only cites agreement fails the bar.
 
-The default query shapes include explicit phrases like `"<topic>" criticism`, `"<topic>" limitations`, `alternatives to "<topic>"`, and `"<topic>" considered harmful`. The research note template requires at least one dissenting citation before it will save without a warning.
+The default query shapes include explicit phrases like `"<topic>" criticism`, `"<topic>" limitations`, `alternatives to "<topic>"`, and `"<topic>" considered harmful`. The skill requires at least one dissenting citation before it will save.
 
-Consensus is cheap. Dissent is where thinking happens.
+The output is written as a working technical reference, not a templated essay — direct, authoritative, citations woven inline as markdown links. No first-person narration, no second-person coaching, no pre-fab section scaffolding. Consensus is cheap. Dissent is where thinking happens.
 
 ## The user is the intelligence
 

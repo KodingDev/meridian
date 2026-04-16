@@ -57,39 +57,70 @@ For `--lens NAME`:
 
 A user file with the same name as a built-in always wins. There is no merging.
 
-## Worked example — "regret" lens
+## Two lens modes
+
+A lens can prescribe either a **voice/sensibility** or a **specific output structure**. Pick based on what the note is for.
+
+- **Voice-prescribed** — for notes the user reads again later: reflection on sessions, research on a topic. The lens describes the desired voice and forbids template fingerprints (section headers like `## Concepts`, bolded label-prefixes, footnote-style citations, tidy closing summaries). See `lenses/learning.md`, `lenses/pain-points.md`, and `skills/investigate/SKILL.md` as exemplars.
+- **Structure-prescribed** — for operational reports where scannability is the point: build-lists, metrics dashboards, candidate slates. The lens specifies exact sections and field shapes. See `lenses/skill-candidates.md` and `lenses/workflow.md` as exemplars.
+
+### A critical voice note for voice-prescribed lenses
+
+There are three voices a voice-prescribed lens can reasonably ask for. Pick one deliberately — mixing them, or defaulting to the wrong one, produces uncanny output:
+
+1. **Second-person observational** — for notes about the user's sessions or decisions. "You kept hitting X," "this came up while you were working on Y." The narrator is an attentive observer writing FOR the user. `learning` and `pain-points` use this mode. **Never let the model slip into first-person-as-the-user here** — "I kept hitting X" read in the user's own vault is ventriloquism and lands badly.
+2. **Direct reference voice** — for notes about a topic, not about the user. "`[LibraryImport]` is a source generator that...", "Prefer X when Y." No "I," no "you." `investigate` uses this mode. It matches how a senior engineer writes an internal reference doc.
+3. **First-person as the user** — only ever appropriate if the user is supplying their own transcript/dictation that the lens is just cleaning up. Almost never the right choice for a lens that generates content from history summaries. **Do not prescribe this voice** unless you know exactly why.
+
+The forbidden-fingerprints list in a voice-prescribed lens should always include a clause rejecting the wrong first-person / second-person mode — not just the obvious template headers. See `lenses/pain-points.md` for the explicit shape.
+
+## Worked example — "regret" lens (voice-prescribed, observational)
 
 `~/.almanac/lenses/regret.md`:
 
 ```markdown
 ---
 name: regret
-description: Decisions from the window that you'd undo if starting fresh.
+description: Observational note about decisions from the window that are worth revisiting.
 title-template: "Regret Review — {{date}}"
 tags: [regret, reflection]
 ---
 
-Read the history summary below. Identify 3-5 concrete decisions made
-during the window: architectural choices, library picks, refactors,
-abandoned approaches, directory layouts, naming.
+Read the history summary below. Find 3–5 concrete decisions made during
+the window — architectural choices, library picks, refactors, abandoned
+approaches, directory layouts, naming. Skip decisions too small to
+re-litigate. Do not pad.
 
-For each decision, ask: if this were a greenfield project today, with
-everything you know after doing the work, would you make the same call?
+For each one, ask the real question: if the work were starting fresh
+today, knowing what the sessions now show, would the same call hold?
+Don't restate the original reasoning. Engage the strongest counter-
+argument honestly.
 
-Write a list. Each item:
+Write this as a second-person observational note — the voice of an
+attentive colleague describing what happened and whether each decision
+would hold up in retrospect. "You picked X over Y on Tuesday; the
+strongest counter-argument is Z, and in this case it does/doesn't hold
+because..." Narrate from outside the user's head. Do NOT write in first
+person as the user ("I picked X," "I should have"). Tie each decision
+back to the specific session it came up in (session ID inline, as prose,
+not as a labeled field).
 
-- The decision, in one sentence.
-- The session ID and approximate time.
-- "Keep" or "Undo".
-- One-paragraph justification that engages with the strongest counter-
-  argument, not a restatement of the original reasoning.
+Forbidden — template AND impersonation fingerprints:
 
-Skip decisions that are genuinely too small to re-litigate. Do not pad.
+- A "Keep / Undo" column or bolded labels
+- Section headers like `## Decisions` or `## Verdict`
+- A numbered list of decisions with one-sentence summaries
+- First-person narration as the user: "I picked," "I should have," "I'd undo"
+- A tidy closing summary
+
+Length matches the material — a week with one decision that genuinely
+warrants re-examination is allowed to be 800 words on that one decision
+alone.
 
 {{history-summary}}
 
-Output as markdown under an H1 matching the title template. Do not emit a
-YAML frontmatter block — `scribe` renders frontmatter from `.almanac.md`.
+Output as markdown under an H1 matching the title template. Do not emit
+a YAML frontmatter block — `scribe` renders frontmatter from `.almanac.md`.
 ```
 
 Invoke:

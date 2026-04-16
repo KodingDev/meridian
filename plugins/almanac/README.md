@@ -17,7 +17,7 @@ Almanac surfaces these threads and makes them actionable. The user picks the len
 
 - **Detect, don't dictate.** Match the existing vault's conventions. Ask once, remember, allow override.
 - **Data before opinion.** Primitives (`history`, `scribe`) return structured data with no editorial layer. Opinions live in lenses — user-editable markdown files.
-- **Research is confrontational.** `investigate` does not parrot consensus. It surfaces dissent, shows schools of thought, asks "in what situation does this apply — and not?"
+- **Research is confrontational.** `investigate` does not parrot consensus. It engages dissent, asks "in what situation does this apply — and not?", and writes the answer as a direct working reference — no templated sections, no first-person narration, no second-person coaching.
 - **The user is the intelligence.** Almanac is scaffolding.
 
 See [docs/philosophy.md](docs/philosophy.md) for the longer version.
