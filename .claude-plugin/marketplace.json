@@ -13,6 +13,14 @@
       "source": "./plugins/meridian",
       "category": "development",
       "homepage": "https://github.com/KodingDev/claude-plugins"
+    },
+    {
+      "name": "almanac",
+      "description": "Session-history reflection and confrontational research for the notebook-bound knowledge worker.",
+      "version": "0.1.0",
+      "source": "./plugins/almanac",
+      "category": "productivity",
+      "homepage": "https://github.com/KodingDev/claude-plugins"
     }
   ]
 }
