@@ -11,16 +11,26 @@ Do NOT pass conversation history, prior subagent results, or orchestrator reason
 
 Dispatch subagents for isolated work. You think, they execute.
 
+## The Primary Test
+
+Before choosing inline vs subagent, ask: **"Will I need this tool output again, or just the conclusion?"**
+
+- **Just the conclusion** → subagent. Tool outputs (file reads, search results, intermediate exploration) live in the subagent's context and get discarded; only the synthesized result returns. Orchestrator stays lean.
+- **I'll keep reasoning over it** → inline. You need the raw evidence in your own context for follow-up decisions.
+
+This is the decision that matters most. The heuristics below are secondary — they help when the primary test is ambiguous.
+
 ## When to Use
 
 - 2+ independent tasks that can run without shared state
 - Heavy implementation where context isolation benefits you
 - Tasks where fresh perspective (no session baggage) is an advantage
+- Investigations whose intermediate output you won't need again (codebase surveys, docs reading, spec verification)
 
 ## When NOT to Use
 
 - Tasks requiring full conversation context
-- Exploratory work where you need to reason about the results
+- Exploratory work where you need to reason about the raw results
 - Tightly coupled tasks touching the same files
 - When you're the right one to do the work — don't delegate for the sake of it
 

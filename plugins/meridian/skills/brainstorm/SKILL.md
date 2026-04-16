@@ -43,6 +43,7 @@ Invoke this skill automatically when:
    - Required sections: **Overview**, **Requirements** (numbered, unambiguous), **Technical Design**, **Constraints**, **User Constraints**, **Acceptance Criteria**.
    - **User Constraints** captures explicit do/don't rules the user stated during brainstorm (e.g., "no glow effects", "use existing utils", "match existing page patterns"). These are non-negotiable implementation rules, distinct from technical Constraints.
    - Scale section depth to complexity — a simple feature gets brief sections, a complex system gets thorough ones.
+   - `execute` will append a **Progress Log** section as implementation proceeds — the spec becomes the durable state record across sessions.
 
 9. **Self-review the spec** — before dispatching the subagent reviewer:
    - Placeholder scan: any TBD, TODO, incomplete sections, vague requirements? Fix them.

@@ -51,8 +51,9 @@ For each task:
 5. If verification fails: invoke `meridian:debug`. Do not guess-fix.
 6. If subagent was used: verify independently. Check the diff. Run tests yourself.
 7. Present a brief verification summary: what was checked, results, any discrepancies. Also check against User Constraints — violations are defects. For UI tasks, check pattern consistency with existing pages. Keep to 2-4 lines — facts only.
-8. If commit strategy is per-task: invoke `meridian:commit`
-9. Mark complete
+8. Append entry to the spec's Progress Log section (skip if no spec)
+9. If commit strategy is per-task: invoke `meridian:commit`
+10. Mark complete
 
 When user feedback introduces new constraints ("stop using partial opacity"), update the spec's User Constraints section (or note in task notes if no spec exists). This persists for future subagents.
 
@@ -65,14 +66,25 @@ After all tasks:
 4. Fix all defects from the review
 5. Re-verify after fixes
 6. If changes from fixes were substantial, re-review
+7. Append a completion entry to the spec's Progress Log: full-suite outcome, review verdict, defects resolved, any open concerns (skip if no spec)
 
 ### 6. Completion
 
 Report what was built, what was verified, and present any open concerns. Ensure everything is committed per the chosen commit strategy.
 
-## Compaction Resilience
+## Progress Log
 
-In long sessions, save progress state (tasks done/remaining, key decisions, open concerns) to task notes before context compacts.
+Append a Progress Log section to the spec file as tasks complete. The spec becomes the durable state artifact — if context compacts or the session is cleared, the log contains enough to resume without re-deriving state.
+
+After each verified task, append a brief entry:
+- Task name + verification outcome
+- Key decisions made during implementation (not mundane steps)
+- Deviations from the spec and why
+- Open concerns discovered
+
+Facts, not narrative. Append, don't rewrite. Keep entries short.
+
+If no spec file exists (direct invocation without brainstorm), skip this — the work is ephemeral enough to live in conversation.
 
 ## Overengineering Guard
 
