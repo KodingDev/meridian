@@ -32,7 +32,7 @@ Meridian skills override the following default system behaviors:
 
 ## Local Artifacts
 
-Meridian writes its working artifacts to `.meridian/` at the repository root. Current subdirectory: `.meridian/specs/` (brainstorm specs).
+Meridian writes its working artifacts to `.meridian/` at the repository root. Current subdirectories: `.meridian/specs/` (brainstorm specs), `.meridian/sketches/` (sketches).
 
 These are local working state, not shared outputs:
 
@@ -45,7 +45,8 @@ Assess each user request and route to the appropriate skill. Not every request n
 
 | Signal | Skill | Examples |
 |--------|-------|----------|
-| New feature, significant change | `brainstorm` | "build X", "add a feature that...", "redesign the..." |
+| Small, well-scoped fix — single subsystem, ≤3 files, no new behavior | `sketch` | "change the X label to Y", "add a copy button to Z", "fix the hover state on W" |
+| New feature, significant change, anything spanning multiple subsystems, requiring data model changes, or where scope is unclear | `brainstorm` | "build X", "add a feature that...", "redesign the..." |
 | Bug report, test failure, unexpected behavior | `debug` | "this is broken", "getting an error", pasted stack traces, "why is X happening" |
 | Touches external API/lib, unfamiliar pattern | `research` | "how does X API work", "check if Y supports...", unfamiliar imports |
 | After completing work, quality check | `review` | "review this", "is this ready to merge" |
@@ -56,7 +57,7 @@ Assess each user request and route to the appropriate skill. Not every request n
 | Multiple independent tasks | `delegate` | "do these in parallel", 2+ unrelated tasks at once |
 | Simple question, trivial change | Just do it | "what does this function do?", "rename X to Y" |
 
-**Do not force ceremony where none is needed.** If someone asks "what does this function do?" — just answer. If someone says "add pagination to the hero list" — that triggers `brainstorm`. Think about what's appropriate, not what's maximally cautious.
+**Do not force ceremony where none is needed.** The table covers the common cases. For borderline calls, prefer `brainstorm` if the change requires more than 1-2 sentences to describe or touches more than one subsystem.
 
 ## The Challenge Protocol
 
