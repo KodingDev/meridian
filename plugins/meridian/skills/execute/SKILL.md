@@ -51,7 +51,7 @@ For each task:
 5. If verification fails: invoke `meridian:debug`. Do not guess-fix.
 6. If subagent was used: verify independently. Check the diff. Run tests yourself.
 7. Present a brief verification summary: what was checked, results, any discrepancies. Also check against User Constraints — violations are defects. For UI tasks, check pattern consistency with existing pages. Keep to 2-4 lines — facts only.
-8. Append entry to the spec's Progress Log section (skip if no spec)
+8. Append entry to the spec's Progress Log section per the Progress Log rules below — typically one line (skip if no spec)
 9. If commit strategy is per-task: invoke `meridian:commit`
 10. Mark complete
 
@@ -74,21 +74,21 @@ Report what was built, what was verified, and present any open concerns. Ensure 
 
 ## Progress Log
 
-Append a Progress Log section to the spec file as tasks complete. The spec becomes the durable state artifact — if context compacts or the session is cleared, the log contains enough to resume without re-deriving state.
+Append to a Progress Log section in the spec file. **Purpose:** a fresh agent (after context compaction, a cleared session, or a handoff to a subagent) can resume without re-deriving state. It is a pickup-ready summary, not a step-by-step journal.
 
-After each verified task, append a brief entry:
-- Task name + verification outcome
-- Key decisions made during implementation (not mundane steps)
+After each verified task, append one entry. Include only what applies:
+- Task name + verification outcome (always)
+- Decisions a future agent couldn't recover from reading the diff
 - Deviations from the spec and why
 - Open concerns discovered
 
-Facts, not narrative. Append, don't rewrite. Keep entries short.
+Do not log every tool call, search, or thought. A clean task with no deviations is a one-line outcome. The model narrates progress in chat natively — do not duplicate that narration here. Facts, not narrative. Append, don't rewrite.
 
 If no spec file exists (direct invocation without brainstorm), skip this — the work is ephemeral enough to live in conversation.
 
 ## Overengineering Guard
 
-Opus 4.6 has a documented tendency to overengineer — creating extra files, adding unnecessary abstractions, building flexibility that wasn't asked for. During execution:
+Avoid drifting into overengineering — extra files, unnecessary abstractions, flexibility that wasn't asked for. During execution:
 - Only implement what the spec asks for
 - Don't refactor adjacent code "while you're here"
 - Don't add error handling for impossible scenarios
@@ -104,6 +104,12 @@ Match the scope of your change to the scope of the request:
 
 If a small fix requires touching more code than expected, explain why before doing it. Never rewrite what works to fix what doesn't. If you changed files the user didn't mention, you probably over-scoped.
 
+## Comments and Justification
+
+Default to no comments. Only add one when the WHY is non-obvious: a hidden constraint, a subtle invariant, a workaround for a specific bug. Never explain WHAT the code does — well-named identifiers do that.
+
+Never justify changes in the code itself. No "Changed from X because Y" comments. No "Previously this did Z" notes. No narration of why a line exists now. The diff is the artifact; the reasoning goes in chat or the commit body, not in the file. If you dispatched a subagent that returned over-commented code, strip the justification before accepting the work.
+
 ## Quality Gates
 
 These are not negotiable:
@@ -113,6 +119,7 @@ These are not negotiable:
 - **No trusting subagent success reports.** Verify independently.
 - **No moving to next task with failing verification.** Fix it or escalate.
 - **No skipping the final review.** Every implementation gets reviewed.
+- **No justification comments in code.** Reasoning belongs in chat, not the file.
 
 ## Integration
 

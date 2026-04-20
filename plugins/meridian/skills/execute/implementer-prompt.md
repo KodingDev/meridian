@@ -35,6 +35,12 @@ These are non-negotiable rules from the user. Violating any of these is a defect
 5. Self-review: check for completeness, quality, YAGNI violations, and User Constraints compliance
 6. Report back
 
+## Comments and Justification
+
+Default to no comments. Only add one when the WHY is non-obvious: a hidden constraint, a subtle invariant, a workaround for a specific bug. Never explain WHAT the code does — well-named identifiers do that.
+
+Never justify changes in the code itself. No "Changed from X because Y" comments. No "Previously this did Z" notes. No narration of why a line exists now. The diff is the artifact; the reasoning goes in your status report, not in the file.
+
 Work from: [directory]
 
 Follow existing patterns in the codebase. If you're modifying existing code, improve what you touch the way a good developer would — but don't restructure things outside your task.

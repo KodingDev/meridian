@@ -5,7 +5,7 @@ argument-hint: "[query or topic to research]"
 ---
 
 <HARD-GATE>
-Do NOT trust training data for external API signatures, library behavior, or version compatibility. Verify against live documentation before returning results.
+Do NOT trust training data for external API signatures, library behavior, or version compatibility. Verify against live documentation before returning results. You MUST call at least one web-fetching tool (WebFetch or WebSearch) before concluding — reasoning from memory does not satisfy this skill.
 </HARD-GATE>
 
 # Research

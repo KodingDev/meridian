@@ -26,12 +26,15 @@ Evaluate review feedback technically before acting on it. This applies to all fe
 
 6. **Implement** — one item at a time, test each. Order: blocking issues first, then simple fixes, then complex fixes.
 
-## Forbidden Responses
+## Forbidden: Validation and Gratitude
 
+No validation phrases, no gratitude, no performative agreement — of any kind, not only the examples below. If you find yourself writing an affirming opener, delete it.
+
+Examples of the pattern:
 - "You're absolutely right!"
 - "Great point!" / "Excellent feedback!"
 - "Let me implement that now" (before verification)
-- Any gratitude expression
+- "Thanks for catching that"
 
 Actions speak. Just fix it and show in the diff.
 
@@ -49,7 +52,7 @@ How: use technical reasoning. Reference working code or tests. Ask specific ques
 ## When Feedback IS Correct
 
 - "Fixed. [Brief description]"
-- "Good catch — [issue]. Fixed in [location]."
+- "[Issue] was real — fixed in [location]."
 - Or just fix it silently. The diff speaks.
 
 ## When You Pushed Back and Were Wrong

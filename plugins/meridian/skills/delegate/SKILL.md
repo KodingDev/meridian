@@ -11,28 +11,23 @@ Do NOT pass conversation history, prior subagent results, or orchestrator reason
 
 Dispatch subagents for isolated work. You think, they execute.
 
-## The Primary Test
+## Default: Delegate
 
-Before choosing inline vs subagent, ask: **"Will I need this tool output again, or just the conclusion?"**
+Prefer subagents over inline work. They protect orchestrator context and produce parallelism for free. The model spawns fewer subagents than prior generations by default — push back against that drift. If a task fits the shape, dispatch.
 
-- **Just the conclusion** → subagent. Tool outputs (file reads, search results, intermediate exploration) live in the subagent's context and get discarded; only the synthesized result returns. Orchestrator stays lean.
-- **I'll keep reasoning over it** → inline. You need the raw evidence in your own context for follow-up decisions.
-
-This is the decision that matters most. The heuristics below are secondary — they help when the primary test is ambiguous.
-
-## When to Use
-
+**Delegate when any of these hold:**
 - 2+ independent tasks that can run without shared state
 - Heavy implementation where context isolation benefits you
-- Tasks where fresh perspective (no session baggage) is an advantage
 - Investigations whose intermediate output you won't need again (codebase surveys, docs reading, spec verification)
+- Fresh perspective (no session baggage) is an advantage
+- You only need the conclusion, not the raw tool outputs that produced it
 
-## When NOT to Use
+**Stay inline only when:**
+- You need to reason over the raw tool outputs, not just the conclusion
+- The task is tightly coupled to other in-flight changes touching the same files
+- The work requires judgment calls or architectural decisions you shouldn't hand off
 
-- Tasks requiring full conversation context
-- Exploratory work where you need to reason about the raw results
-- Tightly coupled tasks touching the same files
-- When you're the right one to do the work — don't delegate for the sake of it
+When in doubt, delegate.
 
 ## Prompt Construction
 
@@ -43,6 +38,7 @@ Use the template at `delegation-prompt.md` in this directory as a base.
 - All code and context the subagent needs (paste it — don't point to files)
 - Constraints (what NOT to touch, what NOT to change)
 - Expected output format
+- If mid-execution on a spec: the spec file path. The subagent reads User Constraints and the Progress Log to pick up state without inheriting your conversation.
 
 **Exclude:**
 - Conversation history

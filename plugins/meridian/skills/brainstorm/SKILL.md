@@ -45,12 +45,14 @@ Invoke this skill automatically when:
    - `execute` will append a **Progress Log** section as implementation proceeds — the spec becomes the durable state record across sessions.
 
 9. **Self-review the spec** — before dispatching the subagent reviewer:
-   - Placeholder scan: any TBD, TODO, incomplete sections, vague requirements? Fix them.
-   - Internal consistency: do sections contradict each other?
-   - Ambiguity check: could any requirement be interpreted two ways? Pick one, make it explicit.
+   - Placeholder scan: any TBD, TODO, or incomplete sections? Fix them.
+   - Internal consistency: do sections contradict each other on what to build?
+   - Material ambiguity check: could a requirement be implemented two *different* ways? Pick one, make it explicit. Wording polish, synonym choices, and ambiguities whose readings converge on the same code are not material — skip them.
    - Fix inline. Don't flag — just fix.
 
-10. **Spec review (isolated subagent)** — dispatch a subagent using the template at `spec-reviewer-prompt.md` in this directory. Paste the spec content and project CLAUDE.md into the prompt. The subagent returns only an issues list — no reasoning, no praise. Fix issues, re-review until clean.
+10. **Spec review (isolated subagent)** — dispatch a subagent using the template at `spec-reviewer-prompt.md` in this directory. Paste the spec content and project CLAUDE.md into the prompt. The subagent returns only a material-issues list.
+
+    **Loop rule:** re-review as long as each pass surfaces *material* issues and you address them. Stop when a pass returns "No material issues found" — or when a pass surfaces only wording nits and rephrasings. The exit condition is the shape of the findings, not a pass count. Don't cut a real review short, but don't keep dispatching to chase a perfect-prose verdict either.
 
 11. **User reviews spec** — present the spec, ask for changes. Iterate if needed.
 

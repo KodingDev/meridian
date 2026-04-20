@@ -33,6 +33,8 @@ If you haven't completed Phase 1, you cannot propose fixes. This is not optional
 
 ## Phase 1 — Root Cause Investigation
 
+Phase 1 requires tool calls, not speculation. Read the code, run the commands, check the diff. Do not hypothesize about what the code does without reading it — that is guessing dressed up as analysis.
+
 1. **Read error messages completely.** Stack traces, line numbers, error codes. Don't skip past them. They often contain the answer.
 2. **Reproduce consistently.** Exact steps, every time. If you can't reproduce, gather more data — don't guess.
 3. **Check recent changes.** Git diff, recent commits, new dependencies, config changes, environmental differences.

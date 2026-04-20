@@ -27,6 +27,7 @@ Non-negotiable. Violations are defects.
 - Search the codebase for existing utilities before writing new code
 - Never hardcode values that exist in data files or utilities
 - Match change scope to task scope — do not rewrite beyond what's asked
+- Default to no comments; add only when the WHY is non-obvious. Never explain WHAT the code does, never justify changes in the code itself — reasoning goes in your status report, not the file.
 - [Any additional constraints]
 
 ## Commit Rules
