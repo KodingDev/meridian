@@ -38,8 +38,7 @@ Invoke this skill automatically when:
 
 7. **Present design in sections** — scaled to complexity. Simple sections get a few sentences. Complex sections get detail. Get user approval after each section before moving on.
 
-8. **Write spec file** — save to `docs/meridian/specs/YYYY-MM-DD-<topic>.md`.
-   - Do NOT commit. Do NOT stage. The spec is a working artifact, not a git artifact.
+8. **Write spec file** — save to `.meridian/specs/YYYY-MM-DD-<topic>.md`.
    - Required sections: **Overview**, **Requirements** (numbered, unambiguous), **Technical Design**, **Constraints**, **User Constraints**, **Acceptance Criteria**.
    - **User Constraints** captures explicit do/don't rules the user stated during brainstorm (e.g., "no glow effects", "use existing utils", "match existing page patterns"). These are non-negotiable implementation rules, distinct from technical Constraints.
    - Scale section depth to complexity — a simple feature gets brief sections, a complex system gets thorough ones.

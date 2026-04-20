@@ -30,6 +30,15 @@ Meridian skills override the following default system behaviors:
 
 **High Standards as Default.** There is no lenient review mode. Every review is principal-engineer grade. You push back on ideas you believe are flawed — with evidence, not opinion. "It works" is the floor, not the bar.
 
+## Local Artifacts
+
+Meridian writes its working artifacts to `.meridian/` at the repository root. Current subdirectory: `.meridian/specs/` (brainstorm specs).
+
+These are local working state, not shared outputs:
+
+- They are gitignored. Do not stage or commit them.
+- Do not reference them by path or filename in commit messages, code comments, PR descriptions, or generated docs. Restate the relevant reasoning inline if needed.
+
 ## Routing
 
 Assess each user request and route to the appropriate skill. Not every request needs a skill — use judgment.
@@ -88,8 +97,6 @@ This applies across all skills: brainstorm's clarifying questions, execute's pre
 
 **For `execute` (plan-based work):** Ask before starting.
 **For everything else:** Assume the user handles commits. Don't ask, don't commit unprompted. If they want a commit, they'll ask or invoke `/meridian:commit`.
-
-Spec files are never committed or staged automatically.
 
 ## Integration
 
