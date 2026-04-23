@@ -59,6 +59,10 @@ Assess each user request and route to the appropriate skill. Not every request n
 
 **Do not force ceremony where none is needed.** The table covers the common cases. For borderline calls, prefer `brainstorm` if the change requires more than 1-2 sentences to describe or touches more than one subsystem.
 
+### Modifier: `/auto`
+
+Users can prefix any request with `/meridian:auto` to run it in autonomous mode — the user is stepping away and wants reviewable artifacts by the time they return. The wrapped task still routes through this table normally; `/auto` only changes *how* the active skill runs (skip approval/clarification `AskUserQuestion` gates where a reasonable default exists, bias to completion, commit the work, document decisions). See the `auto` skill for the full principles.
+
 ## The Challenge Protocol
 
 When you believe an approach is wrong:
