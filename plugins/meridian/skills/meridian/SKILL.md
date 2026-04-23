@@ -63,6 +63,19 @@ Assess each user request and route to the appropriate skill. Not every request n
 
 Users can prefix any request with `/meridian:auto` to run it in autonomous mode — the user is stepping away and wants reviewable artifacts by the time they return. The wrapped task still routes through this table normally; `/auto` only changes *how* the active skill runs (skip approval/clarification `AskUserQuestion` gates where a reasonable default exists, bias to completion, commit the work, document decisions). See the `auto` skill for the full principles.
 
+### Auto-activate `/auto` on stepping-away signals
+
+If the user's invoking message contains a stepping-away signal, activate the `/auto` principles for the session even when the user didn't prefix `/meridian:auto` — they're telling you the same thing in prose. Signal phrases include (non-exhaustive):
+
+- "i'm going to [shower/sleep/bed/a meeting/lunch/work]"
+- "going away [now/for X]"
+- "won't be [responsive/around/able to respond/answering]"
+- "be autonomous" / "run autonomously"
+- "see you in [time]" / "when i'm back" / "when i get back" / "by the time i return"
+- "something tangible to review" (paired with time language)
+
+When detected, state it once in one line — "Detected stepping-away signal — running with `/auto` autonomy principles. Committing per task, biasing to completion, documenting defaults in the final summary." — then proceed. Do not ask whether to activate; the phrase already asked.
+
 ## The Challenge Protocol
 
 When you believe an approach is wrong:

@@ -14,7 +14,10 @@ The "I'm going for a shower" skill. The user is stepping away and wants somethin
 
 ## When to Use
 
-User-invoked via `/meridian:auto <task>` — e.g. `/meridian:auto /meridian:brainstorm add a copy button`, `/meridian:auto fix the flaky login test`, `/meridian:auto triage these three issues`. Never auto-invoked by the router.
+Either of:
+
+- **Explicitly** — user invokes `/meridian:auto <task>`, e.g. `/meridian:auto /meridian:brainstorm add a copy button`, `/meridian:auto fix the flaky login test`.
+- **Auto-activated** — the `meridian` entry skill detected a stepping-away signal in the user's message (e.g. "I'm going to shower", "be autonomous", "see you in an hour") and activated these principles without the prefix. The routing and behavior are identical from here.
 
 ## Process
 
@@ -37,9 +40,13 @@ These override the default behavior of other skills *only on the axes listed*. E
 
 When unsure whether to ask: don't. Document the decision instead.
 
-### 2. Bias to completion over breadth
+### 2. Bias to completion over breadth — honestly
 
 Finish one demonstrable thing rather than starting three. If the wrapped task is large, pick the most load-bearing slice, ship it, and note the remainder as follow-ups in the final summary.
+
+**"Complete" means complete in the sense the user asked for.** If the task was a full cutover / migration / port, "complete" means every caller uses the new shape end-to-end. Partial progress with legacy intact is fine and honest. Deleting the source and leaving stubs behind so the build stays green is **not complete** — it's destructive and it misrepresents progress. Never take deletion shortcuts to hit a "done" state. Commit the real partial work, leave legacy intact, and report the remaining surface as a follow-up.
+
+This is restated as a hard-gate in `execute`; it applies in every autonomy invocation, not just execute.
 
 ### 3. Document every non-obvious decision
 

@@ -4,12 +4,18 @@ description: Use after completing implementation, before merging, or when the us
 ---
 
 <HARD-GATE>
-Do NOT skip automated checks (lint, typecheck, build, test) before dispatching the review subagent. Do NOT approve merging with unaddressed defects.
+Do NOT skip automated checks (lint, typecheck, build, test) before dispatching the review subagent. Do NOT approve merging with unaddressed material-gap defects.
+</HARD-GATE>
+
+<HARD-GATE>
+Default mode is **report-only**. `review` produces a findings list and verdict; it does NOT modify code unless the invoking request explicitly asks for fixes ("review and fix", "fix any issues you find", "apply the suggestions"). If you are invoked by `execute`, return findings — `execute` decides what to address based on finding class. The orchestrator/user acts on findings, not `review`.
 </HARD-GATE>
 
 # Review
 
 Code review that catches what matters. Dispatched as an isolated subagent so the orchestrator's prior reasoning doesn't contaminate the assessment.
+
+By default, review **reports** — it does not fix. This is deliberate: a spec or diff getting reviewed and then auto-edited makes it impossible to see what the reviewer flagged vs. what was changed in response. Findings go up; fixes happen at the caller's discretion.
 
 ## Process
 
@@ -54,13 +60,11 @@ Use the template at `reviewer-prompt.md` in this directory. Copy the relevant di
 - **Spec file** content if one exists
 - **NOT:** conversation history, prior review results, your reasoning
 
-### 4. Act on Results
+### 4. Return Results
 
-Every defect must be addressed. There is no "we'll get to it later." That's how slop accumulates.
+`review` is report-only by default (see the hard-gate above). Return findings to the caller, classified by `finding-class` (below). The caller — `execute`, or the user directly — decides what to address.
 
-- Fix all defects
-- Re-run automated checks after fixes
-- If fixes were substantial, re-review (dispatch a fresh subagent — the previous one's reasoning must not carry over)
+Only act on findings directly if the invoking request explicitly said to ("review and fix", "apply the suggestions"). In that case: fix material-gap findings first, consider prose-clarity on a cost-benefit basis, skip implementation-detail. Then re-run automated checks, and re-review if material-gap fixes were substantial (dispatch a fresh subagent — the previous one's reasoning must not carry over).
 
 ## Dimension Reference
 
@@ -138,15 +142,25 @@ Enforce project rules. Every violation is a defect. Check types vs interfaces, a
 - Inconsistent function signatures in the same module
 - Boolean flag params that should be separate functions or options
 
+## Finding Classification
+
+Every finding must be labeled with one of three classes. This is non-negotiable — unclassified findings are noise.
+
+- **`material-gap`** — the change is incorrect, incomplete, or actively harmful: bugs, security issues, broken API contracts, missing behavior the spec requires, tests that don't test the thing, type unsoundness, dead paths that will blow up in production. Must be addressed before merge. If the reviewer is reviewing a spec rather than code, `material-gap` also covers missing requirements, ambiguous decisions that will cause implementer divergence, and contradictions between sections.
+- **`prose-clarity`** — the code or spec works, but a specific phrasing is confusing, a name misleads, or a section would benefit from a clarifying sentence. Cheap wins only. This class is for actual-clarity issues, not "would be nicer if..." speculation.
+- **`implementation-detail`** — the reviewer has an opinion on how a competent implementer should handle a detail that is neither wrong nor unclear. These are the "cover-every-edge-case" nits — defensive null checks for impossible inputs, extra hooks a competent maintainer would add later if needed, alternative names that are equally good. Do not emit these unless the reviewer is genuinely confident the issue will cause harm. When in doubt, drop the finding entirely rather than labeling it `implementation-detail`.
+
+Any finding the reviewer is tempted to label `implementation-detail` should be re-examined: is this a real defect in disguise? If not, delete it from the output. The bar is "will a competent implementer get this wrong in a way that matters." If no, it doesn't belong in a review.
+
 ## What the Orchestrator Sees
 
 The reviewer returns:
-- Defects list with file:line references
-- Smells
-- Simplification opportunities
-- Verdict: **ship / fix and ship / do not ship**
+- Findings list with file:line references AND a `finding-class` label per finding (`material-gap` | `prose-clarity` | `implementation-detail`)
+- Smells (unclassified but honest observations — not required action)
+- Simplification opportunities (explicitly labeled as such; the caller decides)
+- Verdict: **ship / fix-material-gaps-and-ship / do not ship**. `do not ship` requires at least one `material-gap` finding.
 
-No "strengths" section. Working code is the baseline, not an achievement.
+No "strengths" section. Working code is the baseline, not an achievement. No list padding — if there are only two material gaps and no clarity issues, return exactly that.
 
 ## Integration
 

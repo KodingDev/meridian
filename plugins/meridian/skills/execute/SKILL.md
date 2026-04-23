@@ -7,6 +7,10 @@ description: Use after brainstorm produces an approved spec, or when the user ha
 Do NOT claim work is complete without running verification commands and confirming their output. Do NOT trust subagent completion reports without independent verification. Evidence before assertions — always.
 </HARD-GATE>
 
+<HARD-GATE>
+Migration cutover: do NOT delete source until every caller compiles against the new target. Stubbing callers to restore a green build is a lie — the deleted behavior is gone, not migrated. If the spec says "full cutover" or the user says "port everything", porting means every caller invokes the new shape end-to-end. If scope exceeds the session budget, commit the partial port, leave legacy intact, and report remaining callers in the final summary. Never delete-and-stub to claim done.
+</HARD-GATE>
+
 # Execute
 
 Implement an approved spec. Break it into tasks, verify as you go, review at the end.
@@ -19,7 +23,13 @@ Load the spec file. Review it critically. If you have concerns — ambiguities, 
 
 ### 2. Execution Preferences
 
-Ask once via `AskUserQuestion`, respect for the entire session. Use two questions in a single call:
+Before asking, parse the user's invoking message for signals that pre-answer these:
+
+- **Subagent signal** — any of "subagent", "parallel", "in parallel", "delegate", "use agents" in the request → **skip the execution-mode question, use Subagent mode**.
+- **Commit strategy signal** — "commit after each", "per task", "per-task" → Per-task. "commit at the end" → At-the-end. "don't commit" / "i'll commit" / "no commit" → You-handle-it.
+- **Stepping-away signal** — "im going to [shower/sleep/bed/a meeting/work]", "won't be [responsive/around/able to respond]", "see you in [time]", "be autonomous", "when i'm back", "when i get back", "by the time i return" → **activate `/auto` autonomy mode for the rest of the session** (see `auto` skill). This implies: skip remaining preference questions (pick Subagent + Per-task), skip approval gates, bias to completion, commit the work, document defaults in the final summary. Still honor destructive-operation guardrails and still challenge bad approaches via reasoning (not `AskUserQuestion`).
+
+If signals pre-answer both questions, say one line naming what was detected ("Detected: subagent mode, per-task commits, autonomy mode — starting now.") and proceed. Otherwise ask only the unanswered question(s) via `AskUserQuestion`:
 
 1. **Execution mode** — options: "Subagent (Recommended)" (parallel where possible), "Inline" (you do everything)
 2. **Commit strategy** — options: "Per-task", "At the end", "I'll handle it"
@@ -63,10 +73,13 @@ After all tasks:
 1. Run the full verification suite — not just the tests you think are relevant
 2. Present the final verification results: full suite results (all passed / N failures), files changed summary (count + key files), any open concerns. Keep it to 2-4 lines.
 3. Invoke `meridian:review` for code review
-4. Fix all defects from the review
+4. Triage review findings by class. `review` labels each finding as `material-gap`, `prose-clarity`, or `implementation-detail`:
+   - **material-gap findings are blocking.** Fix them before reporting done.
+   - **prose-clarity findings are optional.** Apply them if the fix is cheap and the clarity win is real. Skip otherwise.
+   - **implementation-detail findings are advisory.** Do not address unless the user asks — these are the "cover-every-edge-case" nits that bloat specs and implementations.
 5. Re-verify after fixes
-6. If changes from fixes were substantial, re-review
-7. Append a completion entry to the spec's Progress Log: full-suite outcome, review verdict, defects resolved, any open concerns (skip if no spec)
+6. If material-gap changes from fixes were substantial, re-review
+7. Append a completion entry to the spec's Progress Log: full-suite outcome, review verdict, material-gap defects resolved, any open concerns (skip if no spec)
 
 ### 6. Completion
 
