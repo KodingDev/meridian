@@ -68,7 +68,7 @@ Only act on findings directly if the invoking request explicitly said to ("revie
 
 ## Dimension Reference
 
-Copy the relevant blocks into the reviewer prompt's `{REVIEW_DIMENSIONS}` placeholder.
+Copy the relevant blocks into the dispatch prompt body under a `## Review Dimensions` heading, per step 3.
 
 ### Code Style & Conventions
 Enforce project rules. Every violation is a defect. Check types vs interfaces, any usage, component typing patterns, formatting, lint disable syntax, Tailwind patterns — whatever the project specifies.
@@ -158,7 +158,7 @@ The reviewer returns:
 - Findings list with file:line references AND a `finding-class` label per finding (`material-gap` | `prose-clarity` | `implementation-detail`)
 - Smells (unclassified but honest observations — not required action)
 - Simplification opportunities (explicitly labeled as such; the caller decides)
-- Verdict: **ship / fix-material-gaps-and-ship / do not ship**. `do not ship` requires at least one `material-gap` finding.
+- Verdict: **Ship it / Fix material gaps and ship / Do not ship**. `Do not ship` requires the approach to be fundamentally wrong — not merely the presence of material gaps. Fixable material-gap findings produce `Fix material gaps and ship`.
 
 No "strengths" section. Working code is the baseline, not an achievement. No list padding — if there are only two material gaps and no clarity issues, return exactly that.
 
