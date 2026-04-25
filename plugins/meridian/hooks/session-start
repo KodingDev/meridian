@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
+# Note: -e omitted so a single bad subdir during prune doesn't skip the must-emit reminder.
+set -uo pipefail
+
 input=$(cat 2>/dev/null || true)
 session_id=$(printf '%s' "$input" | jq -r '.session_id // empty' 2>/dev/null || true)
+# Defense in depth: if session_id is malformed, treat it as unset for the skip-current check.
+case "${session_id:-}" in *[!a-zA-Z0-9_-]*) session_id="" ;; esac
 
 state_root="${PWD}/.meridian/state"
 if [ -d "$state_root" ]; then
@@ -9,7 +14,8 @@ if [ -d "$state_root" ]; then
     name=$(basename "$dir")
     # Never prune the current session's dir
     [ -n "${session_id:-}" ] && [ "$name" = "$session_id" ] && continue
-    # Prune if directory mtime is older than 7 days
+    # Prune if directory mtime is older than 7 days. user-prompt-submit touches
+    # the dir on every prompt, so mtime tracks last-activity, not creation.
     if find "$dir" -maxdepth 0 -type d -mtime +7 -print 2>/dev/null | grep -q .; then
       rm -rf "$dir"
     fi

@@ -32,12 +32,13 @@ Meridian skills override the following default system behaviors:
 
 ## Local Artifacts
 
-Meridian writes its working artifacts to `.meridian/` at the repository root. Current subdirectories: `.meridian/specs/` (brainstorm specs), `.meridian/sketches/` (sketches).
+Meridian writes its working artifacts to `.meridian/` at the repository root. Current subdirectories: `.meridian/specs/` (brainstorm specs), `.meridian/sketches/` (sketches), `.meridian/audits/` (Ground Truth Audit files written by `triangulate`), `.meridian/state/<session_id>/` (per-conversation hook state — managed by hooks, never edit by hand).
 
 These are local working state, not shared outputs:
 
 - They are gitignored. Do not stage or commit them.
 - Do not reference them by path or filename in commit messages, code comments, PR descriptions, or generated docs. Restate the relevant reasoning inline if needed.
+- **Exception:** the `triangulate` lens writes audit-row references like `audit: .meridian/audits/<file>.md` into the active spec/sketch by design — that's the lens's binding mechanism and is part of the spec format, not a free-form path reference.
 
 ## Routing
 

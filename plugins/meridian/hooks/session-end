@@ -4,6 +4,9 @@ set -euo pipefail
 input=$(cat)
 session_id=$(printf '%s' "$input" | jq -r '.session_id // empty' 2>/dev/null || true)
 [ -z "${session_id:-}" ] && exit 0
+# Defense in depth: session_id is about to flow into rm -rf. Reject anything that isn't
+# UUID-shaped (alphanumeric, hyphen, underscore only) to prevent path traversal.
+case "$session_id" in *[!a-zA-Z0-9_-]*) exit 0 ;; esac
 
 state_dir="${PWD}/.meridian/state/${session_id}"
 [ -d "$state_dir" ] && rm -rf "$state_dir"

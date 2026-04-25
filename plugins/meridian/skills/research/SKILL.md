@@ -28,7 +28,7 @@ Verify before you build. Training data is a starting point — live documentatio
 ## Process
 
 1. **Construct the query.** If invoked manually, use `$ARGUMENTS`. Otherwise restate the specific verification need (API signature, behavior, configuration option, version compatibility) in one or two sentences.
-2. **Dispatch the `meridian:research` agent** via the `Agent` tool with `subagent_type: meridian:research`. Prompt body: the query and any context the agent needs to find the answer (target library version, framework, etc.). Do NOT include conversation history or your reasoning about the problem.
+2. **Dispatch the `meridian:research` agent** as a subagent (`subagent_type: meridian:research`). Prompt body: the query and any context the agent needs to find the answer (target library version, framework, etc.). Do NOT include conversation history or your reasoning about the problem.
 3. **Return the agent's verdict to the caller verbatim.** The agent returns verified facts with source URLs (or "Could not verify" with explanation). Don't paraphrase, don't summarize, don't add hedging.
 
 ## HARD-GATE Rationale (Dual-Location Enforcement)

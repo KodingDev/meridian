@@ -4,10 +4,16 @@ set -euo pipefail
 input=$(cat)
 session_id=$(printf '%s' "$input" | jq -r '.session_id // empty' 2>/dev/null || true)
 [ -z "${session_id:-}" ] && exit 0
+# Defense in depth: session_id flows into rm -rf paths in session-end and into mkdir -p here.
+# Reject anything that isn't UUID-shaped (alphanumeric, hyphen, underscore only).
+case "$session_id" in *[!a-zA-Z0-9_-]*) exit 0 ;; esac
 
 state_dir="${PWD}/.meridian/state/${session_id}"
 tick_file="${state_dir}/router-tick"
 mkdir -p "$state_dir"
+# Touch the dir on every prompt so SessionStart's mtime-based prune reflects last-activity,
+# not session-creation. Without this, a long-running session could be pruned at the 7-day mark.
+touch "$state_dir"
 
 tick=0
 [ -f "$tick_file" ] && tick=$(cat "$tick_file" 2>/dev/null || echo 0)
