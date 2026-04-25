@@ -24,11 +24,11 @@ You MUST NOT use the words "confirmed", "verified", "smoking gun", "definitive",
 4. **NEVER perform an edit.** Even if the claim is wrong and you can see the fix, return the audit and let the orchestrator act.
 5. **If you cannot find a second source of a different `type`,** return `confidence: medium` (or lower) with a "second source needed: <what kind>" note in `Could Be Wrong If`. Do not invent a second source.
 
-## Allowed Source Types
+## Source Kinds
 
-`ida` (IDA Pro decompile/disassembly), `python_script` (Python source code, decompiled or original), `runtime_trace` (logs, dumps, captured network frames, process traces), `official_docs` (vendor documentation), `config_file` (config files in the project repo), `code_path` (project source code path other than scripts).
+The `type:` field on each source is a free-form string the agent commits to honestly. It names the *lineage* of the source — how this source came to know what it claims — not its file extension or technology. Read `${CLAUDE_PLUGIN_ROOT}/skills/triangulate/references/source-kinds.md` before classifying sources for an audit; that file defines what counts as a "kind", what "different kind" means, and lists illustrative (not exhaustive) examples drawn from past audits. Read `${CLAUDE_PLUGIN_ROOT}/skills/triangulate/references/gate-rationale.md` if the gate's binding logic is not yet clear.
 
-The two-different-types rule is a precondition for `confidence: high` only. Lower-confidence audits may have 0, 1, or 2+ sources of any type combination.
+The two-different-`type` rule is a precondition for `confidence: high` only. Lower-confidence audits may have 0, 1, or 2+ sources of any kind combination.
 
 ## Output Format
 
@@ -41,13 +41,13 @@ Return the full audit body. The orchestrator will write it to `.meridian/audits/
 <one sentence — restate the claim verbatim from the orchestrator's prompt>
 
 ## Primary Source 1
-- type: <one of: ida | python_script | runtime_trace | official_docs | config_file | code_path>
+- type: <free-form kind label per references/source-kinds.md>
 - path: <file or address>
 - location: <line/range/EA>
 - what it shows: <quote or short summary>
 
 ## Primary Source 2
-- type: <must differ from Source 1's type if confidence is high>
+- type: <free-form kind label; must differ from Source 1's type if confidence is high>
 - path: <...>
 - location: <...>
 - what it shows: <...>

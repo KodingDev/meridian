@@ -35,7 +35,7 @@ Auto-invocation is a model self-check, not a hook-driven mechanism. Before emitt
 When triangulate fires (auto from a self-check, or manually via `$ARGUMENTS`):
 
 1. **Identify the claim** — one sentence, in scope. If the claim isn't already a clear sentence in the conversation, articulate it explicitly before dispatching.
-2. **Dispatch the `meridian:triangulate` agent** as a subagent (`subagent_type: meridian:triangulate`). Prompt body: the claim text, candidate source paths/types (whatever the orchestrator can identify — IDA EAs, script paths, config files, doc URLs), and the Ground Truth Audit format below. The agent's system prompt already contains the HARD-GATE.
+2. **Dispatch the `meridian:triangulate` agent** as a subagent (`subagent_type: meridian:triangulate`). Prompt body: the claim text, candidate source paths (whatever the orchestrator can identify — file paths, addresses, URLs, sister-repo references, ticket links, runtime artifacts, etc.), and the Ground Truth Audit format below. The agent's system prompt already contains the HARD-GATE and reads `references/source-kinds.md` to classify sources.
 3. **Validate the returned audit** against the HARD-GATE: ≥2 different-kind sources required for `confidence: high`; no forbidden confidence words inline; no edits performed by the agent.
 4. **Stitch the inline row** into the active spec/sketch under `## Ground Truth Audit` (create the heading if missing). The active spec/sketch is the most recently-written file under `.meridian/specs/` or `.meridian/sketches/` — or a path the caller passed in.
 5. **Write the full audit file** to `.meridian/audits/YYYY-MM-DD-<claim-slug>.md`. Slug rules: lowercase, ASCII-fold, non-alphanumeric → hyphen, collapse, trim, truncate to 60 chars. Audits are immutable — on filename collision, append `-2`, `-3`. Never overwrite an existing audit.
@@ -52,7 +52,7 @@ When triangulate fires (auto from a self-check, or manually via `$ARGUMENTS`):
 - audit: .meridian/audits/<file>.md
 ```
 
-The two-different-`type`s rule is a precondition for `confidence: high` only. Lower-confidence rows MAY have 0, 1, or 2+ sources of any type combination. Allowed types: `ida`, `python_script`, `runtime_trace`, `official_docs`, `config_file`, `code_path`.
+The two-different-`type`s rule is a precondition for `confidence: high` only. Lower-confidence rows MAY have 0, 1, or 2+ sources of any kind combination. The `type:` field is free-form — the agent commits to a kind label that names the source's lineage. See `references/source-kinds.md` for what counts as a kind and what "different kind" means; the agent reads that file when classifying sources. There is no closed enum.
 
 ## Audit File Format (`.meridian/audits/<file>.md`)
 
@@ -65,7 +65,7 @@ The agent returns this body. Write it verbatim:
 <one sentence>
 
 ## Primary Source 1
-- type: <one of the allowed types>
+- type: <free-form kind label per references/source-kinds.md>
 - path: <file or address>
 - location: <line/range/EA>
 - what it shows: <quote or short summary>
