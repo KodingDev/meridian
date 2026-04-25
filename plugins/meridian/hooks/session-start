@@ -1,4 +1,21 @@
 #!/usr/bin/env bash
+input=$(cat 2>/dev/null || true)
+session_id=$(printf '%s' "$input" | jq -r '.session_id // empty' 2>/dev/null || true)
+
+state_root="${PWD}/.meridian/state"
+if [ -d "$state_root" ]; then
+  for dir in "$state_root"/*/; do
+    [ -d "$dir" ] || continue
+    name=$(basename "$dir")
+    # Never prune the current session's dir
+    [ -n "${session_id:-}" ] && [ "$name" = "$session_id" ] && continue
+    # Prune if directory mtime is older than 7 days
+    if find "$dir" -maxdepth 0 -type d -mtime +7 -print 2>/dev/null | grep -q .; then
+      rm -rf "$dir"
+    fi
+  done
+fi
+
 cat <<'EOF'
 [MERIDIAN] You MUST invoke the meridian:meridian skill using the Skill tool before responding to the user. This is non-negotiable. Do it now.
 EOF
