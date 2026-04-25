@@ -3,7 +3,12 @@
 set -uo pipefail
 
 input=$(cat 2>/dev/null || true)
-session_id=$(printf '%s' "$input" | jq -r '.session_id // empty' 2>/dev/null || true)
+# Pure-bash JSON extraction so the hook works on Windows without jq. Collapse newlines
+# to spaces so the regex sees the whole object, then require [{,] before the key to
+# avoid matching keys like `previous_session_id`. Empty result is fine — falls through
+# to "no current-session protection" in the prune loop, which is acceptable since the
+# bootstrap reminder still emits unconditionally below.
+session_id=$(printf '%s' "$input" | tr '\n' ' ' | sed -nE 's/.*[{,][[:space:]]*"session_id"[[:space:]]*:[[:space:]]*"([^"]+)".*/\1/p')
 # Defense in depth: if session_id is malformed, treat it as unset for the skip-current check.
 case "${session_id:-}" in *[!a-zA-Z0-9_-]*) session_id="" ;; esac
 

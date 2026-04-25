@@ -2,7 +2,11 @@
 set -euo pipefail
 
 input=$(cat)
-session_id=$(printf '%s' "$input" | jq -r '.session_id // empty' 2>/dev/null || true)
+# Pure-bash JSON extraction so the hook works on Windows without jq. Collapse newlines
+# to spaces so the regex sees the whole object, then require [{,] before the key to
+# avoid matching keys like `previous_session_id`. The case-allowlist below validates
+# the extracted value before it flows into any path operation.
+session_id=$(printf '%s' "$input" | tr '\n' ' ' | sed -nE 's/.*[{,][[:space:]]*"session_id"[[:space:]]*:[[:space:]]*"([^"]+)".*/\1/p')
 [ -z "${session_id:-}" ] && exit 0
 # Defense in depth: session_id flows into rm -rf paths in session-end and into mkdir -p here.
 # Reject anything that isn't UUID-shaped (alphanumeric, hyphen, underscore only).
