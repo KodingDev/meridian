@@ -51,10 +51,10 @@ If changes don't clearly match any context category, use core dimensions only.
 
 ### 3. Dispatch Review Subagent
 
-Use the template at `reviewer-prompt.md` in this directory. Copy the relevant dimension blocks from the Dimension Reference section below into the template's `{REVIEW_DIMENSIONS}` placeholder. Dispatch as an isolated subagent with:
+Dispatch via the `Agent` tool with `subagent_type: meridian:reviewer`. The agent's system prompt contains the reviewer doctrine; your dispatch carries the specifics of this change. Prompt body must include:
 
 - **Git diff range** — base SHA from `git merge-base HEAD origin/master` (or equivalent) for initial reviews. For re-reviews after fixing defects, use the commit before fixes began.
-- **Selected review dimensions** — core + context dimensions from step 2
+- **Selected review dimensions** — core + context dimensions from step 2 (copy the relevant dimension blocks from the Dimension Reference section below)
 - **Description** of what was implemented
 - **Project CLAUDE.md** content for conventions
 - **Spec file** content if one exists
