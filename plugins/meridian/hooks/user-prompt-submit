@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+input=$(cat)
+# Pure-bash JSON extraction so the hook works on Windows without jq. Collapse newlines
+# to spaces so the regex sees the whole object, then require [{,] before the key to
+# avoid matching keys like `previous_session_id`. The case-allowlist below validates
+# the extracted value before it flows into any path operation.
+session_id=$(printf '%s' "$input" | tr '\n' ' ' | sed -nE 's/.*[{,][[:space:]]*"session_id"[[:space:]]*:[[:space:]]*"([^"]+)".*/\1/p')
+[ -z "${session_id:-}" ] && exit 0
+# Defense in depth: session_id flows into rm -rf paths in session-end and into mkdir -p here.
+# Reject anything that isn't UUID-shaped (alphanumeric, hyphen, underscore only).
+case "$session_id" in *[!a-zA-Z0-9_-]*) exit 0 ;; esac
+
+state_dir="${PWD}/.meridian/state/${session_id}"
+tick_file="${state_dir}/router-tick"
+mkdir -p "$state_dir"
+# Touch the dir on every prompt so SessionStart's mtime-based prune reflects last-activity,
+# not session-creation. Without this, a long-running session could be pruned at the 7-day mark.
+touch "$state_dir"
+
+tick=0
+[ -f "$tick_file" ] && tick=$(cat "$tick_file" 2>/dev/null || echo 0)
+case "$tick" in ''|*[!0-9]*) tick=0 ;; esac
+tick=$((tick + 1))
+printf '%d\n' "$tick" > "$tick_file"
+
+if [ "$tick" -gt 0 ] && [ $((tick % 8)) -eq 0 ]; then
+  cat <<'EOF'
+[MERIDIAN] Conversation depth check — 8 messages since last router pass.
+- What is the active skill (if any)?
+- Has the user's intent shifted from the originally-routed work?
+- Is there an external-system claim now in scope that should trigger triangulate?
+- If shifted or unsure, re-invoke meridian:meridian for a fresh routing pass.
+
+This message is throttled — it will fire again in 8 messages.
+EOF
+fi

@@ -5,5 +5,10 @@
 *.md text eol=lf
 *.json text eol=lf
 
+# Plugin hook scripts have no extension and must stay LF — bash refuses
+# to execute scripts with CRLF line endings (the \r in the shebang line
+# becomes part of the interpreter path).
+plugins/*/hooks/* text eol=lf
+
 # License
 LICENSE text eol=lf

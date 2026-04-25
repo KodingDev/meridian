@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+input=$(cat)
+# Pure-bash JSON extraction so the hook works on Windows without jq. Collapse newlines
+# to spaces so the regex sees the whole object, then require [{,] before the key to
+# avoid matching keys like `previous_session_id`. The case-allowlist below validates
+# the extracted value before it flows into rm -rf.
+session_id=$(printf '%s' "$input" | tr '\n' ' ' | sed -nE 's/.*[{,][[:space:]]*"session_id"[[:space:]]*:[[:space:]]*"([^"]+)".*/\1/p')
+[ -z "${session_id:-}" ] && exit 0
+# Defense in depth: session_id is about to flow into rm -rf. Reject anything that isn't
+# UUID-shaped (alphanumeric, hyphen, underscore only) to prevent path traversal.
+case "$session_id" in *[!a-zA-Z0-9_-]*) exit 0 ;; esac
+
+state_dir="${PWD}/.meridian/state/${session_id}"
+[ -d "$state_dir" ] && rm -rf "$state_dir"
+exit 0
