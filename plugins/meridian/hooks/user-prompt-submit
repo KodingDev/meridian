@@ -12,7 +12,7 @@ session_id=$(printf '%s' "$input" | tr '\n' ' ' | sed -nE 's/.*[{,][[:space:]]*"
 # Reject anything that isn't UUID-shaped (alphanumeric, hyphen, underscore only).
 case "$session_id" in *[!a-zA-Z0-9_-]*) exit 0 ;; esac
 
-state_dir="${PWD}/.meridian/state/${session_id}"
+state_dir="${CLAUDE_CONFIG_DIR:-$HOME/.claude}/meridian/state/${session_id}"
 tick_file="${state_dir}/router-tick"
 mkdir -p "$state_dir"
 # Touch the dir on every prompt so SessionStart's mtime-based prune reflects last-activity,

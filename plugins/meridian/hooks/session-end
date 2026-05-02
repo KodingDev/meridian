@@ -12,6 +12,6 @@ session_id=$(printf '%s' "$input" | tr '\n' ' ' | sed -nE 's/.*[{,][[:space:]]*"
 # UUID-shaped (alphanumeric, hyphen, underscore only) to prevent path traversal.
 case "$session_id" in *[!a-zA-Z0-9_-]*) exit 0 ;; esac
 
-state_dir="${PWD}/.meridian/state/${session_id}"
+state_dir="${CLAUDE_CONFIG_DIR:-$HOME/.claude}/meridian/state/${session_id}"
 [ -d "$state_dir" ] && rm -rf "$state_dir"
 exit 0

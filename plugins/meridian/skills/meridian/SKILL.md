@@ -32,7 +32,7 @@ Meridian skills override the following default system behaviors:
 
 ## Local Artifacts
 
-Meridian writes its working artifacts to `.meridian/` at the repository root. Current subdirectories: `.meridian/specs/` (brainstorm specs), `.meridian/sketches/` (sketches), `.meridian/audits/` (Ground Truth Audit files written by `triangulate`), `.meridian/state/<session_id>/` (per-conversation hook state — managed by hooks, never edit by hand).
+Meridian writes its working artifacts to `.meridian/` at the repository root. Current subdirectories: `.meridian/specs/` (brainstorm specs), `.meridian/sketches/` (sketches), `.meridian/audits/` (Ground Truth Audit files written by `triangulate`). Per-conversation hook state lives separately under the user's Claude config dir (`${CLAUDE_CONFIG_DIR:-~/.claude}/meridian/state/<session_id>/`) and is managed by hooks — never edit by hand.
 
 These are local working state, not shared outputs:
 
