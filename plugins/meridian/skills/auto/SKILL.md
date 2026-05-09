@@ -23,7 +23,7 @@ Either of:
 
 1. **Parse the wrapped task.** Everything after `/meridian:auto` is the real request. Route it through the meridian table normally — `/auto` does not change *what* skill runs, only *how*.
 
-2. **Activate autonomy mode for the remainder of the conversation.** All downstream skills and tool calls honor the principles below until the user returns (sends a new message) or the work reaches a natural stopping point.
+2. **Activate autonomy mode for the remainder of the conversation.** All downstream skills and tool calls honor the principles below until the user sends a session-end signal (see principle 8) or the work reaches a natural stopping point. Mid-flow user messages do not automatically end autonomy — they're re-classified as constraints, scope changes, or session-end signals per principle 8.
 
 3. **Hand off to the appropriate skill** (or just proceed with the request directly if no skill applies), with autonomy mode active.
 
@@ -86,6 +86,16 @@ Do not spin. Do not silently stop. Do not fabricate a decision on something load
 
 The Challenge Protocol's *reasoning* still applies: surface concerns with evidence, weigh alternatives. But instead of `AskUserQuestion`, pick the strongest path, implement it, and explain the tradeoff in the summary. The user can course-correct on return.
 
+### 8. Re-classify each new user message — autonomy isn't deafness
+
+Autonomy skips gating questions; it does NOT mean treating mid-flow user messages as background noise. The user is still driving — they're just not micromanaging. Every new user message during autonomy must be classified into one of three buckets before deciding what to do with it:
+
+- **New constraint** ("make sure it works on mobile", "no animations", "use existing utils", "no AI attribution") — append to the active spec/sketch's User Constraints. Propagate to any in-flight subagent on its next checkpoint. Constraints accumulate; do not silently swallow.
+- **Scope reduction or pivot** ("ignore the overwatch part, just do these 4", "drop the migration", "actually scrap that", "forget what I said about X") — stop in-flight subagents at the next safe checkpoint, prune the task list, proceed with the reduced scope. Do not keep shipping work the user just told you not to do. When phrasing is ambiguous between constraint and pivot, treat any message containing "actually", "ignore", "instead", "drop", "scrap", "just do", "forget" as a pivot.
+- **Session-end signal** — "i'm back", "im home", "im here", "supervise", "i'll take it from here", "stop committing", "no need to commit", "no commit", "i got this", "ill drive". End autonomy mode. The user is now driving interactively. From this point: ask before commits, ask before new tasks, follow normal interactive rules. Acknowledge the handover in one line ("Autonomy mode off — back to interactive.") and proceed.
+
+The reason this matters: skipping `AskUserQuestion` is not the same as ignoring the user. Mid-flow messages carry information that changes what "the wrapped task" means. Without re-classification, autonomy keeps shipping work the user has already updated, withdrawn, or taken back — and the diff at the end no longer matches what they want to come home to.
+
 ## Final Summary Format
 
 When the wrapped task finishes (or blocks), end with a message in this shape:
@@ -112,4 +122,4 @@ When the wrapped task finishes (or blocks), end with a message in this shape:
 - **Predecessors:** Direct invocation only
 - **Successors:** Any skill via the wrapped task
 - **May invoke:** Any skill (runs them in autonomy mode)
-- **On completion:** The wrapped task's `On completion` applies. Re-evaluate the next user message against the routing table; autonomy mode ends when the user sends a new message.
+- **On completion:** The wrapped task's `On completion` applies. Re-evaluate the next user message against the routing table. Autonomy mode ends only on a session-end signal (see principle 8) — mid-flow messages are re-classified as constraints or scope changes, not exits.

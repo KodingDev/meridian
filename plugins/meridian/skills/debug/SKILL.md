@@ -83,7 +83,7 @@ If systematic investigation reveals the issue is truly environmental, timing-dep
 3. Implement appropriate handling (retry, timeout, error message)
 4. Consider invoking `meridian:document` to capture the investigation for future sessions
 
-95% of "no root cause" cases are incomplete investigation.
+Most "no root cause" verdicts turn out to be incomplete investigation. Treat the conclusion with skepticism — it's the convenient answer, not usually the right one.
 
 ## Integration
 

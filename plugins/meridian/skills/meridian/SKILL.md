@@ -48,7 +48,7 @@ Assess each user request and route to the appropriate skill. Not every request n
 |--------|-------|----------|
 | Small, well-scoped fix — single subsystem, ≤3 files, no new behavior | `sketch` | "change the X label to Y", "add a copy button to Z", "fix the hover state on W" |
 | New feature, significant change, anything spanning multiple subsystems, requiring data model changes, or where scope is unclear | `brainstorm` | "build X", "add a feature that...", "redesign the..." |
-| Bug report, test failure, unexpected behavior | `debug` | "this is broken", "getting an error", pasted stack traces, "why is X happening" |
+| Bug report, test failure, unexpected behavior, **pasted screenshot of UI not matching intent** | `debug` | "this is broken", "getting an error", pasted stack traces, "why is X happening", screenshots with "still wrong" / "still the same" / "doesn't work" / "still broken" |
 | Touches external API/lib, unfamiliar pattern | `research` | "how does X API work", "check if Y supports...", unfamiliar imports |
 | After completing work, quality check | `review` | "review this", "is this ready to merge" |
 | Receiving feedback from reviewer or PR | `respond` | "here's the PR feedback", reviewer comments pasted |
@@ -59,6 +59,14 @@ Assess each user request and route to the appropriate skill. Not every request n
 | Simple question, trivial change | Just do it | "what does this function do?", "rename X to Y" |
 
 **Do not force ceremony where none is needed.** The table covers the common cases. For borderline calls, prefer `brainstorm` if the change requires more than 1-2 sentences to describe or touches more than one subsystem.
+
+### Mid-flow re-routing
+
+A user message arriving during an active skill (especially `execute` or `sketch`) is not automatically a continuation of that skill. Re-classify each new message against the routing table.
+
+The dominant miss: a screenshot — or the words "still wrong", "still the same", "still broken", "doesn't work", "nope" — arriving during `execute` is a `debug` signal, not a "keep executing" signal. Symptom-poking inside `execute` is the failure mode this rule prevents — `execute` patches, `debug` finds the cause. When you see this pattern, pause `execute` and route to `debug`. Once `debug` produces a fix, return to `execute`.
+
+This applies whether the original routing was `execute`, `sketch`, or any other active skill. Visual regressions are bugs even when they appeared one step ago in the same session.
 
 ### Modifier: `/auto`
 
@@ -85,9 +93,9 @@ A lens fires on its own trigger signals (an orchestrator self-check before emitt
 
 | Lens | Triggers (orchestrator self-check) | Format-as-gate |
 |------|----------|----------------|
-| `triangulate` | external-system claim; code edit + confidence-escalation in same response; "code does X so output Y" reasoning without an output artifact read; spec authoring against an unread existing config; user-correction immediately followed by a re-claim | Ground Truth Audit row inline in the active spec/sketch + full file at `.meridian/audits/` |
+| `triangulate` | specific-value claim where the source-of-truth artifact wasn't read this session — covers binary/protocol/API behavior, CSS tokens & theme values, computed runtime values (oklch, contrast, sizes), config/dependency fields, observable UI state, and "what's in this file/function" claims; code edit + confidence-escalation in same response; "code does X so output Y" reasoning without reading an output artifact; spec authoring against an unread config/theme/token file; user-correction immediately followed by a re-claim | Ground Truth Audit row inline in the active spec/sketch + full file at `.meridian/audits/` |
 
-Lenses don't replace pillars; they enforce them at output-time. New lenses earn their place by surfacing in retrospective failure analysis (almanac), not by speculative addition.
+Lenses don't replace pillars; they enforce them at output-time. New lenses earn their place by surfacing in retrospective failure analysis, not by speculative addition.
 
 ## The Challenge Protocol
 

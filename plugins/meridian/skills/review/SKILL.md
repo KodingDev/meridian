@@ -21,11 +21,7 @@ By default, review **reports** — it does not fix. This is deliberate: a spec o
 
 ### 1. Run Automated Checks First
 
-```bash
-# Run whatever the project uses — lint, typecheck, build, test
-# Fix failures before dispatching the reviewer
-# Don't waste review time on things automation catches
-```
+Run whatever the project uses — lint, typecheck, build, test. Fix failures before dispatching the reviewer; don't waste review time on things automation catches.
 
 ### 2. Select Review Dimensions
 

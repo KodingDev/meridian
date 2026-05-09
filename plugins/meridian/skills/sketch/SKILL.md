@@ -20,6 +20,8 @@ Primarily user-invoked via `/meridian:sketch [optional description]`. Auto-invoc
 
 1. **Targeted context.** Locate and read the file(s) the Plan will modify — typically 1-2. Read-only references (types, callers) don't count toward the 3-file ceiling. If more than 3 files will be modified, escape to `brainstorm`.
 
+   Also consult the auto-memory system (`MEMORY.md` is already in context). Read any `feedback` or `user` memories that apply to this fix; persistent rules ("test before claiming done", "no AI slop comments", "always use existing utils") get pre-populated into User Constraints rather than waiting for the user to restate them. If a memory is stale relative to the code, trust the code and update or remove the memory.
+
 2. **Identify research needs.** "Unfamiliar" means: imports a library not in the immediate file, or uses an API not verified in this session. If unfamiliar, invoke `meridian:research`. After it returns, re-evaluate scope: if research surfaced unexpected complexity, escape to `brainstorm`; otherwise resume.
 
 3. **Clarify if needed.** Use `AskUserQuestion` for any genuine ambiguity — including proposing a slug if `/meridian:sketch` was invoked with no description. Capture stated constraints (`do/don't` rules) for the User Constraints section. Skip if the request is unambiguous.
@@ -57,6 +59,19 @@ Code blocks in the docs lack a copy-to-clipboard button, forcing manual selectio
 ```
 
 If no User Constraints were stated, omit that heading entirely; the file goes Context → Plan → Done When.
+
+## Post-handoff Constraints
+
+After handoff to `execute`, the sketch file is still the contract — and so the sketch's "constraints surface = re-present" rule (step 6) keeps applying. When a User Constraint surfaces during execution ("only 2 lines", "no blur effects", "match the existing pattern exactly", "use my dev server, not yours"), treat it as a sketch event, not just an execute note:
+
+1. Pause the active execute task at the next safe checkpoint (don't abandon a half-edited file mid-write)
+2. Append the new rule to the sketch's User Constraints section
+3. Re-present the updated sketch — showing what changed — for re-approval via the same `AskUserQuestion` "Approve" / "Request changes" gate as step 6
+4. On re-approval, resume execute with the updated constraint propagated to any in-flight subagent
+
+Silent absorption — quietly adding the constraint to a future subagent prompt without re-presenting — is the failure mode this exists to prevent. A small fix that has accumulated three new constraints mid-execute is no longer the small fix the user approved; the sketch needs to reflect that, and the user needs to see what the running contract is now.
+
+If a constraint round suggests the original 1-2 sentence framing has been outgrown — multiple subsystems implicated, data shapes shifting, scope drifting toward a feature — surface that and escape to `brainstorm` per the rule below. The threshold is shape, not count.
 
 ## Escape Hatch
 

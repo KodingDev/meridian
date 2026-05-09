@@ -11,6 +11,10 @@ Do NOT claim work is complete without running verification commands and confirmi
 Migration cutover: do NOT delete source until every caller compiles against the new target. Stubbing callers to restore a green build is a lie — the deleted behavior is gone, not migrated. If the spec says "full cutover" or the user says "port everything", porting means every caller invokes the new shape end-to-end. If scope exceeds the session budget, commit the partial port, leave legacy intact, and report remaining callers in the final summary. Never delete-and-stub to claim done.
 </HARD-GATE>
 
+<HARD-GATE>
+Completion headline matches reality. "Implementation complete" requires every spec acceptance criterion verified AND every verification command passing. If any criterion is unverified — skipped, deferred, infeasible in this session, or simply not run — the headline is "Implementation incomplete". If any verification command failed — *including* "pre-existing" or "unrelated" failures — the headline is "Implementation blocked". "Pre-existing" is a reason to surface in the body, not a license to upgrade the headline. Users read the headline first; burying blockers under "Open concerns" while declaring success is the failure mode this gate exists to prevent.
+</HARD-GATE>
+
 # Execute
 
 Implement an approved spec. Break it into tasks, verify as you go, review at the end.
@@ -83,7 +87,13 @@ After all tasks:
 
 ### 6. Completion
 
-Report what was built, what was verified, and present any open concerns. Ensure everything is committed per the chosen commit strategy.
+Pick the completion headline by checking the spec's acceptance criteria and verification suite against what actually happened:
+
+- Every acceptance criterion verified + every verification command passed → **"Implementation complete"**
+- Any acceptance criterion unverified (skipped, deferred, infeasible, not run) → **"Implementation incomplete — <what wasn't verified>"**
+- Any verification command failed, regardless of cause (including pre-existing or out-of-scope) → **"Implementation blocked — <what failed>"**
+
+A failure caused by something you didn't introduce is still a blocker on the headline; it just informs the body's explanation. The body then reports what was built, what was verified, what wasn't, and any open concerns. Ensure everything is committed per the chosen commit strategy.
 
 ## Progress Log
 
@@ -128,6 +138,7 @@ Never justify changes in the code itself. No "Changed from X because Y" comments
 These are not negotiable:
 
 - **No completion claims without fresh verification evidence.** Run the command. Read the output. Then claim the result.
+- **Headline matches reality.** "Complete" requires every acceptance criterion verified and every verification command passing. Unverified → "Incomplete". Failed → "Blocked", even when the failure is pre-existing or unrelated.
 - **No "should pass" or "looks correct."** Evidence or silence.
 - **No trusting subagent success reports.** Verify independently.
 - **No moving to next task with failing verification.** Fix it or escalate.

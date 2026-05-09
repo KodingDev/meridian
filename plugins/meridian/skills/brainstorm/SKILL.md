@@ -24,11 +24,20 @@ Invoke this skill automatically when:
 
 1. **Explore project context** — check files, docs, recent commits, existing patterns. Understand what exists before proposing changes.
 
+   Also consult the auto-memory system (`MEMORY.md` is already in context). Read any `feedback` or `user` memories that bear on this work — recurring rules the user has stated before ("test before claiming done", "no AI attribution in commits", "always use existing utils", "no comment slop") belong pre-populated in the spec's User Constraints section, not waiting on the user to restate them session after session. If a memory is stale relative to the current code, trust the code and update or remove the memory rather than acting on it.
+
 2. **Assess scope** — if the request spans multiple independent subsystems, decompose first. Each subsystem gets its own brainstorm -> spec -> execute cycle. Subsystems are "independent" when they don't share data models, UI components, or cross-cutting concerns. If two pieces need to agree on a shared interface, design them together.
 
 3. **Identify research needs** — if the task involves external APIs, libraries, or patterns you haven't verified, invoke `meridian:research` before continuing. Do not design around assumptions about how an API works.
 
-4. **Ask clarifying questions** — use `AskUserQuestion` with concrete options when possible. Focus on purpose, constraints, and success criteria. Batch related questions (up to 4) in a single call rather than asking one at a time across multiple turns.
+4. **Ask clarifying questions — but only when the answer changes the spec.** Questions are gates with cost: every `AskUserQuestion` stalls progress and trades the user's attention for information you could often have inferred. Ask only when *both* are true:
+
+   - **Defaults would likely be wrong** — you genuinely cannot infer the right answer from the request, codebase, and prior conventions. If you can write a defensible draft and the user can redirect, that's not a clarifying question — that's a draft.
+   - **The choice has multiple-edit-cost downside** — picking the wrong default means rewriting load-bearing structure later, not tweaking a label or copy string.
+
+   If both are not clearly true, write the spec section first with your best inference (mark non-obvious assumptions explicitly so they're easy to spot) and let the user redirect during review (step 11). One batched question per brainstorm is the working default. Two is fine for a genuine architecture fork. Three or more is a smell — fold the rest into your spec as marked assumptions; users push back faster on a concrete draft than on a multiple-choice questionnaire.
+
+   When you do ask, use `AskUserQuestion` with concrete options and batch related questions in a single call rather than spreading them across turns.
 
    When the user states a constraint or preference ("no X", "always use Y", "don't Z"), note it immediately for the spec's User Constraints section. These accumulate throughout the brainstorm. If the spec is already written, update it — constraints discovered during later discussion are just as binding.
 
