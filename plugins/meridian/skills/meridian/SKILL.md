@@ -83,7 +83,7 @@ If the user's invoking message contains a stepping-away signal, activate the `/a
 - "see you in [time]" / "when i'm back" / "when i get back" / "by the time i return"
 - "something tangible to review" (paired with time language)
 
-When detected, state it once in one line — "Detected stepping-away signal — running with `/auto` autonomy principles. Committing per task, biasing to completion, documenting defaults in the final summary." — then proceed. Do not ask whether to activate; the phrase already asked.
+When detected, slip into autonomy mode without ceremony. Acknowledge the switch in your own words in one short line — note that you're moving to autonomous mode and the active behaviors (commit per task, bias to completion, document defaults in the final summary) — then proceed. No fixed phrasing, no recital. Do not ask whether to activate; the user already did, in prose.
 
 ## Specialist Lenses
 

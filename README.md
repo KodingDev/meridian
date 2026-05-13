@@ -32,6 +32,12 @@ Hard-won knowledge dies with the session. You debug something for two hours, nai
 | `commit` | Clean git commits, no AI attribution |
 | `document` | Human-readable docs from resolved work |
 
+## What gets installed
+
+- A `Meridian` output style applied automatically while the plugin is enabled. It carries the durable principles — three pillars, voice, commit-attribution override, the challenge protocol — directly in the system prompt rather than relying on per-turn reminders.
+- A session-start hook that injects the routing table and active-mode triggers as a quiet system reminder at the start of every session, so the orientation is felt rather than announced.
+- The skills below, dispatched by judgement against the routing table.
+
 ## Install
 
 ```
