@@ -78,7 +78,8 @@ Invoke `meridian:meridian` via the Skill tool for the full routing reference and
 CONTEXT
 )
 
-# JSON-encode the context: \ -> \\, " -> \", newlines -> \n. Portable across BSD/GNU
-# sed and awk; no jq dependency.
-encoded=$(printf '%s' "$context" | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g' | awk 'BEGIN{ORS="\\n"} {print}')
+# JSON-encode the context: \ -> \\, " -> \", tab -> \t, strip CR, newlines -> \n.
+# Portable across BSD/GNU sed and awk; no jq dependency. Strip CR rather than escape
+# so editor-introduced CRLF endings normalize to LF before the awk newline pass.
+encoded=$(printf '%s' "$context" | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g' -e 's/	/\\t/g' -e 's/\r//g' | awk 'BEGIN{ORS="\\n"} {print}')
 printf '{"hookSpecificOutput":{"hookEventName":"SessionStart","additionalContext":"%s"}}\n' "$encoded"
