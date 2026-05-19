@@ -26,13 +26,15 @@ tick=$((tick + 1))
 printf '%d\n' "$tick" > "$tick_file"
 
 if [ "$tick" -gt 0 ] && [ $((tick % 8)) -eq 0 ]; then
-  cat <<'EOF'
-[MERIDIAN] Conversation depth check — 8 messages since last router pass.
-- What is the active skill (if any)?
-- Has the user's intent shifted from the originally-routed work?
-- Is there an external-system claim now in scope that should trigger triangulate?
-- If shifted or unsure, re-invoke meridian:meridian for a fresh routing pass.
-
-This message is throttled — it will fire again in 8 messages.
-EOF
+  # Discreet routing audit via additionalContext. Previous versions emitted this on plain
+  # stdout where it rendered as transcript output and read like a fresh user directive
+  # ("re-invoke meridian:meridian"), prompting the model to defensively explain why it
+  # was already routed correctly. As additionalContext it lands as a passive system
+  # reminder — the model absorbs it and only acts if intent has actually shifted.
+  context=$(cat <<'CONTEXT'
+[Meridian routing audit] Several prompts have elapsed since the last orientation pass. Quietly verify the active skill (if any) still matches the user's most recent intent and that no new external-system claim has come into scope that should trigger the `triangulate` lens. If intent has clearly shifted, re-classify against the routing table; otherwise continue. Do not surface this audit in your reply.
+CONTEXT
+)
+  encoded=$(printf '%s' "$context" | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g' -e 's/	/\\t/g' -e 's/\r//g' | awk 'BEGIN{ORS="\\n"} {print}')
+  printf '{"hookSpecificOutput":{"hookEventName":"UserPromptSubmit","additionalContext":"%s"}}\n' "$encoded"
 fi
