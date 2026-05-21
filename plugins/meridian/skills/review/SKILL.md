@@ -13,7 +13,7 @@ Default mode is **report-only**. `review` produces a findings list and verdict; 
 
 # Review
 
-Code review that catches what matters. Dispatched as an isolated subagent so the orchestrator's prior reasoning doesn't contaminate the assessment.
+Code review that catches what matters. Dispatched as three isolated lens subagents running in parallel, so the orchestrator's prior reasoning doesn't contaminate the assessment.
 
 By default, review **reports** — it does not fix. This is deliberate: a spec or diff getting reviewed and then auto-edited makes it impossible to see what the reviewer flagged vs. what was changed in response. Findings go up; fixes happen at the caller's discretion.
 
@@ -23,120 +23,52 @@ By default, review **reports** — it does not fix. This is deliberate: a spec o
 
 Run whatever the project uses — lint, typecheck, build, test. Fix failures before dispatching the reviewer; don't waste review time on things automation catches.
 
-### 2. Select Review Dimensions
+### 2. Dispatch Three Lens Passes
 
-Inspect the changed files (`git diff --stat`) and classify the changes:
+The review fans out into exactly three lens passes — always all three, regardless of what changed. Each pass is the same `meridian:reviewer` agent reviewing the full diff against one lens's rubric; an agent naturally reports only on the dimensions present in its slice of the diff (a config-only diff may legitimately come back empty from a lens). The lenses and their rubric files are listed under [Lenses](#lenses) below.
 
-**Core dimensions (always included):**
-1. Code style & conventions
-2. Simplification
-3. AI slop
-4. Security
-5. Testing
+Compute the diff range: base SHA from `git merge-base HEAD origin/master` (or equivalent) for initial reviews. For re-reviews after fixing defects, use the commit before fixes began.
 
-**Context dimensions (include based on what changed):**
-- UI components (`.tsx`/`.jsx` with JSX, style files): add Framework anti-patterns, Performance (re-renders, lazy loading), Naming
-- API/data layer (routes, services, database): add API design, Library misuse, Performance (queries, data fetching)
-- Pure logic/algorithms (utils, business logic): add Naming, Testing (edge cases emphasis)
-- Infrastructure/config/dependencies: core dimensions only
-- Mixed changes: include all context dimensions that apply to any changed file
+Dispatch all three lenses **in a single message** — three `Agent` calls with `subagent_type: meridian:reviewer`. Each dispatch's prompt body contains:
 
-If changes don't clearly match any context category, use core dimensions only.
+- A **lens-role line**: "You are the **<lens name>** pass. Review the diff against ONLY the rubric below, in depth."
+- The full contents of that lens's rubric file (copy it into the prompt)
+- The diff range
+- The project CLAUDE.md content (conventions)
+- The spec file content, if one exists
+- A description of what was implemented
 
-**Design review:** If the changes are primarily visual/UI (majority of changed files are components/styles, minimal new business logic) and the project uses a dedicated design review tool, suggest the user invoke it. Meridian review catches code quality in UI components but does not evaluate visual design, layout decisions, or UX patterns. This is a judgment call — when in doubt, mention it.
+Do NOT pass: conversation history, prior review results, the orchestrator's reasoning, or the other lenses' rubrics or results. Each pass reviews the diff on its own merits.
 
-### 3. Dispatch Review Subagent
+### 3. Aggregate
 
-Dispatch as an isolated subagent (`subagent_type: meridian:reviewer`). The agent's system prompt contains the reviewer doctrine; your dispatch carries the specifics of this change. Prompt body must include:
+Wait for all three lens passes to return, then merge them into one report:
 
-- **Git diff range** — base SHA from `git merge-base HEAD origin/master` (or equivalent) for initial reviews. For re-reviews after fixing defects, use the commit before fixes began.
-- **Selected review dimensions** — core + context dimensions from step 2 (copy the relevant dimension blocks from the Dimension Reference section below)
-- **Description** of what was implemented
-- **Project CLAUDE.md** content for conventions
-- **Spec file** content if one exists
-- **NOT:** conversation history, prior review results, your reasoning
+- **Dedup findings** — key on `file:line` + the issue. Collapse same-line / same-issue duplicates to one; keep same-line / different-category findings separately. Dedup is a safety net, expected to fire rarely — the three lenses cover disjoint dimensions, so identical cross-lens findings are uncommon.
+- **Concatenate** Smells and Simplification Opportunities across lenses (informational; no dedup).
+- **Reconcile verdicts** in two ordered steps. Each lens emits its verdict per the reviewer doctrine, where "Do not ship" means the change is fundamentally wrong — not merely that it carries a localized material gap (those are "Fix material gaps and ship").
+  1. **Normalize each lens verdict (downgrade check, runs first).** For every lens that returned "Do not ship", inspect its cited rationale. If the rationale asserts the chosen approach or structure is wrong, keep "Do not ship"; if every cited item is instead a fixable defect (specific things to change, not "this design is wrong"), treat that lens's verdict as "Fix material gaps and ship".
+  2. **Take most-severe of the normalized verdicts.** Any remaining "Do not ship" → **Do not ship**; else if any finding is `material-gap` → **Fix material gaps and ship**; else → **Ship it**.
+
+  The downgrade step always precedes most-severe, so a localized defect a lens mislabeled "Do not ship" cannot escalate the merged verdict. A merged "Do not ship" therefore always reflects a genuine approach-level problem.
+
+Present one merged findings list (each finding keeps its `finding-class` label and originating category) and one verdict.
 
 ### 4. Return Results
 
 `review` is report-only by default (see the hard-gate above). Return findings to the caller, classified by `finding-class` (below). The caller — `execute`, or the user directly — decides what to address.
 
-Only act on findings directly if the invoking request explicitly said to ("review and fix", "apply the suggestions"). In that case: fix material-gap findings first, consider prose-clarity on a cost-benefit basis, skip implementation-detail. Then re-run automated checks, and re-review if material-gap fixes were substantial (dispatch a fresh subagent — the previous one's reasoning must not carry over).
+Only act on findings directly if the invoking request explicitly said to ("review and fix", "apply the suggestions"). In that case: fix material-gap findings first, consider prose-clarity on a cost-benefit basis, skip implementation-detail. Then re-run automated checks, and re-review if material-gap fixes were substantial (dispatch fresh subagents — the previous passes' reasoning must not carry over).
 
-## Dimension Reference
+## Lenses
 
-Copy the relevant blocks into the dispatch prompt body under a `## Review Dimensions` heading, per step 3.
+Every review dispatches all three. Each lens's rubric lives in its own file; the orchestrator copies the relevant file's contents into that lens's dispatch prompt (per step 2).
 
-### Code Style & Conventions
-Enforce project rules. Every violation is a defect. Check types vs interfaces, any usage, component typing patterns, formatting, lint disable syntax, Tailwind patterns — whatever the project specifies.
-
-### Simplification
-- Code that can be deleted entirely
-- Abstractions serving one call site (inline them)
-- Utility functions for one-time operations (delete them)
-- Premature configurability (YAGNI)
-- Nested ternaries (extract to early returns or lookups)
-- Wrapper components adding nothing
-
-### AI Slop
-- Decorative section dividers (// ── Section ──)
-- Comments restating the next line in English
-- Changelog comments (git history exists)
-- Apology comments (// Hack: ..., // TODO: refactor)
-- Gratuitous intermediate variables
-- Defensive code for impossible cases
-- Empty else blocks, exhaustive switches with identical arms
-
-### Security
-- Exposed secrets or credentials
-- Injection vulnerabilities (SQL, XSS, command injection)
-- Unsafe user input handling
-- Insecure dependencies
-- Missing authentication/authorization checks
-- Sensitive data in logs or error messages
-
-### Testing
-- Missing tests for non-trivial logic
-- Tests shaped around implementation (testing HOW not WHAT)
-- Tests bent to pass (expectations adjusted to match buggy output)
-- Snapshot overuse (change detectors, not behavior tests)
-- Missing edge cases (empty, null, boundary values)
-- Flaky by design (timing, network, global state deps)
-
-### Framework Anti-Patterns
-- Effects for anything other than external sync (data transforms, event handling = wrong)
-- Refs where state belongs (refs for non-JSX values only)
-- Missing or incorrect dependency arrays
-- Inline object/array/function creation causing re-renders
-- Components over 150 lines (suspicious), over 250 (defect)
-- Props drilling through >2 levels when composition or context is cleaner
-- useState for derived values
-
-### Performance
-- Unnecessary re-renders
-- Missing Suspense/lazy for heavy components
-- Unoptimized images
-- Database queries in loops
-- Large bundle imports that could be dynamic
-
-### Naming
-- Names that lie about content
-- Generic names (data, result, item, info, handler)
-- Booleans that don't read as questions (use is/has/should/can)
-- Function names that don't describe what they do
-
-### Library Misuse
-- Hand-rolled solutions where the stack provides one
-- Manual state management where query libraries handle it
-- Missing validation at system boundaries
-- Wrong data fetching strategy
-- N+1 queries, missing relations
-
-### API Design
-- Exported functions missing doc comments (internal helpers don't need them)
-- Doc comments that just restate the signature
-- Non-generic API design (raw types where a generic works)
-- Inconsistent function signatures in the same module
-- Boolean flag params that should be separate functions or options
+| Lens | Rubric file | Dimensions |
+|------|-------------|------------|
+| **Correctness & Safety** | `lens-correctness.md` | Security, Testing, Library Misuse, Logic & Error Handling |
+| **Craft & Simplicity** | `lens-craft.md` | Code Reuse, Simplification, Quality Patterns, AI Slop, Code Style & Conventions, Naming |
+| **Performance & Architecture** | `lens-performance.md` | Efficiency, Rendering Performance, Framework Anti-Patterns, API Design |
 
 ## Finding Classification
 
@@ -150,11 +82,11 @@ Any finding the reviewer is tempted to label `implementation-detail` should be r
 
 ## What the Orchestrator Sees
 
-The reviewer returns:
-- Findings list with file:line references AND a `finding-class` label per finding (`material-gap` | `prose-clarity` | `implementation-detail`)
+After aggregating the three lens passes, the review returns:
+- A findings list — the deduped union across the three lenses — with file:line references AND a `finding-class` label per finding (`material-gap` | `prose-clarity` | `implementation-detail`)
 - Smells (unclassified but honest observations — not required action)
 - Simplification opportunities (explicitly labeled as such; the caller decides)
-- Verdict: **Ship it / Fix material gaps and ship / Do not ship**. `Do not ship` requires the approach to be fundamentally wrong — not merely the presence of material gaps. Fixable material-gap findings produce `Fix material gaps and ship`.
+- Verdict: **Ship it / Fix material gaps and ship / Do not ship**, reconciled to most-severe across the lenses per step 3. `Do not ship` requires the approach to be fundamentally wrong — not merely the presence of material gaps. Fixable material-gap findings produce `Fix material gaps and ship`.
 
 No "strengths" section. Working code is the baseline, not an achievement. No list padding — if there are only two material gaps and no clarity issues, return exactly that.
 
