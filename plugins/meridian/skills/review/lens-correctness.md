@@ -34,3 +34,5 @@ Review the diff against the dimensions below. This lens hunts material gaps — 
 - Dead or unreachable paths that will throw in production
 - Incorrect async sequencing / missing await
 - Errors caught too broadly or handled at the wrong layer
+- Silent fallback that masks a missing or unexpected value (distinct from a swallowed error) — make the boundary explicit instead of defaulting past it
+- Non-atomic updates: related state changes that can leave the system half-applied on partial failure
