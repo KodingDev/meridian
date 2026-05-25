@@ -5,10 +5,9 @@
 *.md text eol=lf
 *.json text eol=lf
 
-# Plugin hook scripts have no extension and must stay LF — bash refuses
-# to execute scripts with CRLF line endings (the \r in the shebang line
-# becomes part of the interpreter path).
-plugins/*/hooks/* text eol=lf
+# Plugin hooks (Node scripts + their injected context) must stay LF so CRLF
+# never leaks a stray \r into emitted additionalContext on Windows checkouts.
+plugins/*/hooks/** text eol=lf
 
 # License
 LICENSE text eol=lf
