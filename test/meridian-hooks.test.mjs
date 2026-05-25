@@ -143,6 +143,25 @@ test("session-start prunes stale state but keeps current and fresh", () => {
   rmSync(cfg, { recursive: true, force: true });
 });
 
+test("emitted additionalContext is a single-line JSON payload", () => {
+  // The rewrite exists to stop multi-line/multibyte content corrupting the
+  // protocol. JSON.parse succeeds on pretty-printed JSON too, so assert the
+  // payload is exactly one line + a trailing newline -- a switch to
+  // JSON.stringify(x, null, 2) would fail here, not slip through.
+  const cfg = tmpConfig();
+  const start = runHook("session-start.mjs", { session_id: SID }, { CLAUDE_CONFIG_DIR: cfg });
+  assert.ok(start.stdout.endsWith("\n"), "session-start ends with a trailing newline");
+  assert.ok(!start.stdout.trimEnd().includes("\n"), "session-start payload is one line");
+
+  let audit = { stdout: "" };
+  for (let i = 1; i <= 8; i++) {
+    audit = runHook("user-prompt-submit.mjs", { session_id: SID }, { CLAUDE_CONFIG_DIR: cfg });
+  }
+  assert.ok(audit.stdout.endsWith("\n"), "audit ends with a trailing newline");
+  assert.ok(!audit.stdout.trimEnd().includes("\n"), "audit payload is one line");
+  rmSync(cfg, { recursive: true, force: true });
+});
+
 test("hooks.json uses node exec form and references existing scripts", () => {
   const config = JSON.parse(readFileSync(join(HOOKS, "hooks.json"), "utf8"));
   const pluginRoot = join(HOOKS, "..");
