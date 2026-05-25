@@ -1,37 +1,3 @@
-#!/usr/bin/env bash
-# Note: -e omitted so a single bad subdir during prune doesn't suppress the orientation emit.
-set -uo pipefail
-
-input=$(cat 2>/dev/null || true)
-# Pure-bash JSON extraction so the hook works on Windows without jq. Collapse newlines
-# to spaces so the regex sees the whole object, then require [{,] before the key to
-# avoid matching keys like `previous_session_id`. Empty result is fine — falls through
-# to "no current-session protection" in the prune loop, which is acceptable since the
-# orientation context still emits unconditionally below.
-session_id=$(printf '%s' "$input" | tr '\n' ' ' | sed -nE 's/.*[{,][[:space:]]*"session_id"[[:space:]]*:[[:space:]]*"([^"]+)".*/\1/p')
-# Defense in depth: if session_id is malformed, treat it as unset for the skip-current check.
-case "${session_id:-}" in *[!a-zA-Z0-9_-]*) session_id="" ;; esac
-
-state_root="${CLAUDE_CONFIG_DIR:-$HOME/.claude}/meridian/state"
-if [ -d "$state_root" ]; then
-  for dir in "$state_root"/*/; do
-    [ -d "$dir" ] || continue
-    name=$(basename "$dir")
-    # Never prune the current session's dir
-    [ -n "${session_id:-}" ] && [ "$name" = "$session_id" ] && continue
-    # Prune if directory mtime is older than 7 days. user-prompt-submit touches
-    # the dir on every prompt, so mtime tracks last-activity, not creation.
-    if find "$dir" -maxdepth 0 -type d -mtime +7 -print 2>/dev/null | grep -q .; then
-      rm -rf "$dir"
-    fi
-  done
-fi
-
-# Inject orientation via JSON additionalContext rather than plain stdout. Plain stdout
-# renders as transcript output and reads like a user-issued directive ("you MUST invoke ...").
-# additionalContext is wrapped in a discreet system reminder, absorbed silently on the
-# next model turn — the orientation is felt, not announced.
-context=$(cat <<'CONTEXT'
 [Meridian orientation]
 
 Meridian is active. The principles in your system prompt apply across the conversation; this note orients you on routing decisions and active behaviors for the current session.
@@ -75,11 +41,3 @@ Auto activates implicitly when the user's message contains a stepping-away signa
 ## When uncertain
 
 Invoke `meridian:meridian` via the Skill tool for the full routing reference and pillar text. The orientation above is the working subset.
-CONTEXT
-)
-
-# JSON-encode the context: \ -> \\, " -> \", tab -> \t, strip CR, newlines -> \n.
-# Portable across BSD/GNU sed and awk; no jq dependency. Strip CR rather than escape
-# so editor-introduced CRLF endings normalize to LF before the awk newline pass.
-encoded=$(printf '%s' "$context" | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g' -e 's/	/\\t/g' -e 's/\r//g' | awk 'BEGIN{ORS="\\n"} {print}')
-printf '{"hookSpecificOutput":{"hookEventName":"SessionStart","additionalContext":"%s"}}\n' "$encoded"
