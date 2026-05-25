@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    env:
+      # Keep the CLI offline-friendly in CI: no autoupdate / telemetry / error reporting.
+      CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: "1"
+    defaults:
+      run:
+        # Windows runners ship Git Bash; using it everywhere gives -eo pipefail
+        # semantics on all three OS so a failing command reliably fails the step.
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Claude Code
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Validate manifests
+        run: |
+          claude plugin validate --strict .
+          claude plugin validate --strict plugins/meridian
+          claude plugin validate --strict plugins/almanac
+
+      - name: Test hooks
+        run: node --test test/meridian-hooks.test.mjs
