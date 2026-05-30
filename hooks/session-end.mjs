@@ -1,10 +1,8 @@
 #!/usr/bin/env node
-import { rmSync } from "node:fs";
-import { readHookInput, safeSessionId, sessionDir } from "./lib.mjs";
+import { detectHost } from "./lib/host.mjs";
+import { readInput, sessionId } from "./lib/signals.mjs";
+import { clear } from "./lib/state.mjs";
 
-const sessionId = safeSessionId(readHookInput());
-if (!sessionId) process.exit(0);
-
-// safeSessionId validated this to a single path segment, so rmSync can only
-// ever target a dir directly under the Meridian state root.
-rmSync(sessionDir(sessionId), { recursive: true, force: true });
+const host = detectHost();
+const id = sessionId(readInput());
+if (id) clear(host, id);

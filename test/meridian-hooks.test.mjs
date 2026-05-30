@@ -9,10 +9,9 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { mkdtempSync, mkdirSync, existsSync, readFileSync, rmSync, utimesSync } from "node:fs";
-import { tmpdir, homedir } from "node:os";
+import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
-import { stateRoot } from "../hooks/lib.mjs";
 
 const HOOKS = join(dirname(fileURLToPath(import.meta.url)), "..", "hooks");
 const SID = "11111111-2222-3333-4444-555555555555";
@@ -316,20 +315,4 @@ test("user-prompt-submit accepts conversation_id on Cursor", () => {
     "cursor should not write router-tick",
   );
   rmSync(cfg, { recursive: true, force: true });
-});
-
-test("stateRoot uses ~/.cursor when CURSOR_PLUGIN_ROOT is set", () => {
-  const saved = {
-    CURSOR_PLUGIN_ROOT: process.env.CURSOR_PLUGIN_ROOT,
-    CLAUDE_CONFIG_DIR: process.env.CLAUDE_CONFIG_DIR,
-    CLAUDE_PLUGIN_ROOT: process.env.CLAUDE_PLUGIN_ROOT,
-  };
-  delete process.env.CLAUDE_CONFIG_DIR;
-  delete process.env.CLAUDE_PLUGIN_ROOT;
-  process.env.CURSOR_PLUGIN_ROOT = "/fake/plugin";
-  assert.equal(stateRoot(), join(homedir(), ".cursor", "meridian", "state"));
-  for (const [key, val] of Object.entries(saved)) {
-    if (val === undefined) delete process.env[key];
-    else process.env[key] = val;
-  }
 });

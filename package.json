@@ -11,9 +11,9 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
-    "test": "node --test test/meridian-hooks.test.mjs",
-    "test:coverage": "node --test --experimental-test-coverage test/meridian-hooks.test.mjs",
-    "check": "npm run format:check && npm run lint && npm run typecheck && npm test"
+    "test": "node --test test/meridian-hooks.test.mjs test/meridian-lib.test.mjs",
+    "test:coverage": "node --test --experimental-test-coverage test/meridian-hooks.test.mjs test/meridian-lib.test.mjs",
+    "check": "pnpm run format:check && pnpm run lint && pnpm run typecheck && pnpm test"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

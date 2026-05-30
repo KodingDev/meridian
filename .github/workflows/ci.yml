@@ -63,4 +63,4 @@ jobs:
         with:
           node-version: 22
       - name: Test hooks
-        run: node --test test/meridian-hooks.test.mjs
+        run: node --test test/meridian-hooks.test.mjs test/meridian-lib.test.mjs
