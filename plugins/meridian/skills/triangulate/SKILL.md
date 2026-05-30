@@ -18,11 +18,20 @@ A specialist lens for claim-confidence. Triangulate forces source rotation and s
 
 Lenses compose with active skills — you can be in `brainstorm`, `execute`, `debug`, or `sketch` and still trigger triangulate. The audit lives in the active spec/sketch so future-you reading it sees the flag mid-execute.
 
+## Two Tiers
+
+The lens has two tiers, and the default is cheap on purpose — a lens that only knows one expensive move gets skipped under task pressure, which is the exact failure that lets wrong claims ship.
+
+- **Tier 1 — Ground (default, always-on, no ceremony).** When a trigger below fires, the baseline action is simply: read the source-of-truth artifact *this turn* before you assert — grep it, Read it, run the command, look at the screenshot. Then state the claim with that evidence. No subagent, no audit file, no spec row. This is the overwhelming majority of cases and costs one read. Do it silently.
+- **Tier 2 — Triangulate (escalation, heavy).** Dispatch the `meridian:triangulate` agent and write a Ground Truth Audit only when grounding alone won't settle it: **candidate sources may disagree** (binary vs. decompile vs. runtime trace), the claim **gates an expensive or irreversible action**, a single source isn't enough to trust, or **the user already pushed back on this claim once**. Tier 2 is for contested or load-bearing claims — not for every value lookup.
+
+Never let "Tier 2 feels like a lot" become "so I'll assert from memory." The escape hatch from heavy ceremony is Tier 1, not skipping. If you catch yourself reaching for one of these — *"should be right"*, *"I'm confident"*, *"it almost certainly does X"*, *"pretty sure the function is named…"*, *"this is probably the value"* — that hedge is the tripwire: you have not read the artifact, so read it (Tier 1) before the sentence goes out.
+
 ## When This Triggers (Orchestrator Self-Check)
 
-Auto-invocation is a model self-check, not a hook-driven mechanism. Before emitting any response, run these self-check questions. If any answer is yes, dispatch the triangulate agent and complete the audit BEFORE the response goes out.
+Auto-invocation is a model self-check, not a hook-driven mechanism. Before emitting any response, run these self-check questions. If any answer is yes, Tier 1 grounding is mandatory before the response goes out; escalate to Tier 2 only on the conditions above.
 
-The core question behind every trigger: **would a reader checking my claim against the actual artifact disagree with what I'm about to write?** If yes, and I haven't read that artifact this session, audit before claiming.
+The core question behind every trigger: **would a reader checking my claim against the actual artifact disagree with what I'm about to write?** If yes, and I haven't read that artifact this session, ground before claiming.
 
 1. **Specific-value or behavior claim** — am I about to assert a specific value, behavior, output, or state that has a definite answer outside this conversation, without having directly read the source-of-truth artifact in this session? This is broader than it sounds and is the most under-fired trigger. It covers:
    - **External systems** — "the binary does X", "the protocol uses Y", "the API returns Z", "the format encodes W"
@@ -39,9 +48,9 @@ A useful negative test before skipping: if I had to bet $100 that my claim match
 
 **Manual:** User invokes `/meridian:triangulate "<claim>"` to audit a specific claim explicitly.
 
-## Process
+## Process (Tier 2 — the heavy audit)
 
-When triangulate fires (auto from a self-check, or manually via `$ARGUMENTS`):
+This is the escalation path only. For Tier 1, there is no process: read the artifact, then assert. Run the steps below when a triggered claim is contested or load-bearing per the Two Tiers conditions, or when invoked manually via `$ARGUMENTS`:
 
 1. **Identify the claim** — one sentence, in scope. If the claim isn't already a clear sentence in the conversation, articulate it explicitly before dispatching.
 2. **Dispatch the `meridian:triangulate` agent** as a subagent (`subagent_type: meridian:triangulate`). Prompt body: the claim text, candidate source paths (whatever the orchestrator can identify — file paths, addresses, URLs, sister-repo references, ticket links, runtime artifacts, etc.), and the Ground Truth Audit format below. The agent's system prompt already contains the HARD-GATE and reads `references/source-kinds.md` to classify sources.

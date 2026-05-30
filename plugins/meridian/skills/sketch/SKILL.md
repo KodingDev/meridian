@@ -28,37 +28,13 @@ Primarily user-invoked via `/meridian:sketch [optional description]`. Auto-invoc
 
 4. **Write the sketch file.** Path: `.meridian/sketches/YYYY-MM-DD-<slug>.md` (date in local time). Slug: lowercase, ASCII-fold, replace non-alphanumerics with hyphens, collapse, trim, truncate to 60 chars, re-trim. If the result is empty, propose a slug at step 3. On filename collision, append `-2`, `-3`. Create the directory if missing. Do NOT commit. Do NOT stage.
 
-   Format: H1 `# <Title-cased argument>`, then sections in fixed order — **Context** (1-2 sentences), **Plan** (bulleted: file changes or imperative steps, both forms allowed), **User Constraints** (omit the heading entirely if none), **Done When** (acceptance bullets).
+   Format: H1 `# <Title-cased argument>`, then sections in fixed order — **Context** (1-2 sentences), **Plan** (bulleted: file changes or imperative steps, both forms allowed), **User Constraints** (omit the heading entirely if none), **Done When** (acceptance bullets). See `references/sketch-file-example.md` for a complete annotated example.
 
 5. **Self-review.** Placeholder scan (no TBD/TODO/incomplete bullets), internal consistency (Plan covers Done When; Done When is verifiable), ambiguity check. Fix inline.
 
 6. **Present and approve.** Show the sketch contents. Ask via `AskUserQuestion` with options "Approve" / "Request changes". On "Request changes": collect changes, update file in place, re-run self-review, re-present. After 3 unsuccessful rounds, suggest transitioning to `brainstorm`. If a User Constraint surfaces during this step, it counts as a "Request changes" event — update the file and re-present, never silently mutate.
 
 7. **Hand off.** On approval, invoke `meridian:execute` via the `Skill` tool. Reference the sketch file's absolute path in the preceding message so `execute` can locate it.
-
-## Sketch File Example
-
-```markdown
-# Add Copy Button to Code Blocks
-
-## Context
-Code blocks in the docs lack a copy-to-clipboard button, forcing manual selection. Add a button in the top-right corner of each block.
-
-## Plan
-- Add `CopyButton` component to `src/components/docs/CopyButton.tsx`
-- Wire it into `src/components/docs/CodeBlock.tsx` (top-right absolute positioning)
-- Use existing `clipboard.writeText` util from `src/utils/clipboard.ts`
-
-## User Constraints
-- Match existing icon button styling (no custom variant)
-
-## Done When
-- Button appears on all code blocks
-- Clicking copies the block contents
-- Visual state confirms the copy (icon swap for ~1.5s)
-```
-
-If no User Constraints were stated, omit that heading entirely; the file goes Context → Plan → Done When.
 
 ## Post-handoff Constraints
 

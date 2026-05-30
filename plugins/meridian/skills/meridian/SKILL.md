@@ -64,7 +64,7 @@ Assess each user request and route to the appropriate skill. Not every request n
 
 A user message arriving during an active skill (especially `execute` or `sketch`) is not automatically a continuation of that skill. Re-classify each new message against the routing table.
 
-The dominant miss: a screenshot — or the words "still wrong", "still the same", "still broken", "doesn't work", "nope" — arriving during `execute` is a `debug` signal, not a "keep executing" signal. Symptom-poking inside `execute` is the failure mode this rule prevents — `execute` patches, `debug` finds the cause. When you see this pattern, pause `execute` and route to `debug`. Once `debug` produces a fix, return to `execute`.
+The dominant miss: a screenshot — or a terse failure reply ("still wrong", "still the same", "still broken", "not fixed", "doesn't work", "nope"), *including* one-word or image-only messages — arriving during `execute` is a `debug` signal, not a "keep executing" signal. The terseness is the tell: a fix just shipped and the short dismissal means it didn't land. Symptom-poking inside `execute` is the failure mode this rule prevents — `execute` patches, `debug` finds the cause. STOP the patch loop the moment you see it — do not emit another speculative fix in the same turn. Pause `execute`, route to `debug`, complete root-cause investigation; once `debug` produces a fix, return to `execute`. A UserPromptSubmit hook reinforces the unambiguous "still …" / "not fixed" phrasings, but you own the call on screenshots and one-word rejections the hook can't safely match.
 
 This applies whether the original routing was `execute`, `sketch`, or any other active skill. Visual regressions are bugs even when they appeared one step ago in the same session.
 
@@ -93,7 +93,7 @@ A lens fires on its own trigger signals (an orchestrator self-check before emitt
 
 | Lens | Triggers (orchestrator self-check) | Format-as-gate |
 |------|----------|----------------|
-| `triangulate` | specific-value claim where the source-of-truth artifact wasn't read this session — covers binary/protocol/API behavior, CSS tokens & theme values, computed runtime values (oklch, contrast, sizes), config/dependency fields, observable UI state, and "what's in this file/function" claims; code edit + confidence-escalation in same response; "code does X so output Y" reasoning without reading an output artifact; spec authoring against an unread config/theme/token file; user-correction immediately followed by a re-claim | Ground Truth Audit row inline in the active spec/sketch + full file at `.meridian/audits/` |
+| `triangulate` | specific-value claim where the source-of-truth artifact wasn't read this session — covers binary/protocol/API behavior, CSS tokens & theme values, computed runtime values (oklch, contrast, sizes), config/dependency fields, observable UI state, and "what's in this file/function" claims; code edit + confidence-escalation in same response; "code does X so output Y" reasoning without reading an output artifact; spec authoring against an unread config/theme/token file; user-correction immediately followed by a re-claim | **Tier 1 (default):** read the artifact inline before asserting — no audit file. **Tier 2 (contested/load-bearing only):** Ground Truth Audit row inline in the active spec/sketch + full file at `.meridian/audits/` |
 
 Lenses don't replace pillars; they enforce them at output-time. New lenses earn their place by surfacing in retrospective failure analysis, not by speculative addition.
 

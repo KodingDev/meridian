@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "hooks": {
+    "sessionStart": [
+      {
+        "command": "node ./hooks/session-start.mjs"
+      }
+    ],
+    "beforeSubmitPrompt": [
+      {
+        "command": "node ./hooks/user-prompt-submit.mjs"
+      }
+    ],
+    "sessionEnd": [
+      {
+        "command": "node ./hooks/session-end.mjs"
+      }
+    ]
+  }
+}

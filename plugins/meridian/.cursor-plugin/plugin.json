@@ -9,5 +9,6 @@
   "homepage": "https://github.com/KodingDev/claude-plugins",
   "repository": "https://github.com/KodingDev/claude-plugins",
   "license": "MIT",
-  "keywords": ["workflows", "code-review", "research", "quality", "debugging"]
+  "keywords": ["workflows", "code-review", "research", "quality", "debugging"],
+  "hooks": "./hooks/hooks-cursor.json"
 }

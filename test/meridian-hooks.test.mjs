@@ -8,17 +8,11 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import {
-  mkdtempSync,
-  mkdirSync,
-  existsSync,
-  readFileSync,
-  rmSync,
-  utimesSync,
-} from "node:fs";
-import { tmpdir } from "node:os";
+import { mkdtempSync, mkdirSync, existsSync, readFileSync, rmSync, utimesSync } from "node:fs";
+import { tmpdir, homedir } from "node:os";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
+import { stateRoot } from "../plugins/meridian/hooks/lib.mjs";
 
 const HOOKS = join(dirname(fileURLToPath(import.meta.url)), "..", "plugins", "meridian", "hooks");
 const SID = "11111111-2222-3333-4444-555555555555";
@@ -29,6 +23,11 @@ function tmpConfig() {
 
 // Spawn a hook the way Claude Code's exec form does: node binary + script path,
 // payload piped to stdin, no shell involved.
+/**
+ * @param {string} name
+ * @param {object | string} payload
+ * @param {Record<string, string>} [env]
+ */
 function runHook(name, payload, env = {}) {
   const input = typeof payload === "string" ? payload : JSON.stringify(payload);
   try {
@@ -39,7 +38,8 @@ function runHook(name, payload, env = {}) {
     });
     return { code: 0, stdout };
   } catch (err) {
-    return { code: err.status ?? 1, stdout: String(err.stdout ?? ""), stderr: String(err.stderr ?? "") };
+    const e = /** @type {any} */ (err);
+    return { code: e.status ?? 1, stdout: String(e.stdout ?? ""), stderr: String(e.stderr ?? "") };
   }
 }
 
@@ -72,11 +72,19 @@ test("session-start still emits orientation with empty stdin", () => {
 test("user-prompt-submit emits the routing audit only on the 8th prompt", () => {
   const cfg = tmpConfig();
   for (let i = 1; i <= 7; i++) {
-    const { code, stdout } = runHook("user-prompt-submit.mjs", { session_id: SID }, { CLAUDE_CONFIG_DIR: cfg });
+    const { code, stdout } = runHook(
+      "user-prompt-submit.mjs",
+      { session_id: SID },
+      { CLAUDE_CONFIG_DIR: cfg },
+    );
     assert.equal(code, 0);
     assert.equal(stdout.trim(), "", `tick ${i} should be silent`);
   }
-  const { stdout } = runHook("user-prompt-submit.mjs", { session_id: SID }, { CLAUDE_CONFIG_DIR: cfg });
+  const { stdout } = runHook(
+    "user-prompt-submit.mjs",
+    { session_id: SID },
+    { CLAUDE_CONFIG_DIR: cfg },
+  );
   const out = JSON.parse(stdout);
   assert.equal(out.hookSpecificOutput.hookEventName, "UserPromptSubmit");
   assert.match(out.hookSpecificOutput.additionalContext, /routing audit/i);
@@ -87,13 +95,89 @@ test("user-prompt-submit emits the routing audit only on the 8th prompt", () => 
   rmSync(cfg, { recursive: true, force: true });
 });
 
+test("user-prompt-submit emits the debug reroute on a terse failure reply", () => {
+  for (const prompt of [
+    "still broken",
+    "not fixed",
+    "doesn't work",
+    "still doesnt work",
+    "nope, still wrong",
+    "STILL BROKEN.",
+  ]) {
+    const cfg = tmpConfig();
+    const { code, stdout } = runHook(
+      "user-prompt-submit.mjs",
+      { session_id: SID, prompt },
+      { CLAUDE_CONFIG_DIR: cfg },
+    );
+    assert.equal(code, 0);
+    const out = JSON.parse(stdout);
+    assert.equal(out.hookSpecificOutput.hookEventName, "UserPromptSubmit");
+    assert.match(
+      out.hookSpecificOutput.additionalContext,
+      /debug reroute/i,
+      `should reroute on ${JSON.stringify(prompt)}`,
+    );
+    rmSync(cfg, { recursive: true, force: true });
+  }
+});
+
+test("user-prompt-submit does NOT reroute on elaborated or unrelated messages", () => {
+  // Anchored whole-message match: an elaborated bug report or a normal request
+  // must stay silent. Substring matching here would be the false-positive footgun.
+  for (const prompt of [
+    "no, the real issue is still broken because the cache never clears so rework it",
+    "can you add a copy button to the toolbar",
+    "nope", // bare nope is deliberately excluded as too ambiguous
+    "is the build working",
+  ]) {
+    const cfg = tmpConfig();
+    const { code, stdout } = runHook(
+      "user-prompt-submit.mjs",
+      { session_id: SID, prompt },
+      { CLAUDE_CONFIG_DIR: cfg },
+    );
+    assert.equal(code, 0);
+    assert.equal(stdout.trim(), "", `should be silent on ${JSON.stringify(prompt)}`);
+    rmSync(cfg, { recursive: true, force: true });
+  }
+});
+
+test("debug reroute fires on the first prompt and pre-empts the periodic audit", () => {
+  const cfg = tmpConfig();
+  // Advance to the audit tick, but make the 8th prompt a failure signal: reroute wins.
+  for (let i = 1; i <= 7; i++) {
+    runHook(
+      "user-prompt-submit.mjs",
+      { session_id: SID, prompt: "keep going" },
+      { CLAUDE_CONFIG_DIR: cfg },
+    );
+  }
+  const { stdout } = runHook(
+    "user-prompt-submit.mjs",
+    { session_id: SID, prompt: "still broken" },
+    { CLAUDE_CONFIG_DIR: cfg },
+  );
+  const out = JSON.parse(stdout);
+  assert.match(out.hookSpecificOutput.additionalContext, /debug reroute/i);
+  assert.doesNotMatch(out.hookSpecificOutput.additionalContext, /routing audit/i);
+  rmSync(cfg, { recursive: true, force: true });
+});
+
 test("user-prompt-submit rejects unsafe session_id without touching the filesystem", () => {
   for (const bad of ["../../../etc/evil", "a/b", "", "has space", "$(touch pwned)"]) {
     const cfg = tmpConfig();
-    const { code, stdout } = runHook("user-prompt-submit.mjs", { session_id: bad }, { CLAUDE_CONFIG_DIR: cfg });
+    const { code, stdout } = runHook(
+      "user-prompt-submit.mjs",
+      { session_id: bad },
+      { CLAUDE_CONFIG_DIR: cfg },
+    );
     assert.equal(code, 0, `exit 0 for ${JSON.stringify(bad)}`);
     assert.equal(stdout.trim(), "");
-    assert.ok(!existsSync(join(cfg, "meridian", "state")), `no state created for ${JSON.stringify(bad)}`);
+    assert.ok(
+      !existsSync(join(cfg, "meridian", "state")),
+      `no state created for ${JSON.stringify(bad)}`,
+    );
     rmSync(cfg, { recursive: true, force: true });
   }
 });
@@ -112,7 +196,11 @@ test("session-end is a no-op for an unsafe session_id", () => {
   const cfg = tmpConfig();
   const root = join(cfg, "meridian", "state");
   mkdirSync(root, { recursive: true });
-  const { code } = runHook("session-end.mjs", { session_id: "../../../../etc" }, { CLAUDE_CONFIG_DIR: cfg });
+  const { code } = runHook(
+    "session-end.mjs",
+    { session_id: "../../../../etc" },
+    { CLAUDE_CONFIG_DIR: cfg },
+  );
   assert.equal(code, 0);
   assert.ok(existsSync(root), "state root left untouched");
   rmSync(cfg, { recursive: true, force: true });
@@ -169,10 +257,79 @@ test("hooks.json uses node exec form and references existing scripts", () => {
     for (const matcher of matchers) {
       for (const hook of matcher.hooks) {
         assert.equal(hook.command, "node", "exec form must invoke node");
-        assert.ok(Array.isArray(hook.args) && hook.args.length === 1, "expects a single script arg");
+        assert.ok(
+          Array.isArray(hook.args) && hook.args.length === 1,
+          "expects a single script arg",
+        );
         const resolved = hook.args[0].replace("${CLAUDE_PLUGIN_ROOT}", pluginRoot);
         assert.ok(existsSync(resolved), `referenced hook script exists: ${hook.args[0]}`);
       }
     }
+  }
+});
+
+test("hooks-cursor.json invokes node hook scripts", () => {
+  const config = JSON.parse(readFileSync(join(HOOKS, "hooks-cursor.json"), "utf8"));
+  assert.equal(config.version, 1);
+  for (const entries of Object.values(config.hooks)) {
+    for (const entry of entries) {
+      assert.match(entry.command, /^node \.\/hooks\/[\w-]+\.mjs$/);
+      const script = entry.command.slice("node ./hooks/".length);
+      assert.ok(existsSync(join(HOOKS, script)), `cursor hook script exists: ${script}`);
+    }
+  }
+});
+
+test("session-start emits additional_context on Cursor", () => {
+  const cfg = tmpConfig();
+  const { code, stdout } = runHook(
+    "session-start.mjs",
+    { session_id: SID, hook_event_name: "sessionStart" },
+    { CURSOR_PLUGIN_ROOT: "/fake/plugin", CLAUDE_CONFIG_DIR: cfg },
+  );
+  assert.equal(code, 0);
+  const out = JSON.parse(stdout);
+  assert.ok(out.additional_context);
+  assert.equal(out.hookSpecificOutput, undefined);
+  assert.match(out.additional_context, /\[Meridian orientation\]/);
+  rmSync(cfg, { recursive: true, force: true });
+});
+
+test("user-prompt-submit accepts conversation_id on Cursor", () => {
+  const cfg = tmpConfig();
+  const conv = "cursor-conv-abc123";
+  for (let i = 1; i <= 8; i++) {
+    const { code, stdout } = runHook(
+      "user-prompt-submit.mjs",
+      { conversation_id: conv, prompt: "hi" },
+      { CURSOR_PLUGIN_ROOT: "/fake/plugin", CLAUDE_CONFIG_DIR: cfg },
+    );
+    assert.equal(code, 0);
+    assert.equal(stdout.trim(), "", `cursor tick ${i} should be silent (no audit emit)`);
+  }
+  assert.ok(
+    existsSync(join(cfg, "meridian", "state", conv)),
+    "state dir created from conversation_id",
+  );
+  assert.ok(
+    !existsSync(join(cfg, "meridian", "state", conv, "router-tick")),
+    "cursor should not write router-tick",
+  );
+  rmSync(cfg, { recursive: true, force: true });
+});
+
+test("stateRoot uses ~/.cursor when CURSOR_PLUGIN_ROOT is set", () => {
+  const saved = {
+    CURSOR_PLUGIN_ROOT: process.env.CURSOR_PLUGIN_ROOT,
+    CLAUDE_CONFIG_DIR: process.env.CLAUDE_CONFIG_DIR,
+    CLAUDE_PLUGIN_ROOT: process.env.CLAUDE_PLUGIN_ROOT,
+  };
+  delete process.env.CLAUDE_CONFIG_DIR;
+  delete process.env.CLAUDE_PLUGIN_ROOT;
+  process.env.CURSOR_PLUGIN_ROOT = "/fake/plugin";
+  assert.equal(stateRoot(), join(homedir(), ".cursor", "meridian", "state"));
+  for (const [key, val] of Object.entries(saved)) {
+    if (val === undefined) delete process.env[key];
+    else process.env[key] = val;
   }
 });

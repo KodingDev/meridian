@@ -9,6 +9,8 @@ Do NOT skip automated checks (lint, typecheck, build, test) before dispatching t
 
 <HARD-GATE>
 Default mode is **report-only**. `review` produces a findings list and verdict; it does NOT modify code unless the invoking request explicitly asks for fixes ("review and fix", "fix any issues you find", "apply the suggestions"). If you are invoked by `execute`, return findings — `execute` decides what to address based on finding class. The orchestrator/user acts on findings, not `review`.
+
+The reviewer's verdict is not yours to pre-empt. You MUST NOT emit or queue any edit, write, build, commit, or other downstream tool call in the same turn that dispatches the reviewer subagents — and not at all until all three verdicts have actually returned and you have aggregated them. Queuing fixes alongside the dispatch makes the review's conclusion predetermined, which is the failure this gate exists to prevent. Dispatch, wait, aggregate, *then* act.
 </HARD-GATE>
 
 # Review

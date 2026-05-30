@@ -11,6 +11,7 @@ const currentSession = safeSessionId(readHookInput());
 // dir's mtime on every prompt, so mtime tracks last-activity, not creation. A
 // failure on any single dir must not block the orientation emit below.
 const root = stateRoot();
+/** @type {import("node:fs").Dirent[]} */
 let entries = [];
 try {
   entries = readdirSync(root, { withFileTypes: true });

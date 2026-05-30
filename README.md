@@ -40,10 +40,20 @@ Hard-won knowledge dies with the session. You debug something for two hours, nai
 
 ## Install
 
+### Claude Code
+
 ```
 /plugin marketplace add KodingDev/meridian
 /plugin install meridian@meridian
 ```
+
+### Cursor
+
+Install from the [Cursor plugin marketplace](https://cursor.com/marketplace), or enable **Third-party skills** in Cursor Settings → Features if you use the Claude plugin bundle.
+
+Hooks are Node scripts (`node ./hooks/*.mjs`) — no Git Bash or shell polyglot required. Session orientation injects via `additional_context` on `sessionStart`. If hooks fail silently, check View → Output → **Hooks** and restart Cursor after updating the plugin.
+
+Hook tests: `node --test test/meridian-hooks.test.mjs`
 
 ## Credit
 

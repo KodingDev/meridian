@@ -22,6 +22,7 @@ Invoke this skill automatically when:
 - A test failure occurs during execute
 - Build or lint fails unexpectedly
 - The user describes unexpected behavior, even casually ("this is weird", "why is X happening")
+- A fix just shipped and the user replies with a terse failure signal — "still broken", "not fixed", "doesn't work", "nope", a one-word rejection, or a bare screenshot. Do not patch again; the short dismissal means the last fix missed the root cause. Drop into Phase 1.
 
 ## The Iron Law
 

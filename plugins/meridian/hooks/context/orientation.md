@@ -26,7 +26,7 @@ For borderline calls, prefer `brainstorm` if the change needs more than one or t
 
 A user message during an active skill is not automatically a continuation of that skill. Re-classify each new message against the table above.
 
-The dominant miss: a screenshot, or the phrases "still wrong" / "still the same" / "doesn't work" / "still broken" / "nope" arriving during `execute` or `sketch` is a `debug` signal, not a "keep executing" signal. Symptom-poking inside `execute` is the failure mode this rule prevents — `execute` patches, `debug` finds the cause. Pause the active skill, route to `debug`, return once the bug is understood.
+The dominant miss: a screenshot, or a terse failure reply — "still wrong" / "still the same" / "doesn't work" / "still broken" / "not fixed" / "nope", *including* one-word or image-only messages — arriving during `execute` or `sketch` is a `debug` signal, not a "keep executing" signal. The terseness is the tell: when a fix just shipped and the reply is a short dismissal, the fix didn't land. STOP the patch loop immediately — do not emit another speculative fix in the same turn. Pause the active skill, invoke `meridian:debug`, complete root-cause investigation, return once the bug is understood. (A UserPromptSubmit hook reinforces the unambiguous "still …" / "not fixed" phrasings, but the rule is yours to apply on screenshots and one-word rejections the hook can't safely match.)
 
 ## Autonomy (`/auto`)
 
@@ -36,7 +36,9 @@ Auto activates implicitly when the user's message contains a stepping-away signa
 
 ## Lenses
 
-`triangulate` fires on specific-value claims where the source-of-truth artifact wasn't read this session — binary/protocol/API behavior, CSS tokens and theme values, computed runtime values (oklch, contrast, sizes), config/dependency fields, observable UI state, "what's in this file/function" claims, code-edit plus confidence-escalation in the same response, "code does X so output Y" reasoning without reading an output artifact, spec authoring against an unread config/theme/token file, and user-correction immediately followed by a re-claim. Format-as-gate: a Ground Truth Audit row inline in the active spec/sketch plus the full audit file at `.meridian/audits/`.
+`triangulate` fires on specific-value claims where the source-of-truth artifact wasn't read this session — binary/protocol/API behavior, CSS tokens and theme values, computed runtime values (oklch, contrast, sizes), config/dependency fields, observable UI state, "what's in this file/function" claims, code-edit plus confidence-escalation in the same response, "code does X so output Y" reasoning without reading an output artifact, spec authoring against an unread config/theme/token file, and user-correction immediately followed by a re-claim.
+
+Two tiers — the default is cheap, so it actually fires: **Tier 1 (Ground)** is the always-on reflex — before asserting any such value, just read the artifact inline (grep / Read / run / screenshot). No subagent, no audit file. This is the 90% case; do it silently and state the claim with the evidence. **Tier 2 (Triangulate)** is the heavy escalation — dispatch the `meridian:triangulate` agent and write a Ground Truth Audit (inline row + full file at `.meridian/audits/`) ONLY when the claim is contested or load-bearing: candidate sources may disagree, the claim gates an expensive or irreversible action, or the user already pushed back once. Don't skip Tier 1 because Tier 2 feels too heavy — grounding is one read.
 
 ## When uncertain
 
