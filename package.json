@@ -1,0 +1,26 @@
+{
+  "name": "meridian-dev-tooling",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.29.3",
+  "description": "Dev tooling for the Meridian Claude Code plugin: lint, format, typecheck, and cross-OS hook tests. Not published; the plugin itself ships no JS dependencies.",
+  "license": "MIT",
+  "scripts": {
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test test/meridian-hooks.test.mjs",
+    "test:coverage": "node --test --experimental-test-coverage test/meridian-hooks.test.mjs",
+    "check": "npm run format:check && npm run lint && npm run typecheck && npm test"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^25.9.1",
+    "eslint": "^10.4.1",
+    "globals": "^17.6.0",
+    "prettier": "^3.8.3",
+    "typescript": "^6.0.3"
+  }
+}

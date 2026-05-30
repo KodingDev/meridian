@@ -30,6 +30,27 @@ jobs:
           claude plugin validate --strict plugins/meridian
           claude plugin validate --strict plugins/almanac
 
+  quality:
+    name: Lint, format, typecheck
+    runs-on: ubuntu-latest
+    # JS quality gates are OS-independent — the cross-OS guard is test-hooks below.
+    # These deps are dev-only tooling; the plugin itself ships no JS dependencies.
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - name: Install dev tooling
+        run: pnpm install --frozen-lockfile
+      - name: Format check
+        run: pnpm run format:check
+      - name: Lint
+        run: pnpm run lint
+      - name: Typecheck
+        run: pnpm run typecheck
+
   test-hooks:
     name: Test hooks (${{ matrix.os }})
     runs-on: ${{ matrix.os }}

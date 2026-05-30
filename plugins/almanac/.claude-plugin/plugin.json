@@ -8,12 +8,5 @@
   "homepage": "https://github.com/KodingDev/claude-plugins",
   "repository": "https://github.com/KodingDev/claude-plugins",
   "license": "MIT",
-  "keywords": [
-    "obsidian",
-    "knowledge-management",
-    "learning",
-    "reflection",
-    "research",
-    "notebook"
-  ]
+  "keywords": ["obsidian", "knowledge-management", "learning", "reflection", "research", "notebook"]
 }

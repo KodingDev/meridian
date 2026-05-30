@@ -1,3 +1,4 @@
 .meridian/
 .DS_Store
 plugins/*/skills-workspace/
+node_modules/
