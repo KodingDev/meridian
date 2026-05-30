@@ -3,7 +3,7 @@ import globals from "globals";
 
 export default [
   {
-    ignores: ["node_modules/**", ".meridian/**", "plugins/*/skills-workspace/**"],
+    ignores: ["node_modules/**", ".meridian/**", "skills-workspace/**"],
   },
   js.configs.recommended,
   {

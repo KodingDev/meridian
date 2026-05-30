@@ -25,10 +25,7 @@ jobs:
       # Manifest validation is OS-independent, so it runs once here rather than
       # paying a global CLI install on every runner in the matrix below.
       - name: Validate marketplace and plugin manifests
-        run: |
-          claude plugin validate --strict .
-          claude plugin validate --strict plugins/meridian
-          claude plugin validate --strict plugins/almanac
+        run: claude plugin validate --strict .
 
   quality:
     name: Lint, format, typecheck

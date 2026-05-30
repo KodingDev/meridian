@@ -12,9 +12,9 @@ import { mkdtempSync, mkdirSync, existsSync, readFileSync, rmSync, utimesSync } 
 import { tmpdir, homedir } from "node:os";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
-import { stateRoot } from "../plugins/meridian/hooks/lib.mjs";
+import { stateRoot } from "../hooks/lib.mjs";
 
-const HOOKS = join(dirname(fileURLToPath(import.meta.url)), "..", "plugins", "meridian", "hooks");
+const HOOKS = join(dirname(fileURLToPath(import.meta.url)), "..", "hooks");
 const SID = "11111111-2222-3333-4444-555555555555";
 
 function tmpConfig() {

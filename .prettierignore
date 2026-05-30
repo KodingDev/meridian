@@ -1,7 +1,7 @@
 node_modules
 pnpm-lock.yaml
 .meridian
-plugins/*/skills-workspace
+skills-workspace
 
 # Skill/doc prose is hand-authored (and lint-checked separately); keep Prettier
 # off Markdown so it never reflows tables or carefully-shaped copy.

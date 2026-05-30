@@ -13,5 +13,5 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["plugins/meridian/hooks/**/*.mjs", "test/**/*.mjs", "eslint.config.mjs"]
+  "include": ["hooks/**/*.mjs", "test/**/*.mjs", "eslint.config.mjs"]
 }

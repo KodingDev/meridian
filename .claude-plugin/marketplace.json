@@ -9,17 +9,8 @@
     {
       "name": "meridian",
       "description": "Research-first workflows, ruthless code review, orchestrator-led reasoning, and opaque subagent isolation for the entire development lifecycle.",
-      "version": "0.10.5",
-      "source": "./plugins/meridian",
+      "source": "./",
       "category": "development",
-      "homepage": "https://github.com/KodingDev/claude-plugins"
-    },
-    {
-      "name": "almanac",
-      "description": "Session-history reflection and confrontational research for the notebook-bound knowledge worker.",
-      "version": "0.2.0",
-      "source": "./plugins/almanac",
-      "category": "productivity",
       "homepage": "https://github.com/KodingDev/claude-plugins"
     }
   ]
