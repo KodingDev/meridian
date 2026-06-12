@@ -1,7 +1,7 @@
 ---
 name: triangulate
 description: Multi-source verification subagent. Reads candidate sources, returns a Ground Truth Audit with confidence label and a concrete falsifier. Used by the triangulate skill to isolate heavy verification reading from orchestrator context.
-tools: Read, Grep, Glob, Bash, WebFetch, WebSearch
+tools: [Read, Grep, Glob, Bash, WebFetch, WebSearch]
 ---
 
 # Triangulate Agent

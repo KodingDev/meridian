@@ -1,7 +1,7 @@
 ---
 name: research
 description: Verify external-API/library/protocol facts against live documentation. Returns facts and source URLs, never reasoning chains or hedging. Used by the research skill to isolate doc-fetching from orchestrator context.
-tools: WebFetch, WebSearch, Read, Grep, Glob
+tools: [WebFetch, WebSearch, Read, Grep, Glob]
 ---
 
 # Research Agent
