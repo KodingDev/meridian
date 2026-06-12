@@ -53,6 +53,10 @@ Install from the [Cursor plugin marketplace](https://cursor.com/marketplace), or
 
 Hooks are Node scripts (`node ./hooks/*.mjs`) — no Git Bash or shell polyglot required. Session orientation injects via `additional_context` on `sessionStart`. If hooks fail silently, check View → Output → **Hooks** and restart Cursor after updating the plugin.
 
+### GitHub Copilot CLI
+
+Copilot CLI installs the same plugin via its `/plugin` commands and loads the skills and subagents directly. Subagent `tools` are declared as YAML arrays of Claude tool names (`[Read, Grep, Glob, Bash, …]`); Copilot resolves these case-insensitively to its own primitives (`read`, `search`, `execute`, `web`), so the agents get full file/search/shell/web access rather than the bare baseline.
+
 Hook tests: `node --test test/meridian-hooks.test.mjs`
 
 ## Credit

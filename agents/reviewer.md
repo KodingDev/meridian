@@ -1,7 +1,7 @@
 ---
 name: reviewer
 description: Code review subagent. Receives a diff plus dimensions and returns classified findings (material-gap | prose-clarity | implementation-detail) with a verdict. Never edits.
-tools: Read, Grep, Glob, Bash
+tools: [Read, Grep, Glob, Bash]
 ---
 
 # Reviewer Agent
