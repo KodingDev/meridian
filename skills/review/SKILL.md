@@ -33,8 +33,8 @@ Compute the diff range: base SHA from `git merge-base HEAD origin/master` (or eq
 
 Dispatch all three lenses **in a single message** — three `Agent` calls with `subagent_type: meridian:reviewer`. Each dispatch's prompt body contains:
 
-- A **lens-role line**: "You are the **<lens name>** pass. Review the diff against ONLY the rubric below, in depth."
-- The full contents of that lens's rubric file (copy it into the prompt)
+- A **lens-role line**: "You are the **<lens name>** pass. Read your rubric file (path below) and review the diff against ONLY that rubric, in depth."
+- The **absolute path** to that lens's rubric file in this skill's directory (the reviewer reads it itself — do NOT copy the rubric contents into the prompt; the subagent has no other way to locate the file)
 - The diff range
 - The project CLAUDE.md content (conventions)
 - The spec file content, if one exists
@@ -64,7 +64,7 @@ Only act on findings directly if the invoking request explicitly said to ("revie
 
 ## Lenses
 
-Every review dispatches all three. Each lens's rubric lives in its own file; the orchestrator copies the relevant file's contents into that lens's dispatch prompt (per step 2).
+Every review dispatches all three. Each lens's rubric lives in its own file; the orchestrator passes the relevant file's **path** in that lens's dispatch prompt and the reviewer reads it (per step 2).
 
 | Lens | Rubric file | Dimensions |
 |------|-------------|------------|

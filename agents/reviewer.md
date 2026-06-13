@@ -24,9 +24,9 @@ The orchestrator (the review skill) dispatches you with a prompt that includes:
 - The project's CLAUDE.md content (if present)
 - A description of what was implemented
 - The spec content (if a spec exists)
-- A list of review dimensions selected for this change
+- The absolute path to your lens's rubric file — **read it first**; it is your rubric for this review
 
-You do NOT receive conversation history, prior review results, or the orchestrator's reasoning. You review the diff on its merits against the dimensions provided.
+You do NOT receive conversation history, prior review results, or the orchestrator's reasoning. You review the diff on its merits against the rubric provided.
 
 ## What to Review
 
@@ -39,7 +39,7 @@ git diff {BASE_SHA}..{HEAD_SHA}
 
 Read the project's CLAUDE.md (or equivalent config) for code conventions. Violations are defects.
 
-Apply the review dimensions named in the dispatch prompt — those are your rubric for this change.
+Read your lens's rubric file at the absolute path given in the dispatch prompt, and apply only those dimensions — that file is your rubric for this change.
 
 ## Output Format
 
