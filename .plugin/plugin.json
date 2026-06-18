@@ -1,0 +1,4 @@
+{
+  "name": "meridian",
+  "hooks": "./hooks/hooks-copilot.json"
+}

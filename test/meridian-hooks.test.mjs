@@ -7,7 +7,7 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { execFileSync } from "node:child_process";
+import { execFileSync, execSync } from "node:child_process";
 import { mkdtempSync, mkdirSync, existsSync, readFileSync, rmSync, utimesSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
@@ -249,21 +249,87 @@ test("emitted additionalContext is a single-line JSON payload", () => {
   rmSync(cfg, { recursive: true, force: true });
 });
 
-test("hooks.json uses node exec form and references existing scripts", () => {
+test("hooks.json resolves the plugin root from env at runtime (cross-engine)", () => {
+  // Engines disagree on how the plugin root reaches a hook: Claude Code substitutes
+  // ${CLAUDE_PLUGIN_ROOT}; Copilot Chat sets only PLUGIN_ROOT and substitutes nothing.
+  // Resolve it inside node from either var so the command is shell-agnostic (works under
+  // sh AND PowerShell, where ${VAR:-default} would fail) and spawn the script directly —
+  // NOT via import()/pathToFileURL, which throws ERR_INVALID_MODULE_SPECIFIER on newer
+  // node when the path carries backslashes. A bare command:"node"+args crashes the
+  // no-args engines, so args must be absent. Under WSL, Copilot Chat hands over a Windows
+  // path (C:\...); translate it to the mount via wslpath, falling back to /mnt. The whole
+  // thing must contain no backslash literals (the shell eats them), so the split uses
+  // String.fromCharCode(92).
   const config = JSON.parse(readFileSync(join(HOOKS, "hooks.json"), "utf8"));
   const pluginRoot = join(HOOKS, "..");
   for (const matchers of Object.values(config.hooks)) {
     for (const matcher of matchers) {
       for (const hook of matcher.hooks) {
-        assert.equal(hook.command, "node", "exec form must invoke node");
-        assert.ok(
-          Array.isArray(hook.args) && hook.args.length === 1,
-          "expects a single script arg",
+        assert.equal(hook.args, undefined, "must not use the command+args exec form");
+        assert.doesNotMatch(
+          hook.command,
+          /\$\{[A-Z_]+\}/,
+          "must not rely on engine/shell ${VAR} substitution",
         );
-        const resolved = hook.args[0].replace("${CLAUDE_PLUGIN_ROOT}", pluginRoot);
-        assert.ok(existsSync(resolved), `referenced hook script exists: ${hook.args[0]}`);
+        assert.doesNotMatch(
+          hook.command,
+          /import\(|pathToFileURL/,
+          "must not use dynamic import() (ERR_INVALID_MODULE_SPECIFIER on newer node)",
+        );
+        assert.match(
+          hook.command,
+          /process\.env\.CLAUDE_PLUGIN_ROOT\s*\|\|\s*process\.env\.PLUGIN_ROOT/,
+          "resolves the root from CLAUDE_PLUGIN_ROOT or PLUGIN_ROOT",
+        );
+        assert.doesNotMatch(hook.command, /\\/, "no backslash literals (the shell eats them)");
+        assert.match(
+          hook.command,
+          /wslpath[\s\S]*\/mnt\//,
+          "translates a WSL Windows plugin-root path (wslpath, then /mnt fallback)",
+        );
+        const m = hook.command.match(/\/(hooks\/[\w-]+\.mjs)'/);
+        assert.ok(m, `command embeds the script path: ${hook.command}`);
+        assert.ok(existsSync(join(pluginRoot, m[1])), `referenced hook script exists: ${m[1]}`);
       }
     }
+  }
+});
+
+test("hooks.json SessionStart runs from any engine env, even with the wrong cwd", () => {
+  // Reproduce both engines: command run via shell, payload on stdin, no args, cwd is NOT
+  // the plugin dir (Copilot Chat runs hooks from $HOME). It must still resolve and emit
+  // the orientation whether the engine provides CLAUDE_PLUGIN_ROOT (Claude Code / Copilot
+  // CLI) or only PLUGIN_ROOT (Copilot Chat).
+  const pluginRoot = join(HOOKS, "..");
+  const config = JSON.parse(readFileSync(join(HOOKS, "hooks.json"), "utf8"));
+  const command = config.hooks.SessionStart[0].hooks[0].command;
+  for (const rootVar of ["CLAUDE_PLUGIN_ROOT", "PLUGIN_ROOT"]) {
+    const cfg = tmpConfig();
+    /** @type {Record<string, string | undefined>} */
+    const env = { ...process.env, CLAUDE_CONFIG_DIR: cfg };
+    delete env.CLAUDE_PLUGIN_ROOT;
+    delete env.PLUGIN_ROOT;
+    delete env.COPILOT_PLUGIN_ROOT;
+    delete env.CURSOR_PLUGIN_ROOT;
+    env[rootVar] = pluginRoot;
+    let out;
+    try {
+      out = execSync(command, {
+        cwd: tmpdir(),
+        input: JSON.stringify({ session_id: SID, hook_event_name: "SessionStart" }),
+        encoding: "utf8",
+        env,
+      });
+    } catch (err) {
+      const e = /** @type {any} */ (err);
+      assert.fail(`hook command failed with only ${rootVar} set: ${e.stderr || e.message}`);
+    }
+    assert.match(
+      JSON.parse(out).hookSpecificOutput.additionalContext,
+      /\[Meridian orientation\]/,
+      `orientation emitted with only ${rootVar} set`,
+    );
+    rmSync(cfg, { recursive: true, force: true });
   }
 });
 
@@ -313,6 +379,66 @@ test("user-prompt-submit accepts conversation_id on Cursor", () => {
   assert.ok(
     !existsSync(join(cfg, "meridian", "state", conv, "router-tick")),
     "cursor should not write router-tick",
+  );
+  rmSync(cfg, { recursive: true, force: true });
+});
+
+test("hooks-copilot.json invokes node hook scripts via single-string command", () => {
+  const config = JSON.parse(readFileSync(join(HOOKS, "hooks-copilot.json"), "utf8"));
+  assert.equal(config.version, 1);
+  for (const entries of Object.values(config.hooks)) {
+    for (const entry of entries) {
+      // Copilot treats `command` as a shell string and ignores `args`; the
+      // command+args exec form is what crashes it. Guard against a regression.
+      assert.match(entry.command, /^node \.\/hooks\/[\w-]+\.mjs$/);
+      assert.equal(entry.args, undefined, "copilot must not use the command+args exec form");
+      const script = entry.command.slice("node ./hooks/".length);
+      assert.ok(existsSync(join(HOOKS, script)), `copilot hook script exists: ${script}`);
+    }
+  }
+});
+
+test(".plugin/plugin.json redirects Copilot to its hooks config", () => {
+  const manifest = JSON.parse(readFileSync(join(HOOKS, "..", ".plugin", "plugin.json"), "utf8"));
+  assert.equal(typeof manifest.hooks, "string", "declares a hooks config path");
+  assert.ok(
+    existsSync(join(HOOKS, "..", manifest.hooks)),
+    `redirect target exists: ${manifest.hooks}`,
+  );
+});
+
+test("session-start emits flat additionalContext on Copilot", () => {
+  const cfg = tmpConfig();
+  const { code, stdout } = runHook(
+    "session-start.mjs",
+    { sessionId: SID, hook_event_name: "sessionStart" },
+    { COPILOT_PLUGIN_ROOT: "/fake/plugin", CLAUDE_CONFIG_DIR: cfg },
+  );
+  assert.equal(code, 0);
+  const out = JSON.parse(stdout);
+  assert.ok(out.additionalContext, "flat additionalContext present");
+  assert.equal(out.hookSpecificOutput, undefined, "not Claude's nested form");
+  assert.equal(out.additional_context, undefined, "not Cursor's snake_case form");
+  assert.match(out.additionalContext, /\[Meridian orientation\]/);
+  rmSync(cfg, { recursive: true, force: true });
+});
+
+test("user-prompt-submit is state-only on Copilot (no injection, even on a failure signal)", () => {
+  const cfg = tmpConfig();
+  const sid = "copilot-sess-abc123";
+  for (let i = 1; i <= 8; i++) {
+    const { code, stdout } = runHook(
+      "user-prompt-submit.mjs",
+      { sessionId: sid, prompt: "still broken" },
+      { COPILOT_PLUGIN_ROOT: "/fake/plugin", CLAUDE_CONFIG_DIR: cfg },
+    );
+    assert.equal(code, 0);
+    assert.equal(stdout.trim(), "", `copilot prompt ${i} should not inject`);
+  }
+  assert.ok(existsSync(join(cfg, "meridian", "state", sid)), "state dir created from sessionId");
+  assert.ok(
+    !existsSync(join(cfg, "meridian", "state", sid, "router-tick")),
+    "copilot should not write router-tick",
   );
   rmSync(cfg, { recursive: true, force: true });
 });

@@ -12,7 +12,13 @@ import { detectHost } from "../hooks/lib/host.mjs";
 test("sessionId accepts safe session_id / conversation_id, rejects the rest", () => {
   assert.equal(sessionId({ session_id: "abc-123_DEF" }), "abc-123_DEF");
   assert.equal(sessionId({ conversation_id: "cursor-conv-1" }), "cursor-conv-1");
+  assert.equal(sessionId({ sessionId: "copilot-1" }), "copilot-1");
   assert.equal(sessionId({ session_id: "s", conversation_id: "c" }), "s", "session_id wins");
+  assert.equal(
+    sessionId({ session_id: "s", sessionId: "p" }),
+    "s",
+    "session_id wins over sessionId",
+  );
   for (const bad of ["../../etc/evil", "a/b", "has space", "$(touch x)", "", undefined, 42]) {
     assert.equal(
       sessionId(/** @type {any} */ ({ session_id: bad })),
@@ -76,12 +82,67 @@ test("detectHost resolves the Cursor state base and event support", () => {
   }
 });
 
-test("detectHost defaults to claude and injects on every event", () => {
-  const saved = process.env.CURSOR_PLUGIN_ROOT;
+test("detectHost resolves the Copilot state base and event support", () => {
+  const saved = {
+    CURSOR_PLUGIN_ROOT: process.env.CURSOR_PLUGIN_ROOT,
+    COPILOT_PLUGIN_ROOT: process.env.COPILOT_PLUGIN_ROOT,
+    COPILOT_HOME: process.env.COPILOT_HOME,
+    CLAUDE_CONFIG_DIR: process.env.CLAUDE_CONFIG_DIR,
+    CLAUDE_PLUGIN_ROOT: process.env.CLAUDE_PLUGIN_ROOT,
+  };
+  delete process.env.CLAUDE_CONFIG_DIR;
+  delete process.env.CLAUDE_PLUGIN_ROOT;
   delete process.env.CURSOR_PLUGIN_ROOT;
+  delete process.env.COPILOT_HOME;
+  process.env.COPILOT_PLUGIN_ROOT = "/fake/plugin";
+  const host = detectHost();
+  assert.equal(host.name, "copilot");
+  assert.equal(host.stateBase, join(homedir(), ".copilot"));
+  assert.equal(host.supportsContext("SessionStart"), true);
+  assert.equal(host.supportsContext("UserPromptSubmit"), false);
+  for (const [key, val] of Object.entries(saved)) {
+    if (val === undefined) delete process.env[key];
+    else process.env[key] = val;
+  }
+});
+
+test("Copilot state base stays ~/.copilot even when CLAUDE_PLUGIN_ROOT is also set", () => {
+  // The exact production env: Copilot sets both COPILOT_PLUGIN_ROOT and
+  // CLAUDE_PLUGIN_ROOT. Pins the candidate ordering so copilot never falls
+  // through to the ~/.claude branch.
+  const saved = {
+    CURSOR_PLUGIN_ROOT: process.env.CURSOR_PLUGIN_ROOT,
+    COPILOT_PLUGIN_ROOT: process.env.COPILOT_PLUGIN_ROOT,
+    COPILOT_HOME: process.env.COPILOT_HOME,
+    CLAUDE_CONFIG_DIR: process.env.CLAUDE_CONFIG_DIR,
+    CLAUDE_PLUGIN_ROOT: process.env.CLAUDE_PLUGIN_ROOT,
+  };
+  delete process.env.CLAUDE_CONFIG_DIR;
+  delete process.env.CURSOR_PLUGIN_ROOT;
+  delete process.env.COPILOT_HOME;
+  process.env.COPILOT_PLUGIN_ROOT = "/fake/plugin";
+  process.env.CLAUDE_PLUGIN_ROOT = "/fake/plugin";
+  const host = detectHost();
+  assert.equal(host.name, "copilot");
+  assert.equal(host.stateBase, join(homedir(), ".copilot"));
+  for (const [key, val] of Object.entries(saved)) {
+    if (val === undefined) delete process.env[key];
+    else process.env[key] = val;
+  }
+});
+
+test("detectHost defaults to claude and injects on every event", () => {
+  const saved = {
+    CURSOR_PLUGIN_ROOT: process.env.CURSOR_PLUGIN_ROOT,
+    COPILOT_PLUGIN_ROOT: process.env.COPILOT_PLUGIN_ROOT,
+  };
+  delete process.env.CURSOR_PLUGIN_ROOT;
+  delete process.env.COPILOT_PLUGIN_ROOT;
   const host = detectHost();
   assert.equal(host.name, "claude");
   assert.equal(host.supportsContext("UserPromptSubmit"), true);
-  if (saved === undefined) delete process.env.CURSOR_PLUGIN_ROOT;
-  else process.env.CURSOR_PLUGIN_ROOT = saved;
+  for (const [key, val] of Object.entries(saved)) {
+    if (val === undefined) delete process.env[key];
+    else process.env[key] = val;
+  }
 });

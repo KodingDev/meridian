@@ -21,9 +21,12 @@ const CONTEXT_DIR = join(dirname(fileURLToPath(import.meta.url)), "..", "context
 function resolveStateBase(name) {
   const claude = join(homedir(), ".claude");
   const cursor = join(homedir(), ".cursor");
+  const copilot = process.env.COPILOT_HOME || join(homedir(), ".copilot");
+  // Copilot sets CLAUDE_PLUGIN_ROOT too, so its branch must precede that fallback.
   const candidates = [
     () => process.env.CLAUDE_CONFIG_DIR,
     () => name === "cursor" && cursor,
+    () => name === "copilot" && copilot,
     () => process.env.CLAUDE_PLUGIN_ROOT && claude,
     () => existsSync(claude) && claude,
     () => existsSync(cursor) && cursor,
@@ -37,21 +40,34 @@ function resolveStateBase(name) {
 
 /**
  * Detect the host once. Cursor sets `CURSOR_PLUGIN_ROOT` and injects context only
- * on `SessionStart` (via `additional_context`); Claude injects on every event
- * (via `hookSpecificOutput`).
+ * on `SessionStart` (via `additional_context`); Copilot sets `COPILOT_PLUGIN_ROOT`
+ * and injects on `SessionStart` only (via flat `additionalContext`); Claude injects
+ * on every event (via `hookSpecificOutput`). Copilot also sets `CLAUDE_PLUGIN_ROOT`,
+ * so it must be checked before the Claude default.
  * @returns {Host}
  */
 export function detectHost() {
   /** @type {HostName} */
-  const name = process.env.CURSOR_PLUGIN_ROOT ? "cursor" : "claude";
+  const name = process.env.CURSOR_PLUGIN_ROOT
+    ? "cursor"
+    : process.env.COPILOT_PLUGIN_ROOT
+      ? "copilot"
+      : "claude";
   return {
     name,
     stateBase: resolveStateBase(name),
-    supportsContext: (event) => (name === "cursor" ? event === "SessionStart" : true),
+    supportsContext: (event) =>
+      name === "cursor" || name === "copilot" ? event === "SessionStart" : true,
     emit: (event, text) => {
       if (name === "cursor") {
         if (event === "SessionStart") {
           process.stdout.write(JSON.stringify({ additional_context: text }) + "\n");
+        }
+        return;
+      }
+      if (name === "copilot") {
+        if (event === "SessionStart") {
+          process.stdout.write(JSON.stringify({ additionalContext: text }) + "\n");
         }
         return;
       }

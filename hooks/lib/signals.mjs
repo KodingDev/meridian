@@ -32,14 +32,15 @@ export function readInput() {
 }
 
 /**
- * The filesystem-safe session id (`session_id`, or Cursor's `conversation_id`).
- * Returns null for anything outside a single `[A-Za-z0-9_-]` path segment, which
- * blocks separators, "..", and shell metacharacters before any fs use.
+ * The filesystem-safe session id (`session_id`, Copilot's `sessionId`, or Cursor's
+ * `conversation_id`). Returns null for anything outside a single `[A-Za-z0-9_-]`
+ * path segment, which blocks separators, "..", and shell metacharacters before any
+ * fs use.
  * @param {HookInput} input
  * @returns {string | null}
  */
 export function sessionId(input) {
-  const id = input?.session_id ?? input?.conversation_id;
+  const id = input?.session_id ?? input?.sessionId ?? input?.conversation_id;
   return typeof id === "string" && ID_PATTERN.test(id) ? id : null;
 }
 

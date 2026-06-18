@@ -57,6 +57,8 @@ Hooks are Node scripts (`node ./hooks/*.mjs`) — no Git Bash or shell polyglot 
 
 Copilot CLI installs the same plugin via its `/plugin` commands and loads the skills and subagents directly. Subagent `tools` are declared as YAML arrays of Claude tool names (`[Read, Grep, Glob, Bash, …]`); Copilot resolves these case-insensitively to its own primitives (`read`, `search`, `execute`, `web`), so the agents get full file/search/shell/web access rather than the bare baseline.
 
+Hooks ship in Copilot's own format: Copilot's command schema treats `command` as a shell string and has no `args` array, so the Claude exec-form config would run a bare `node`. Copilot is pointed at `hooks/hooks-copilot.json` via `.plugin/plugin.json` (a manifest slot Copilot reads but Claude and Cursor don't). Session orientation injects via a flat `additionalContext` on `sessionStart`; prompt submission is state-only, because Copilot's `userPromptSubmitted` hook cannot inject context (same ceiling as Cursor).
+
 Hook tests: `node --test test/meridian-hooks.test.mjs`
 
 ## Credit

@@ -7,16 +7,17 @@
  * @typedef {Object} HookInput
  * @property {string} [session_id] Claude session id (SessionStart / SessionEnd / UserPromptSubmit).
  * @property {string} [conversation_id] Cursor's equivalent id.
+ * @property {string} [sessionId] Copilot's equivalent id (native camelCase payload).
  * @property {string} [prompt] UserPromptSubmit: the submitted prompt text.
  * @property {string} [hook_event_name]
  */
 
-/** @typedef {"claude" | "cursor"} HostName */
+/** @typedef {"claude" | "cursor" | "copilot"} HostName */
 
 /** The hook events that can inject context. @typedef {"SessionStart" | "UserPromptSubmit"} HookEvent */
 
 /**
- * A resolved host — the single place the Claude-vs-Cursor differences live.
+ * A resolved host — the single place the Claude/Cursor/Copilot differences live.
  * @typedef {Object} Host
  * @property {HostName} name
  * @property {string} stateBase Base dir under which Meridian session state is kept.
