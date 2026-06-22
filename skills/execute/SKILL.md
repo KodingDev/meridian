@@ -47,7 +47,7 @@ If signals pre-answer both questions, say one line naming what was detected ("De
 - **At-the-end:** commit once after all tasks pass final verification.
 - **You-handle-it:** never commit. User handles it.
 
-All commits — including from subagents — follow `meridian:commit` rules: no AI attribution, verify staging, present messages for approval.
+All commits — including from subagents — follow `meridian:commit` rules.
 
 ## Process
 
@@ -109,45 +109,17 @@ Do not log every tool call, search, or thought. A clean task with no deviations 
 
 If no spec file exists (direct invocation without brainstorm), skip this — the work is ephemeral enough to live in conversation.
 
-## Overengineering Guard
+## Scope Discipline
 
-Avoid drifting into overengineering — extra files, unnecessary abstractions, flexibility that wasn't asked for. During execution:
-- Only implement what the spec asks for
-- Don't refactor adjacent code "while you're here"
-- Don't add error handling for impossible scenarios
-- Don't create abstractions for one-time operations
-- If a subagent returns extra work that wasn't in the spec, remove it
-
-## Change Proportionality
-
-Match the scope of your change to the scope of the request:
-- User says "fix X" → change only what's needed to fix X
-- User says "tweak Y" → adjust Y, nothing else
-- User says "redesign Z" → then a broader rewrite is appropriate
-
-If a small fix requires touching more code than expected, explain why before doing it. Never rewrite what works to fix what doesn't. If you changed files the user didn't mention, you probably over-scoped.
-
-## Comments and Justification
-
-Default to no comments. Only add one when the WHY is non-obvious: a hidden constraint, a subtle invariant, a workaround for a specific bug. Never explain WHAT the code does — well-named identifiers do that.
-
-Never justify changes in the code itself. No "Changed from X because Y" comments. No "Previously this did Z" notes. No narration of why a line exists now. The diff is the artifact; the reasoning goes in chat or the commit body, not in the file. If you dispatched a subagent that returned over-commented code, strip the justification before accepting the work.
-
-## Quality Gates
-
-These are not negotiable:
-
-- **No completion claims without fresh verification evidence.** Run the command. Read the output. Then claim the result.
-- **Headline matches reality.** "Complete" requires every acceptance criterion verified and every verification command passing. Unverified → "Incomplete". Failed → "Blocked", even when the failure is pre-existing or unrelated.
-- **No "should pass" or "looks correct."** Evidence or silence.
-- **No trusting subagent success reports.** Verify independently.
-- **No moving to next task with failing verification.** Fix it or escalate.
-- **No skipping the final review.** Every implementation gets reviewed.
-- **No justification comments in code.** Reasoning belongs in chat, not the file.
+Match change scope to request scope, and don't gold-plate:
+- Implement only what the spec asks for — no extra files, abstractions, or flexibility that wasn't requested
+- Don't refactor adjacent code "while you're here", and don't add error handling for impossible cases
+- "fix X" / "tweak Y" means touch only X / Y; "redesign Z" earns a broader rewrite
+- If a subagent returns work beyond the spec, strip it before accepting
+- If a small fix requires touching more code than expected, explain why first. Files changed that the user didn't mention mean you over-scoped.
 
 ## Integration
 
 - **Predecessors:** `brainstorm`, or direct invocation with clear requirements
 - **Successors:** `commit`, `document`
 - **May invoke:** `delegate`, `review`, `research`
-- **On completion:** Re-evaluate the next user message against the routing table. Common next: `review`, `commit`.

@@ -65,4 +65,3 @@ On escape: if the sketch file is untracked by git, delete it; otherwise leave it
 - **Predecessors:** `meridian` routing, or direct invocation
 - **Successors:** `execute`
 - **May invoke:** `research`, `brainstorm` (escape hatch)
-- **On completion:** Re-evaluate the next user message against the routing table. Common next: `execute`.

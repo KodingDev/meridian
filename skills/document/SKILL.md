@@ -71,4 +71,3 @@ Lives in `docs/` or as a comment near the relevant code, depending on scope.
 - **Predecessors:** `execute`, or direct invocation after completed work
 - **Successors:** None (terminal)
 - **May invoke:** —
-- **On completion:** Re-evaluate the next user message against the routing table.

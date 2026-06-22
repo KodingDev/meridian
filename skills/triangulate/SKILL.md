@@ -1,6 +1,6 @@
 ---
 name: triangulate
-description: Verify a specific-value or behavior claim across multiple primary sources before asserting it or acting on it. Auto-invokes when about to assert a value that has a definite answer outside this conversation — including binary/protocol/format/API behavior, CSS token / theme / palette values, computed runtime values (oklch lightness, contrast ratios, parsed sizes), observable UI state, or any config-file / dependency-version field — without having directly read the source-of-truth artifact this session. Also auto-invokes when pairing a code edit with confidence-escalation language, when deriving runtime output from code design without reading actual output, or when authoring a spec against an unread existing config / token / theme file in the repo.
+description: Verify a specific-value or behavior claim across multiple primary sources before asserting or acting on it. Auto-invokes before asserting a value with a definite answer outside this conversation — API/protocol/format behavior, design tokens, computed runtime values, config/dependency fields, observable UI state — that you haven't read the source artifact for this session; also on code-edit-plus-confidence-escalation, output claims derived from code without reading output, and spec authoring against an unread config/token file. Full trigger self-check in the body.
 argument-hint: "[optional claim to audit]"
 ---
 
@@ -53,7 +53,7 @@ A useful negative test before skipping: if I had to bet $100 that my claim match
 This is the escalation path only. For Tier 1, there is no process: read the artifact, then assert. Run the steps below when a triggered claim is contested or load-bearing per the Two Tiers conditions, or when invoked manually via `$ARGUMENTS`:
 
 1. **Identify the claim** — one sentence, in scope. If the claim isn't already a clear sentence in the conversation, articulate it explicitly before dispatching.
-2. **Dispatch the `meridian:triangulate` agent** as a subagent (`subagent_type: meridian:triangulate`). Prompt body: the claim text, candidate source paths (whatever the orchestrator can identify — file paths, addresses, URLs, sister-repo references, ticket links, runtime artifacts, etc.), and the Ground Truth Audit format below. The agent's system prompt already contains the HARD-GATE and reads `references/source-kinds.md` to classify sources.
+2. **Dispatch the `meridian:triangulate` agent** as a subagent (`subagent_type: meridian:triangulate`). Prompt body: the claim text, candidate source paths (whatever the orchestrator can identify — file paths, addresses, URLs, sister-repo references, ticket links, runtime artifacts, etc.), and the Ground Truth Audit format (`references/audit-format.md`). The agent's system prompt already contains the HARD-GATE and reads `references/source-kinds.md` to classify sources.
 3. **Validate the returned audit** against the HARD-GATE: ≥2 different-kind sources required for `confidence: high`; no forbidden confidence words inline; no edits performed by the agent.
 4. **Stitch the inline row** into the active spec/sketch under `## Ground Truth Audit` (create the heading if missing). The active spec/sketch is the most recently-written file under `.meridian/specs/` or `.meridian/sketches/` — or a path the caller passed in.
 5. **Write the full audit file** to `.meridian/audits/YYYY-MM-DD-<claim-slug>.md`. Slug rules: lowercase, ASCII-fold, non-alphanumeric → hyphen, collapse, trim, truncate to 60 chars. Audits are immutable — on filename collision, append `-2`, `-3`. Never overwrite an existing audit.
@@ -61,54 +61,12 @@ This is the escalation path only. For Tier 1, there is no process: read the arti
    - **Interactive mode (default):** surface to the user via `AskUserQuestion` with options "Re-dispatch with broader source candidates" / "Accept lower confidence" / "Halt". Do not silently lower confidence and proceed.
    - **Autonomous (`auto` skill active):** `AskUserQuestion` is unavailable. Lower the audit's `confidence` to the level the evidence supports, set `code_edit_gated: true` if it wasn't already, write the audit (including a "second source needed: <what kind>" note in `Could Be Wrong If`), and DO NOT perform any code edit that depended on the violated claim. Document the lowered-confidence claim in the autonomous mode's final summary so the user sees it on return.
 
-## Audit Row Format (inline in active spec/sketch)
+## Audit Formats
 
-```markdown
-### Claim: <one sentence>
-- sources: <type>:<path>:<loc>, <type>:<path>:<loc>
-- confidence: high | medium | low
-- audit: .meridian/audits/<file>.md
-```
-
-The two-different-`type`s rule is a precondition for `confidence: high` only. Lower-confidence rows MAY have 0, 1, or 2+ sources of any kind combination. The `type:` field is free-form — the agent commits to a kind label that names the source's lineage. See `references/source-kinds.md` for what counts as a kind and what "different kind" means; the agent reads that file when classifying sources. There is no closed enum.
-
-## Audit File Format (`.meridian/audits/<file>.md`)
-
-The agent returns this body. Write it verbatim:
-
-```markdown
-# Ground Truth Audit: <claim>
-
-## Claim
-<one sentence>
-
-## Primary Source 1
-- type: <free-form kind label per references/source-kinds.md>
-- path: <file or address>
-- location: <line/range/EA>
-- what it shows: <quote or short summary>
-
-## Primary Source 2
-[same shape — must have a different `type` than Source 1 if confidence is high]
-
-## Disagreement Check
-- Where the two sources should agree: <...>
-- Where they actually agree: <...>
-- Where they disagree (if at all): <...>
-
-## Confidence
-high | medium | low
-
-## Could Be Wrong If
-<one sentence — concrete falsifier the orchestrator or a future agent can check>
-
-## Code Edit Gated
-true | false (true if the next action depends on this claim)
-```
+Both the inline row (stitched into the active spec/sketch at step 4) and the full audit file (written at step 5) follow `references/audit-format.md`. Read it before writing either.
 
 ## Integration
 
 - **Predecessors:** `meridian` routing (auto on lens triggers), `brainstorm`, `execute`, `debug`, `sketch`, or direct invocation
 - **Successors:** Returns to caller with the audit row reference. Caller proceeds with the verified claim or surfaces the gate violation.
 - **May invoke:** `meridian:triangulate` agent (heavy multi-source reading)
-- **On completion:** Re-evaluate the next user message against the routing table. Returns to calling skill.

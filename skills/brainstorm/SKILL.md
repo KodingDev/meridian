@@ -12,14 +12,6 @@ Turn ideas into thorough specs through collaborative dialogue.
 Do NOT invoke any implementation skill, write any code, scaffold any project, or take any implementation action until the spec is written and the user has approved it.
 </HARD-GATE>
 
-## When to Self-Invoke
-
-Invoke this skill automatically when:
-- The user asks for a new feature or significant change
-- The request involves architectural decisions or multiple components
-- The user is describing what they want (not asking you to just do a small thing)
-- You're uncertain about the right approach and need to explore options
-
 ## Process
 
 1. **Explore project context** — check files, docs, recent commits, existing patterns. Understand what exists before proposing changes.
@@ -41,7 +33,7 @@ Invoke this skill automatically when:
 
    When the user states a constraint or preference ("no X", "always use Y", "don't Z"), note it immediately for the spec's User Constraints section. These accumulate throughout the brainstorm. If the spec is already written, update it — constraints discovered during later discussion are just as binding.
 
-5. **Challenge if needed** — if you believe the approach is wrong, follow the Challenge Protocol (see `meridian` bootstrap skill). Present all viable alternatives with genuine merits. Once the user decides, proceed with their choice fully.
+5. **Challenge if needed** — if you believe the approach is wrong, follow the Challenge Protocol. Present all viable alternatives with genuine merits. Once the user decides, proceed with their choice fully.
 
 6. **Propose approaches** — present 2-3 approaches via `AskUserQuestion`. Each option's label is the approach name, description covers tradeoffs and merits. Use the `preview` field for code snippets or architecture sketches when they'd help the user compare. Put your recommendation first with "(Recommended)" in the label.
 
@@ -67,24 +59,13 @@ Invoke this skill automatically when:
 
 12. **Transition** — once approved, invoke `meridian:execute` to implement.
 
-## Key Principles
+## Principles
 
-- **Structured questions** — use `AskUserQuestion` for choices and approvals; batch related questions rather than spreading them across turns
-- **YAGNI ruthlessly** — cut unnecessary features from every design
-- **Explore alternatives** — always propose 2-3 approaches before settling
-- **Research gaps, don't guess** — if you're not sure how an API works, invoke research
-- **Existing codebases: explore first** — follow existing patterns. Where existing code has problems that affect the work, include targeted improvements in the design. Don't propose unrelated refactoring.
-
-## Working in Existing Codebases
-
-- Explore the current structure before proposing changes
-- Follow existing patterns unless they're actively harmful
-- Where existing code has problems that affect the work (overgrown files, tangled responsibilities), include targeted improvements as part of the design
-- Don't propose unrelated refactoring — stay focused on what serves the goal
+- **YAGNI ruthlessly** — cut unnecessary features from every design.
+- **Targeted improvements only** — where existing code has problems that affect the work (overgrown files, tangled responsibilities), fold the fix into the design; don't propose unrelated refactoring.
 
 ## Integration
 
 - **Predecessors:** `meridian` routing, or direct invocation
 - **Successors:** `execute`
 - **May invoke:** `research`
-- **On completion:** Re-evaluate the next user message against the routing table. Common next: `execute`.

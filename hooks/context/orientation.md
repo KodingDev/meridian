@@ -42,4 +42,4 @@ Two tiers — the default is cheap, so it actually fires: **Tier 1 (Ground)** is
 
 ## When uncertain
 
-Invoke `meridian:meridian` via the Skill tool for the full routing reference and pillar text. The orientation above is the working subset.
+Invoke `meridian:meridian` via the Skill tool for the full routing reference. The pillars, protocols, and conventions are in the active output style; the orientation above is the working subset.

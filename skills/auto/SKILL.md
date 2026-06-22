@@ -44,9 +44,7 @@ When unsure whether to ask: don't. Document the decision instead.
 
 Finish one demonstrable thing rather than starting three. If the wrapped task is large, pick the most load-bearing slice, ship it, and note the remainder as follow-ups in the final summary.
 
-**"Complete" means complete in the sense the user asked for.** If the task was a full cutover / migration / port, "complete" means every caller uses the new shape end-to-end. Partial progress with legacy intact is fine and honest. Deleting the source and leaving stubs behind so the build stays green is **not complete** — it's destructive and it misrepresents progress. Never take deletion shortcuts to hit a "done" state. Commit the real partial work, leave legacy intact, and report the remaining surface as a follow-up.
-
-This is restated as a hard-gate in `execute`; it applies in every autonomy invocation, not just execute.
+**"Complete" means complete in the sense the user asked for.** Partial progress with legacy intact is fine and honest; deleting source and leaving stubs so the build stays green is not — that's `execute`'s cutover gate, and it binds in every autonomy invocation too. Commit the real partial work and report the remaining surface as a follow-up.
 
 ### 3. Document every non-obvious decision
 
@@ -60,7 +58,7 @@ Short bullets. No prose.
 
 ### 4. Commit the work
 
-If the task produces code, commit it before finishing — following the `commit` skill's rules (no AI attribution, clean message, no stray files). Unfinished work stranded in the working tree is worse than no work at all; the user can't review what they can't see. Do not push unless the wrapped task explicitly said to.
+If the task produces code, commit it before finishing — following the `commit` skill's rules. Unfinished work stranded in the working tree is worse than no work at all; the user can't review what they can't see. Do not push unless the wrapped task explicitly said to.
 
 ### 5. Respect destructive-operation guardrails
 
@@ -122,4 +120,4 @@ When the wrapped task finishes (or blocks), end with a message in this shape:
 - **Predecessors:** Direct invocation only
 - **Successors:** Any skill via the wrapped task
 - **May invoke:** Any skill (runs them in autonomy mode)
-- **On completion:** The wrapped task's `On completion` applies. Re-evaluate the next user message against the routing table. Autonomy mode ends only on a session-end signal (see principle 8) — mid-flow messages are re-classified as constraints or scope changes, not exits.
+- **On completion:** Autonomy mode persists until a session-end signal (principle 8) — mid-flow messages are re-classified as constraints or scope changes, not exits.

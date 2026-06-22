@@ -47,4 +47,3 @@ If the agent returns "Could not verify":
 - **Predecessors:** `brainstorm`, `debug`, `execute`, `sketch`, or direct invocation
 - **Successors:** Returns to caller
 - **May invoke:** `meridian:research` agent (heavy doc-reading)
-- **On completion:** Re-evaluate the next user message against the routing table. Returns to calling skill.

@@ -10,12 +10,12 @@ Do NOT skip automated checks (lint, typecheck, build, test) before dispatching t
 <HARD-GATE>
 Default mode is **report-only**. `review` produces a findings list and verdict; it does NOT modify code unless the invoking request explicitly asks for fixes ("review and fix", "fix any issues you find", "apply the suggestions"). If you are invoked by `execute`, return findings — `execute` decides what to address based on finding class. The orchestrator/user acts on findings, not `review`.
 
-The reviewer's verdict is not yours to pre-empt. You MUST NOT emit or queue any edit, write, build, commit, or other downstream tool call in the same turn that dispatches the reviewer subagents — and not at all until all three verdicts have actually returned and you have aggregated them. Queuing fixes alongside the dispatch makes the review's conclusion predetermined, which is the failure this gate exists to prevent. Dispatch, wait, aggregate, *then* act.
+The reviewer's verdict is not yours to pre-empt. You MUST NOT emit or queue any edit, write, build, commit, or other downstream tool call in the same turn that dispatches the reviewer subagents — and not at all until all three verdicts have actually returned and you have aggregated them. Queuing fixes alongside the dispatch predetermines the conclusion — it breaks the blind. Dispatch, wait, aggregate, *then* act.
 </HARD-GATE>
 
 # Review
 
-Code review that catches what matters. Dispatched as three isolated lens subagents running in parallel, so the orchestrator's prior reasoning doesn't contaminate the assessment.
+Code review that catches what matters. Dispatched as three **blind** lens passes in parallel — each reviewer sees only the diff and its rubric, never the orchestrator's reasoning or the other passes, so nothing predetermines the verdict.
 
 By default, review **reports** — it does not fix. This is deliberate: a spec or diff getting reviewed and then auto-edited makes it impossible to see what the reviewer flagged vs. what was changed in response. Findings go up; fixes happen at the caller's discretion.
 
@@ -40,7 +40,7 @@ Dispatch all three lenses **in a single message** — three `Agent` calls with `
 - The spec file content, if one exists
 - A description of what was implemented
 
-Do NOT pass: conversation history, prior review results, the orchestrator's reasoning, or the other lenses' rubrics or results. Each pass reviews the diff on its own merits.
+Do NOT pass: conversation history, prior review results, the orchestrator's reasoning, or the other lenses' rubrics or results — keep each pass blind. Each reviews the diff on its own merits.
 
 ### 3. Aggregate
 
@@ -60,7 +60,7 @@ Present one merged findings list (each finding keeps its `finding-class` label a
 
 `review` is report-only by default (see the hard-gate above). Return findings to the caller, classified by `finding-class` (below). The caller — `execute`, or the user directly — decides what to address.
 
-Only act on findings directly if the invoking request explicitly said to ("review and fix", "apply the suggestions"). In that case: fix material-gap findings first, consider prose-clarity on a cost-benefit basis, skip implementation-detail. Then re-run automated checks, and re-review if material-gap fixes were substantial (dispatch fresh subagents — the previous passes' reasoning must not carry over).
+Only act on findings directly if the invoking request explicitly said to ("review and fix", "apply the suggestions"). In that case: fix material-gap findings first, consider prose-clarity on a cost-benefit basis, skip implementation-detail. Then re-run automated checks, and re-review if material-gap fixes were substantial (dispatch fresh subagents — a re-review stays blind; the previous passes' reasoning must not carry over).
 
 ## Lenses
 
@@ -74,13 +74,7 @@ Every review dispatches all three. Each lens's rubric lives in its own file; the
 
 ## Finding Classification
 
-Every finding must be labeled with one of three classes. This is non-negotiable — unclassified findings are noise.
-
-- **`material-gap`** — the change is incorrect, incomplete, or actively harmful: bugs, security issues, broken API contracts, missing behavior the spec requires, tests that don't test the thing, type unsoundness, dead paths that will blow up in production. Must be addressed before merge. If the reviewer is reviewing a spec rather than code, `material-gap` also covers missing requirements, ambiguous decisions that will cause implementer divergence, and contradictions between sections.
-- **`prose-clarity`** — the code or spec works, but a specific phrasing is confusing, a name misleads, or a section would benefit from a clarifying sentence. Cheap wins only. This class is for actual-clarity issues, not "would be nicer if..." speculation.
-- **`implementation-detail`** — the reviewer has an opinion on how a competent implementer should handle a detail that is neither wrong nor unclear. These are the "cover-every-edge-case" nits — defensive null checks for impossible inputs, extra hooks a competent maintainer would add later if needed, alternative names that are equally good. Do not emit these unless the reviewer is genuinely confident the issue will cause harm. When in doubt, drop the finding entirely rather than labeling it `implementation-detail`.
-
-Any finding the reviewer is tempted to label `implementation-detail` should be re-examined: is this a real defect in disguise? If not, delete it from the output. The bar is "will a competent implementer get this wrong in a way that matters." If no, it doesn't belong in a review.
+Every finding carries one of three classes — `material-gap` (blocking: incorrect, incomplete, or harmful), `prose-clarity` (cheap real clarity win), or `implementation-detail` (an opinion on a detail that is neither wrong nor unclear — dropped by default). The reviewer agent owns the full definitions and the emit/drop bar; the orchestrator consumes the labels to triage. Unclassified findings are noise.
 
 ## What the Orchestrator Sees
 
@@ -97,4 +91,3 @@ No "strengths" section. Working code is the baseline, not an achievement. No lis
 - **Predecessors:** `execute`, or direct invocation
 - **Successors:** Fix defects (back to implementation)
 - **May invoke:** —
-- **On completion:** Re-evaluate the next user message against the routing table. Common next: fix defects, then `commit`.

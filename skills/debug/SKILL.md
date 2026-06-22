@@ -17,12 +17,7 @@ The bug is in the user's project — you are debugging their code and environmen
 
 ## When to Self-Invoke
 
-Invoke this skill automatically when:
-- The user pastes an error message or stack trace
-- A test failure occurs during execute
-- Build or lint fails unexpectedly
-- The user describes unexpected behavior, even casually ("this is weird", "why is X happening")
-- A fix just shipped and the user replies with a terse failure signal — "still broken", "not fixed", "doesn't work", "nope", a one-word rejection, or a bare screenshot. Do not patch again; the short dismissal means the last fix missed the root cause. Drop into Phase 1.
+The routing table and this skill's description own the entry triggers. One needs spelling out because it arrives mid-flow and is easy to miss: a fix just shipped and the user replies with a terse failure signal — "still broken", "not fixed", "doesn't work", "nope", a one-word rejection, or a bare screenshot. Do not patch again; the short dismissal means the last fix missed the root cause. Enter at Phase 1.
 
 ## The Iron Law
 
@@ -65,17 +60,6 @@ Phase 1 requires tool calls, not speculation. Read the code, run the commands, c
 
 If the bug involves an external API or library behaving unexpectedly, invoke `meridian:research` to verify expected behavior against live docs before forming hypotheses. Don't assume you know how the library works.
 
-## Red Flags — Stop and Restart Phase 1
-
-If you catch yourself thinking any of these, you've skipped the process:
-
-- "Quick fix for now, investigate later"
-- "Just try changing X and see"
-- "I don't fully understand but this might work"
-- "Here are the main problems: [lists fixes without investigation]"
-- Proposing solutions before tracing data flow
-- 3+ fix attempts in different places revealing new problems each time
-
 ## When the Process Reveals No Root Cause
 
 If systematic investigation reveals the issue is truly environmental, timing-dependent, or external:
@@ -91,4 +75,3 @@ Most "no root cause" verdicts turn out to be incomplete investigation. Treat the
 - **Predecessors:** `meridian` routing, or direct invocation
 - **Successors:** `commit` (if fix applied)
 - **May invoke:** `research`
-- **On completion:** Re-evaluate the next user message against the routing table. Common next: `commit`.
