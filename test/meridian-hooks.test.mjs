@@ -281,6 +281,11 @@ test("hooks.json resolves the plugin root from env at runtime (cross-engine)", (
           /process\.env\.CLAUDE_PLUGIN_ROOT\s*\|\|\s*process\.env\.PLUGIN_ROOT/,
           "resolves the root from CLAUDE_PLUGIN_ROOT or PLUGIN_ROOT",
         );
+        assert.match(
+          hook.command,
+          /if\(!r\)process\.exit\(0\)/,
+          "exits cleanly when neither plugin-root var is set, instead of crashing on an undefined path",
+        );
         assert.doesNotMatch(hook.command, /\\/, "no backslash literals (the shell eats them)");
         assert.match(
           hook.command,
@@ -332,6 +337,63 @@ test("hooks.json SessionStart runs from any engine env, even with the wrong cwd"
     rmSync(cfg, { recursive: true, force: true });
   }
 });
+
+test("hooks.json hooks exit cleanly when no plugin-root env var is set", () => {
+  // If neither CLAUDE_PLUGIN_ROOT nor PLUGIN_ROOT is set, the resolver must bail
+  // (exit 0) rather than spawn 'undefined/hooks/*.mjs' and crash the session.
+  const config = JSON.parse(readFileSync(join(HOOKS, "hooks.json"), "utf8"));
+  for (const matchers of Object.values(config.hooks)) {
+    for (const matcher of matchers) {
+      for (const hook of matcher.hooks) {
+        const cfg = tmpConfig();
+        /** @type {Record<string, string | undefined>} */
+        const env = { ...process.env, CLAUDE_CONFIG_DIR: cfg };
+        delete env.CLAUDE_PLUGIN_ROOT;
+        delete env.PLUGIN_ROOT;
+        delete env.COPILOT_PLUGIN_ROOT;
+        delete env.CURSOR_PLUGIN_ROOT;
+        let code = 0;
+        try {
+          execSync(hook.command, { cwd: tmpdir(), input: "{}", encoding: "utf8", env });
+        } catch (err) {
+          code = /** @type {any} */ (err).status ?? 1;
+        }
+        assert.equal(code, 0, `exits 0 with no plugin root: ${hook.command}`);
+        rmSync(cfg, { recursive: true, force: true });
+      }
+    }
+  }
+});
+
+test(
+  "hooks.json translates a WSL Windows plugin root to /mnt at runtime",
+  { skip: process.platform !== "linux" },
+  () => {
+    // The static test above asserts the fallback CODE is present; this one runs it.
+    // On a Linux runner a Windows-style root (C:\...) takes the WSL branch; wslpath is
+    // absent on plain Ubuntu (or yields the same answer on real WSL), so the manual
+    // /mnt translation fires. node then fails to find the (nonexistent) translated
+    // script, and the path it reports proves C:\nope\plugin became /mnt/c/nope/plugin.
+    const config = JSON.parse(readFileSync(join(HOOKS, "hooks.json"), "utf8"));
+    const command = config.hooks.SessionStart[0].hooks[0].command;
+    const cfg = tmpConfig();
+    /** @type {Record<string, string | undefined>} */
+    const env = { ...process.env, CLAUDE_CONFIG_DIR: cfg };
+    delete env.PLUGIN_ROOT;
+    delete env.COPILOT_PLUGIN_ROOT;
+    delete env.CURSOR_PLUGIN_ROOT;
+    env.CLAUDE_PLUGIN_ROOT = "C:\\nope\\plugin";
+    let diagnostics = "";
+    try {
+      execSync(command, { cwd: tmpdir(), input: "{}", encoding: "utf8", env });
+    } catch (err) {
+      const e = /** @type {any} */ (err);
+      diagnostics = String(e.stderr ?? "") + String(e.message ?? "");
+    }
+    assert.match(diagnostics, /\/mnt\/c\/nope\/plugin/, "Windows root translated to /mnt path");
+    rmSync(cfg, { recursive: true, force: true });
+  },
+);
 
 test("hooks-cursor.json invokes node hook scripts", () => {
   const config = JSON.parse(readFileSync(join(HOOKS, "hooks-cursor.json"), "utf8"));

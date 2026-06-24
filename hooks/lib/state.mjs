@@ -40,11 +40,11 @@ export function sessionDir(host, id) {
  */
 export function touch(host, id) {
   const dir = sessionDir(host, id);
-  mkdirSync(dir, { recursive: true });
   try {
+    mkdirSync(dir, { recursive: true });
     utimesSync(dir, new Date(), new Date());
   } catch {
-    // best-effort
+    // best-effort: a failed touch only risks an early prune of an idle session
   }
 }
 
@@ -107,5 +107,9 @@ export function pruneStale(host, currentId, maxAgeMs) {
  * @param {string} id
  */
 export function clear(host, id) {
-  rmSync(sessionDir(host, id), { recursive: true, force: true });
+  try {
+    rmSync(sessionDir(host, id), { recursive: true, force: true });
+  } catch {
+    // best-effort: cleanup only; a left-behind dir is pruned later by age
+  }
 }

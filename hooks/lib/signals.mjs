@@ -54,7 +54,11 @@ export function isFailureSignal(prompt) {
   if (typeof prompt !== "string") return false;
   const trimmed = prompt.trim();
   if (!trimmed || trimmed.length > MAX_SIGNAL_LENGTH) return false;
-  const normalized = trimmed.toLowerCase().replace(/[\s.!?:;,~]+$/, "");
+  // Collapse internal whitespace so an accidental double-space ("still  broken") still matches.
+  const normalized = trimmed
+    .toLowerCase()
+    .replace(/[\s.!?:;,~]+$/, "")
+    .replace(/\s+/g, " ");
   return FAILURE_SIGNAL.test(normalized);
 }
 

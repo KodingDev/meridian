@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node -e \"let r=process.env.CLAUDE_PLUGIN_ROOT||process.env.PLUGIN_ROOT,cp=require('child_process');if(process.platform==='linux'&&/^[a-zA-Z]:/.test(r)){try{r=cp.execFileSync('wslpath',['-u',r],{encoding:'utf8'}).trim()}catch{r='/mnt/'+r[0].toLowerCase()+r.slice(2).split(String.fromCharCode(92)).join('/')}}cp.execFileSync(process.execPath,[r+'/hooks/session-start.mjs'],{stdio:'inherit'})\"",
+            "command": "node -e \"let r=process.env.CLAUDE_PLUGIN_ROOT||process.env.PLUGIN_ROOT;if(!r)process.exit(0);let cp=require('child_process');if(process.platform==='linux'&&/^[a-zA-Z]:/.test(r)){try{r=cp.execFileSync('wslpath',['-u',r],{encoding:'utf8'}).trim()}catch{r='/mnt/'+r[0].toLowerCase()+r.slice(2).split(String.fromCharCode(92)).join('/')}}cp.execFileSync(process.execPath,[r+'/hooks/session-start.mjs'],{stdio:'inherit'})\"",
             "async": false
           }
         ]
@@ -18,7 +18,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node -e \"let r=process.env.CLAUDE_PLUGIN_ROOT||process.env.PLUGIN_ROOT,cp=require('child_process');if(process.platform==='linux'&&/^[a-zA-Z]:/.test(r)){try{r=cp.execFileSync('wslpath',['-u',r],{encoding:'utf8'}).trim()}catch{r='/mnt/'+r[0].toLowerCase()+r.slice(2).split(String.fromCharCode(92)).join('/')}}cp.execFileSync(process.execPath,[r+'/hooks/user-prompt-submit.mjs'],{stdio:'inherit'})\"",
+            "command": "node -e \"let r=process.env.CLAUDE_PLUGIN_ROOT||process.env.PLUGIN_ROOT;if(!r)process.exit(0);let cp=require('child_process');if(process.platform==='linux'&&/^[a-zA-Z]:/.test(r)){try{r=cp.execFileSync('wslpath',['-u',r],{encoding:'utf8'}).trim()}catch{r='/mnt/'+r[0].toLowerCase()+r.slice(2).split(String.fromCharCode(92)).join('/')}}cp.execFileSync(process.execPath,[r+'/hooks/user-prompt-submit.mjs'],{stdio:'inherit'})\"",
             "async": false
           }
         ]
@@ -30,7 +30,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node -e \"let r=process.env.CLAUDE_PLUGIN_ROOT||process.env.PLUGIN_ROOT,cp=require('child_process');if(process.platform==='linux'&&/^[a-zA-Z]:/.test(r)){try{r=cp.execFileSync('wslpath',['-u',r],{encoding:'utf8'}).trim()}catch{r='/mnt/'+r[0].toLowerCase()+r.slice(2).split(String.fromCharCode(92)).join('/')}}cp.execFileSync(process.execPath,[r+'/hooks/session-end.mjs'],{stdio:'inherit'})\"",
+            "command": "node -e \"let r=process.env.CLAUDE_PLUGIN_ROOT||process.env.PLUGIN_ROOT;if(!r)process.exit(0);let cp=require('child_process');if(process.platform==='linux'&&/^[a-zA-Z]:/.test(r)){try{r=cp.execFileSync('wslpath',['-u',r],{encoding:'utf8'}).trim()}catch{r='/mnt/'+r[0].toLowerCase()+r.slice(2).split(String.fromCharCode(92)).join('/')}}cp.execFileSync(process.execPath,[r+'/hooks/session-end.mjs'],{stdio:'inherit'})\"",
             "async": false
           }
         ]
