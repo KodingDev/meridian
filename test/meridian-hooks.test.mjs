@@ -96,6 +96,69 @@ test("hooks.json SessionStart matcher stays empty so it catches the compact sour
   }
 });
 
+test("pre-tool-use denies a git commit carrying AI attribution", () => {
+  for (const command of [
+    'git commit -m "feat: x\n\nCo-Authored-By: Claude <noreply@anthropic.com>"',
+    "git commit -m 'fix: y' -m 'Claude-Session: https://claude.ai/code/abc'",
+    'git commit -m "chore\n\n🤖 Generated with Claude Code"',
+  ]) {
+    const { code, stdout } = runHook("pre-tool-use.mjs", {
+      tool_name: "Bash",
+      tool_input: { command },
+    });
+    assert.equal(code, 0);
+    const out = JSON.parse(stdout);
+    assert.equal(out.hookSpecificOutput.hookEventName, "PreToolUse");
+    assert.equal(out.hookSpecificOutput.permissionDecision, "deny", command);
+    assert.match(out.hookSpecificOutput.permissionDecisionReason, /attribution/i);
+  }
+});
+
+test("pre-tool-use denies staging .meridian artifacts", () => {
+  for (const command of [
+    "git add .meridian/specs/x.md",
+    "git add -f .meridian",
+    "git stage .meridian/audits/a.md",
+  ]) {
+    const { code, stdout } = runHook("pre-tool-use.mjs", {
+      tool_name: "Bash",
+      tool_input: { command },
+    });
+    assert.equal(code, 0);
+    assert.equal(JSON.parse(stdout).hookSpecificOutput.permissionDecision, "deny", command);
+  }
+});
+
+test("pre-tool-use allows clean commits and unrelated commands", () => {
+  // A commit that merely mentions "claude" (no attribution trailer) and a normal
+  // `git add .` (which can't stage gitignored .meridian) must pass untouched.
+  for (const command of [
+    'git commit -m "feat(meridian): add claude model id reference"',
+    "git add src/index.ts",
+    "git add .",
+    "npm test",
+  ]) {
+    const { code, stdout } = runHook("pre-tool-use.mjs", {
+      tool_name: "Bash",
+      tool_input: { command },
+    });
+    assert.equal(code, 0, command);
+    assert.equal(stdout.trim(), "", `should allow: ${command}`);
+  }
+});
+
+test("pre-tool-use ignores non-Bash tools and malformed input", () => {
+  const edit = runHook("pre-tool-use.mjs", {
+    tool_name: "Edit",
+    tool_input: { file_path: "x.ts" },
+  });
+  assert.equal(edit.code, 0);
+  assert.equal(edit.stdout.trim(), "");
+  const garbage = runHook("pre-tool-use.mjs", "not json {{{");
+  assert.equal(garbage.code, 0);
+  assert.equal(garbage.stdout.trim(), "");
+});
+
 test("user-prompt-submit emits the routing audit only on the 8th prompt", () => {
   const cfg = tmpConfig();
   for (let i = 1; i <= 7; i++) {
