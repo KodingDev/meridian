@@ -24,6 +24,7 @@ Hard-won knowledge dies with the session. You debug something for two hours, nai
 |-------|------|
 | `research` | Verify APIs/libs against live docs before implementing |
 | `brainstorm` | Design exploration -> spec through conversation |
+| `sketch` | Lightweight spec for a small, well-scoped fix |
 | `execute` | Implement from spec with verification gates |
 | `delegate` | Dispatch subagents with clean context isolation |
 | `debug` | Root-cause investigation, no fixes without understanding |
@@ -31,6 +32,8 @@ Hard-won knowledge dies with the session. You debug something for two hours, nai
 | `respond` | Evaluate review feedback before acting on it |
 | `commit` | Clean git commits, no AI attribution |
 | `document` | Human-readable docs from resolved work |
+
+Three more compose with these rather than standing alone: `meridian` (the routing reference, for when it's unclear which skill fits), `triangulate` (a verification lens that grounds specific-value claims against their source), and `auto` (a modifier that runs any task autonomously when you step away).
 
 ## What gets installed
 
