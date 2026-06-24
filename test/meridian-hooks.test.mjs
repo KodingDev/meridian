@@ -68,6 +68,34 @@ test("session-start still emits orientation with empty stdin", () => {
   rmSync(cfg, { recursive: true, force: true });
 });
 
+test("session-start re-emits orientation after compaction (source: compact)", () => {
+  // Auto/manual compaction drops the originally-injected orientation; SessionStart
+  // fires again with source "compact" (PostCompact cannot inject), so the hook must
+  // re-emit the routing table. This is the plugin's core long-session promise.
+  const cfg = tmpConfig();
+  const { code, stdout } = runHook(
+    "session-start.mjs",
+    { session_id: SID, hook_event_name: "SessionStart", source: "compact" },
+    { CLAUDE_CONFIG_DIR: cfg },
+  );
+  assert.equal(code, 0);
+  assert.match(
+    JSON.parse(stdout).hookSpecificOutput.additionalContext,
+    /\[Meridian orientation\]/,
+    "routing table restored after compaction",
+  );
+  rmSync(cfg, { recursive: true, force: true });
+});
+
+test("hooks.json SessionStart matcher stays empty so it catches the compact source", () => {
+  // Narrowing this matcher to e.g. "startup" would silently stop post-compaction
+  // re-injection — the exact failure the test above guards against, pinned here too.
+  const config = JSON.parse(readFileSync(join(HOOKS, "hooks.json"), "utf8"));
+  for (const matcher of config.hooks.SessionStart) {
+    assert.equal(matcher.matcher, "", "SessionStart must match all sources, incl. compaction");
+  }
+});
+
 test("user-prompt-submit emits the routing audit only on the 8th prompt", () => {
   const cfg = tmpConfig();
   for (let i = 1; i <= 7; i++) {
