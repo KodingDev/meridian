@@ -1,4 +1,5 @@
 {
   "name": "meridian",
+  "version": "0.11.0",
   "hooks": "./hooks/hooks-copilot.json"
 }

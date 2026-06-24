@@ -11,8 +11,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
-    "test": "node --test test/meridian-hooks.test.mjs test/meridian-lib.test.mjs",
-    "test:coverage": "node --test --experimental-test-coverage test/meridian-hooks.test.mjs test/meridian-lib.test.mjs",
+    "test": "node --test \"test/*.test.mjs\"",
+    "test:coverage": "node --test --experimental-test-coverage \"test/*.test.mjs\"",
     "check": "pnpm run format:check && pnpm run lint && pnpm run typecheck && pnpm test"
   },
   "devDependencies": {

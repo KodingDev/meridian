@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "meridian",
   "description": "Research-first workflows, ruthless code review, orchestrator-led reasoning, and opaque subagent isolation for the entire development lifecycle.",
-  "version": "0.10.8",
+  "version": "0.11.0",
   "author": {
     "name": "KodingDev"
   },
