@@ -7,24 +7,17 @@ prompts:
   - "{{prompt}}"
 
 providers:
+  # Sonnet is the routing baseline: if it can't route correctly, the design is moot.
+  # max_turns gives the agent room to make the routing decision and conclude — at 1
+  # the provider errors before returning a result with skillCalls.
   - id: anthropic:claude-agent-sdk
-    label: opus
-    config: &agent
-      model: claude-opus-4-8
+    label: sonnet
+    config:
+      model: claude-sonnet-4-6
       plugins:
         - type: local
           path: .
       setting_sources: [user, project]
-      max_turns: 1
-  - id: anthropic:claude-agent-sdk
-    label: sonnet
-    config:
-      <<: *agent
-      model: claude-sonnet-4-6
-  - id: anthropic:claude-agent-sdk
-    label: haiku
-    config:
-      <<: *agent
-      model: claude-haiku-4-5-20251001
+      max_turns: 6
 
 tests: file://eval/scenarios/*.yaml

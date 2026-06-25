@@ -1,8 +1,10 @@
 # Skill-routing eval
 
 Verifies that representative prompts route to the correct Meridian skill (or none),
-against the real plugin, across Claude tiers. This is **on-demand dev tooling, not a
-CI gate** — it makes live, paid API calls.
+against the real plugin, on **Sonnet** (`claude-sonnet-4-6`) — the routing baseline:
+if Sonnet can't route a prompt, the design is moot. This is **on-demand dev tooling,
+not a CI gate** — it makes live, paid API calls (a full run is a few turns of the
+agent per scenario).
 
 ## Prerequisites
 
@@ -20,8 +22,8 @@ CI gate** — it makes live, paid API calls.
 ## Run
 
 ```
-pnpm eval        # run the corpus across opus / sonnet / haiku
-pnpm eval:view   # open the comparative pass/fail matrix
+pnpm eval        # run the corpus on Sonnet
+pnpm eval:view   # open the pass/fail matrix
 ```
 
 ## What it checks
@@ -32,8 +34,10 @@ pnpm eval:view   # open the comparative pass/fail matrix
 - `scenarios/reroute.yaml` — terse "still broken" replies; asserts `meridian:debug`
   (the `UserPromptSubmit` reroute hook).
 
-All seed scenarios are expected to pass on `claude-opus-4-8`. Sonnet and Haiku are
-tracked comparatively, not gated — lower tiers route less reliably.
+Self-contained prompts (where the intent is fully in the message) route reliably. A
+scenario whose correct route depends on context the prompt alone doesn't carry — a
+prior failed fix for a reroute, an existing spec for `execute` — is not a meaningful
+single-turn test; see the Known gap.
 
 ## Adding a scenario
 
