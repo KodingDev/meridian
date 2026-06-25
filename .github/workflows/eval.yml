@@ -22,6 +22,18 @@ jobs:
       - name: Install dev tooling
         run: pnpm install --frozen-lockfile
       - name: Run routing eval
+        id: eval
+        continue-on-error: true
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: pnpm eval
+        run: pnpm exec promptfoo eval -c promptfooconfig.yaml --output eval-report.html eval-result.json
+      - name: Write the matrix to the job summary
+        if: always()
+        run: node .github/scripts/eval-summary.mjs eval-result.json >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload the HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: routing-eval-report
+          path: eval-report.html
+          if-no-files-found: warn
