@@ -136,6 +136,7 @@ test("pre-tool-use allows clean commits and unrelated commands", () => {
     'git commit -m "feat(meridian): add claude model id reference"',
     "git add src/index.ts",
     "git add .",
+    "git add src/data.meridian-export.json", // .meridian mid-filename is not the dir
     "npm test",
   ]) {
     const { code, stdout } = runHook("pre-tool-use.mjs", {

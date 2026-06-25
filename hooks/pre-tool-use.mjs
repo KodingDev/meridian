@@ -3,7 +3,6 @@
 // configs, which have no PreToolUse). Mechanically enforces two Meridian commit
 // principles that otherwise live only in prose: no AI attribution in commit
 // messages, and never staging the gitignored .meridian/ working artifacts.
-// Anything else proceeds untouched — emitting nothing defers to normal permissions.
 import { readInput } from "./lib/signals.mjs";
 
 const ATTRIBUTION = [
@@ -14,7 +13,9 @@ const ATTRIBUTION = [
   /claude-session:/i,
 ];
 
-const STAGES_MERIDIAN = /\bgit\s+(?:add|stage)\b[^&|;]*\.meridian\b/i;
+// `.meridian` must be a path segment (boundary on both sides), so a file named
+// e.g. data.meridian-export.json is not mistaken for the gitignored directory.
+const STAGES_MERIDIAN = /\bgit\s+(?:add|stage)\b[^&|;]*[\s=/'"]\.meridian(?:[/\s'"]|$)/i;
 
 /** @param {string} reason */
 function deny(reason) {
