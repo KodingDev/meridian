@@ -16,6 +16,9 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). History before
 - Consistency guards in the test suite: the per-host manifest versions must agree,
   every `meridian:<skill>`/`meridian:<agent>` reference must resolve to something
   that exists, and each skill's frontmatter name must match its directory.
+- A skill-routing eval harness (`eval/`, promptfoo + the `anthropic:claude-agent-sdk`
+  provider) that checks prompts route to the correct skill against the real plugin on
+  Sonnet. On-demand dev tooling (`pnpm eval`); not part of the offline CI gates.
 
 ### Changed
 
