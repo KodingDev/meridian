@@ -1,0 +1,20 @@
+# The failure-signal reroute — the Meridian-specific behaviour the eval most needs
+# to guard. A terse "fix didn't land" reply must route to debug because the
+# UserPromptSubmit hook injects the debug reroute. These single-turn cases exercise
+# the hook directly. Authentic mid-flow re-routing (a signal arriving DURING an
+# active skill) needs prior conversation turns, which this provider models via
+# session resume/continue rather than a declarative fixture — that case is deferred
+# pending the Req 9 spike (see eval/README.md).
+- vars:
+    prompt: "still broken"
+  assert:
+    - type: skill-used
+      value: meridian:debug
+  description: "terse failure reply → debug, not keep-patching"
+
+- vars:
+    prompt: "still the same, not fixed"
+  assert:
+    - type: skill-used
+      value: meridian:debug
+  description: "second failure phrasing → debug"

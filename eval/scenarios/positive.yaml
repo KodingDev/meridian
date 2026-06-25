@@ -1,0 +1,71 @@
+# One representative prompt per routable skill in the orientation table.
+# Each expect value traces to that skill's description / orientation example.
+- vars:
+    prompt: "Fix the hover state on the navbar links — they don't change colour."
+  assert:
+    - type: skill-used
+      value: meridian:sketch
+  description: "small, well-scoped UI fix → sketch"
+
+- vars:
+    prompt: "I want to build a notification system with email and in-app delivery."
+  assert:
+    - type: skill-used
+      value: meridian:brainstorm
+  description: "new multi-subsystem feature → brainstorm"
+
+- vars:
+    prompt: "I'm getting 'TypeError: cannot read properties of undefined (reading id)' when the dashboard loads."
+  assert:
+    - type: skill-used
+      value: meridian:debug
+  description: "bug with a stack trace → debug"
+
+- vars:
+    prompt: "How does the Stripe PaymentIntents API handle idempotency keys?"
+  assert:
+    - type: skill-used
+      value: meridian:research
+  description: "external API behaviour question → research"
+
+- vars:
+    prompt: "I just finished the auth refactor — review it before I merge."
+  assert:
+    - type: skill-used
+      value: meridian:review
+  description: "post-implementation quality check → review"
+
+- vars:
+    prompt: "Here's the reviewer's PR feedback to work through: extract the validation helper, and the retry loop has an off-by-one."
+  assert:
+    - type: skill-used
+      value: meridian:respond
+  description: "triaging reviewer feedback → respond"
+
+- vars:
+    prompt: "Commit this."
+  assert:
+    - type: skill-used
+      value: meridian:commit
+  description: "explicit commit request → commit"
+
+- vars:
+    prompt: "Write up what we learned debugging that race condition so the next session doesn't repeat it."
+  assert:
+    - type: skill-used
+      value: meridian:document
+  description: "capture hard-won knowledge → document"
+
+- vars:
+    prompt: "The spec is approved — go implement it."
+  assert:
+    - type: skill-used
+      value: meridian:execute
+  description: "approved spec ready to build → execute"
+
+- vars:
+    prompt: "Do these three independent jobs in parallel: bump the lint config, split the utils file, and regenerate the API types."
+  assert:
+    - type: skill-used
+      value: meridian:delegate
+  description: "2+ independent tasks at once → delegate"

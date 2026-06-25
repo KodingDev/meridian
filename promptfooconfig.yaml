@@ -1,0 +1,30 @@
+# Meridian skill-routing eval. On-demand only — needs ANTHROPIC_API_KEY (or
+# apiKeyRequired:false against a local Claude Code login) and is NOT part of the
+# offline CI gates. See eval/README.md.
+description: Meridian skill-routing eval
+
+prompts:
+  - "{{prompt}}"
+
+providers:
+  - id: anthropic:claude-agent-sdk
+    label: opus
+    config: &agent
+      model: claude-opus-4-8
+      plugins:
+        - type: local
+          path: .
+      setting_sources: [user, project]
+      max_turns: 1
+  - id: anthropic:claude-agent-sdk
+    label: sonnet
+    config:
+      <<: *agent
+      model: claude-sonnet-4-6
+  - id: anthropic:claude-agent-sdk
+    label: haiku
+    config:
+      <<: *agent
+      model: claude-haiku-4-5-20251001
+
+tests: file://eval/scenarios/*.yaml

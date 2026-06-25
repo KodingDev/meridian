@@ -1,0 +1,27 @@
+name: Routing eval
+
+# On-demand only — never on push/PR. Needs the ANTHROPIC_API_KEY secret and makes
+# paid API calls, so it is not a merge gate.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  eval:
+    name: Skill-routing eval
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - name: Install dev tooling
+        run: pnpm install --frozen-lockfile
+      - name: Run routing eval
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: pnpm eval

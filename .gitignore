@@ -2,3 +2,5 @@
 .DS_Store
 skills-workspace/
 node_modules/
+.env
+.promptfoo/
