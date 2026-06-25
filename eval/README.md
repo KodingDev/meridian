@@ -31,8 +31,6 @@ pnpm eval:view   # open the pass/fail matrix
 - `scenarios/positive.yaml` — one prompt per routable skill; asserts
   `skill-used: meridian:<skill>`.
 - `scenarios/negative.yaml` — trivial prompts; asserts no skill fired.
-- `scenarios/reroute.yaml` — terse "still broken" replies; asserts `meridian:debug`
-  (the `UserPromptSubmit` reroute hook).
 
 Self-contained prompts (where the intent is fully in the message) route reliably. A
 scenario whose correct route depends on context the prompt alone doesn't carry — a
@@ -57,8 +55,11 @@ or a skill description), not intuition. When a real misroute surfaces, add it he
 
 ## Known gap
 
-Authentic **mid-flow re-routing** (a failure signal arriving _during_ an active skill)
-needs prior conversation turns, which the `anthropic:claude-agent-sdk` provider models
-via session `resume`/`continue` rather than a declarative fixture. It is deferred until
-that mechanism (or a headless-CLI fallback) is wired; the single-turn reroute cases
-cover the hook itself.
+The **failure-signal reroute** (a terse "still broken" routing to `debug`) is only
+meaningful _mid-flow_, after an actual failed fix — a cold first-message "still broken"
+has no prior failure to debug, so the model rightly declines. That needs prior
+conversation turns, which the `anthropic:claude-agent-sdk` provider models via session
+`resume`/`continue` rather than a declarative fixture, so it is deferred. The hook's
+_firing_ is already covered deterministically by `test/meridian-lib.test.mjs`
+(`isFailureSignal`) and `test/meridian-hooks.test.mjs`; what's deferred is the
+model-level test of whether the model obeys the injected reroute.

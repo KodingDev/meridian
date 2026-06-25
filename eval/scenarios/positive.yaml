@@ -22,11 +22,11 @@
   description: "bug with a stack trace → debug"
 
 - vars:
-    prompt: "How does the Stripe PaymentIntents API handle idempotency keys?"
+    prompt: "I'm about to write the payment retry logic against the Stripe PaymentIntents API — verify how its idempotency keys actually behave before I code against them."
   assert:
     - type: skill-used
       value: meridian:research
-  description: "external API behaviour question → research"
+  description: "about to write code against an external API → research (verify before building)"
 
 - vars:
     prompt: "I just finished the auth refactor — review it before I merge."
@@ -57,11 +57,11 @@
   description: "capture hard-won knowledge → document"
 
 - vars:
-    prompt: "The spec is approved — go implement it."
+    prompt: "Requirements are locked and the design is approved — no planning needed, go implement the token-bucket rate limiter (100 req/min) as Express middleware now."
   assert:
     - type: skill-used
       value: meridian:execute
-  description: "approved spec ready to build → execute"
+  description: "clear approved requirements, ready to build → execute"
 
 - vars:
     prompt: "Do these three independent jobs in parallel: bump the lint config, split the utils file, and regenerate the API types."
