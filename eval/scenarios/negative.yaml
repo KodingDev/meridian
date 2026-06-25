@@ -1,0 +1,19 @@
+# Prompts that should trigger NO skill — the orientation "just do it" row.
+# skill-used has no negation form; assert skillCalls is empty via javascript.
+- vars:
+    prompt: "What does the parseConfig function do?"
+  assert:
+    - type: javascript
+      value: |
+        const skillCalls = context.providerResponse?.metadata?.skillCalls || [];
+        return skillCalls.length === 0;
+  description: "trivial question → just answer, no skill"
+
+- vars:
+    prompt: "Rename the getUser function to fetchUser everywhere it's used."
+  assert:
+    - type: javascript
+      value: |
+        const skillCalls = context.providerResponse?.metadata?.skillCalls || [];
+        return skillCalls.length === 0;
+  description: "trivial rename → just do it (orientation 'rename X to Y'), not sketch"

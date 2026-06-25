@@ -38,6 +38,7 @@ test("isFailureSignal matches only terse 'fix didn't land' replies", () => {
     "nope, still wrong",
     "STILL BROKEN.",
     "that's still broken",
+    "still  broken", // accidental double-space still matches
   ]) {
     assert.equal(isFailureSignal(p), true, `matches ${JSON.stringify(p)}`);
   }

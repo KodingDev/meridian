@@ -9,6 +9,8 @@
  * @property {string} [conversation_id] Cursor's equivalent id.
  * @property {string} [sessionId] Copilot's equivalent id (native camelCase payload).
  * @property {string} [prompt] UserPromptSubmit: the submitted prompt text.
+ * @property {string} [tool_name] PreToolUse: the tool about to run (e.g. "Bash").
+ * @property {{ command?: string }} [tool_input] PreToolUse: the tool's arguments.
  * @property {string} [hook_event_name]
  */
 

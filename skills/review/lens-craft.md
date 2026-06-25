@@ -35,10 +35,15 @@ For each change, search for existing utilities and helpers that could replace ne
 - "Temporary" branching or flags likely to harden into permanent debt
 
 ## AI Slop
-- Decorative section dividers (// ── Section ──)
-- Comments restating the next line in English
+Comments are the highest-signal tell. Judge every comment **added in the diff** by value, not by count — a comment earns its place only when it captures non-obvious *why* (a hidden constraint, a subtle invariant, a workaround for a specific bug). The code already states the *what*. Flag the rest for removal:
+- Reasoning narrated as comments — walking through the plan or restating what the code is about to do (`// first build the map, then filter`); this is chain-of-thought that leaked into the file
+- Comments restating the next line, the function name, or a self-evident signature in English
+- Decorative section dividers (`// ── Section ──`)
 - Changelog comments (git history exists)
-- Apology comments (// Hack: ..., // TODO: refactor)
+- Apology comments (`// Hack: ...`, `// TODO: refactor`)
+- Multi-paragraph docstrings or comment blocks where one line of *why* would do
+
+Then the non-comment slop:
 - Gratuitous intermediate variables
 - Defensive code for impossible cases
 - Empty else blocks, exhaustive switches with identical arms

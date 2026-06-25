@@ -1,0 +1,23 @@
+# Meridian skill-routing eval. On-demand only — needs ANTHROPIC_API_KEY (or
+# apiKeyRequired:false against a local Claude Code login) and is NOT part of the
+# offline CI gates. See eval/README.md.
+description: Meridian skill-routing eval
+
+prompts:
+  - "{{prompt}}"
+
+providers:
+  # Sonnet is the routing baseline: if it can't route correctly, the design is moot.
+  # max_turns gives the agent room to make the routing decision and conclude — at 1
+  # the provider errors before returning a result with skillCalls.
+  - id: anthropic:claude-agent-sdk
+    label: sonnet
+    config:
+      model: claude-sonnet-4-6
+      plugins:
+        - type: local
+          path: .
+      setting_sources: [user, project]
+      max_turns: 6
+
+tests: file://eval/scenarios/*.yaml

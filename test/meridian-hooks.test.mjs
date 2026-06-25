@@ -68,6 +68,98 @@ test("session-start still emits orientation with empty stdin", () => {
   rmSync(cfg, { recursive: true, force: true });
 });
 
+test("session-start re-emits orientation after compaction (source: compact)", () => {
+  // Auto/manual compaction drops the originally-injected orientation; SessionStart
+  // fires again with source "compact" (PostCompact cannot inject), so the hook must
+  // re-emit the routing table. This is the plugin's core long-session promise.
+  const cfg = tmpConfig();
+  const { code, stdout } = runHook(
+    "session-start.mjs",
+    { session_id: SID, hook_event_name: "SessionStart", source: "compact" },
+    { CLAUDE_CONFIG_DIR: cfg },
+  );
+  assert.equal(code, 0);
+  assert.match(
+    JSON.parse(stdout).hookSpecificOutput.additionalContext,
+    /\[Meridian orientation\]/,
+    "routing table restored after compaction",
+  );
+  rmSync(cfg, { recursive: true, force: true });
+});
+
+test("hooks.json SessionStart matcher stays empty so it catches the compact source", () => {
+  // Narrowing this matcher to e.g. "startup" would silently stop post-compaction
+  // re-injection — the exact failure the test above guards against, pinned here too.
+  const config = JSON.parse(readFileSync(join(HOOKS, "hooks.json"), "utf8"));
+  for (const matcher of config.hooks.SessionStart) {
+    assert.equal(matcher.matcher, "", "SessionStart must match all sources, incl. compaction");
+  }
+});
+
+test("pre-tool-use denies a git commit carrying AI attribution", () => {
+  for (const command of [
+    'git commit -m "feat: x\n\nCo-Authored-By: Claude <noreply@anthropic.com>"',
+    "git commit -m 'fix: y' -m 'Claude-Session: https://claude.ai/code/abc'",
+    'git commit -m "chore\n\n🤖 Generated with Claude Code"',
+  ]) {
+    const { code, stdout } = runHook("pre-tool-use.mjs", {
+      tool_name: "Bash",
+      tool_input: { command },
+    });
+    assert.equal(code, 0);
+    const out = JSON.parse(stdout);
+    assert.equal(out.hookSpecificOutput.hookEventName, "PreToolUse");
+    assert.equal(out.hookSpecificOutput.permissionDecision, "deny", command);
+    assert.match(out.hookSpecificOutput.permissionDecisionReason, /attribution/i);
+  }
+});
+
+test("pre-tool-use denies staging .meridian artifacts", () => {
+  for (const command of [
+    "git add .meridian/specs/x.md",
+    "git add -f .meridian",
+    "git stage .meridian/audits/a.md",
+  ]) {
+    const { code, stdout } = runHook("pre-tool-use.mjs", {
+      tool_name: "Bash",
+      tool_input: { command },
+    });
+    assert.equal(code, 0);
+    assert.equal(JSON.parse(stdout).hookSpecificOutput.permissionDecision, "deny", command);
+  }
+});
+
+test("pre-tool-use allows clean commits and unrelated commands", () => {
+  // A commit that merely mentions "claude" (no attribution trailer) and a normal
+  // `git add .` (which can't stage gitignored .meridian) must pass untouched.
+  for (const command of [
+    'git commit -m "feat(meridian): add claude model id reference"',
+    "git add src/index.ts",
+    "git add .",
+    "git add src/data.meridian-export.json", // .meridian mid-filename is not the dir
+    "npm test",
+  ]) {
+    const { code, stdout } = runHook("pre-tool-use.mjs", {
+      tool_name: "Bash",
+      tool_input: { command },
+    });
+    assert.equal(code, 0, command);
+    assert.equal(stdout.trim(), "", `should allow: ${command}`);
+  }
+});
+
+test("pre-tool-use ignores non-Bash tools and malformed input", () => {
+  const edit = runHook("pre-tool-use.mjs", {
+    tool_name: "Edit",
+    tool_input: { file_path: "x.ts" },
+  });
+  assert.equal(edit.code, 0);
+  assert.equal(edit.stdout.trim(), "");
+  const garbage = runHook("pre-tool-use.mjs", "not json {{{");
+  assert.equal(garbage.code, 0);
+  assert.equal(garbage.stdout.trim(), "");
+});
+
 test("user-prompt-submit emits the routing audit only on the 8th prompt", () => {
   const cfg = tmpConfig();
   for (let i = 1; i <= 7; i++) {
@@ -281,6 +373,11 @@ test("hooks.json resolves the plugin root from env at runtime (cross-engine)", (
           /process\.env\.CLAUDE_PLUGIN_ROOT\s*\|\|\s*process\.env\.PLUGIN_ROOT/,
           "resolves the root from CLAUDE_PLUGIN_ROOT or PLUGIN_ROOT",
         );
+        assert.match(
+          hook.command,
+          /if\(!r\)process\.exit\(0\)/,
+          "exits cleanly when neither plugin-root var is set, instead of crashing on an undefined path",
+        );
         assert.doesNotMatch(hook.command, /\\/, "no backslash literals (the shell eats them)");
         assert.match(
           hook.command,
@@ -332,6 +429,63 @@ test("hooks.json SessionStart runs from any engine env, even with the wrong cwd"
     rmSync(cfg, { recursive: true, force: true });
   }
 });
+
+test("hooks.json hooks exit cleanly when no plugin-root env var is set", () => {
+  // If neither CLAUDE_PLUGIN_ROOT nor PLUGIN_ROOT is set, the resolver must bail
+  // (exit 0) rather than spawn 'undefined/hooks/*.mjs' and crash the session.
+  const config = JSON.parse(readFileSync(join(HOOKS, "hooks.json"), "utf8"));
+  for (const matchers of Object.values(config.hooks)) {
+    for (const matcher of matchers) {
+      for (const hook of matcher.hooks) {
+        const cfg = tmpConfig();
+        /** @type {Record<string, string | undefined>} */
+        const env = { ...process.env, CLAUDE_CONFIG_DIR: cfg };
+        delete env.CLAUDE_PLUGIN_ROOT;
+        delete env.PLUGIN_ROOT;
+        delete env.COPILOT_PLUGIN_ROOT;
+        delete env.CURSOR_PLUGIN_ROOT;
+        let code = 0;
+        try {
+          execSync(hook.command, { cwd: tmpdir(), input: "{}", encoding: "utf8", env });
+        } catch (err) {
+          code = /** @type {any} */ (err).status ?? 1;
+        }
+        assert.equal(code, 0, `exits 0 with no plugin root: ${hook.command}`);
+        rmSync(cfg, { recursive: true, force: true });
+      }
+    }
+  }
+});
+
+test(
+  "hooks.json translates a WSL Windows plugin root to /mnt at runtime",
+  { skip: process.platform !== "linux" },
+  () => {
+    // The static test above asserts the fallback CODE is present; this one runs it.
+    // On a Linux runner a Windows-style root (C:\...) takes the WSL branch; wslpath is
+    // absent on plain Ubuntu (or yields the same answer on real WSL), so the manual
+    // /mnt translation fires. node then fails to find the (nonexistent) translated
+    // script, and the path it reports proves C:\nope\plugin became /mnt/c/nope/plugin.
+    const config = JSON.parse(readFileSync(join(HOOKS, "hooks.json"), "utf8"));
+    const command = config.hooks.SessionStart[0].hooks[0].command;
+    const cfg = tmpConfig();
+    /** @type {Record<string, string | undefined>} */
+    const env = { ...process.env, CLAUDE_CONFIG_DIR: cfg };
+    delete env.PLUGIN_ROOT;
+    delete env.COPILOT_PLUGIN_ROOT;
+    delete env.CURSOR_PLUGIN_ROOT;
+    env.CLAUDE_PLUGIN_ROOT = "C:\\nope\\plugin";
+    let diagnostics = "";
+    try {
+      execSync(command, { cwd: tmpdir(), input: "{}", encoding: "utf8", env });
+    } catch (err) {
+      const e = /** @type {any} */ (err);
+      diagnostics = String(e.stderr ?? "") + String(e.message ?? "");
+    }
+    assert.match(diagnostics, /\/mnt\/c\/nope\/plugin/, "Windows root translated to /mnt path");
+    rmSync(cfg, { recursive: true, force: true });
+  },
+);
 
 test("hooks-cursor.json invokes node hook scripts", () => {
   const config = JSON.parse(readFileSync(join(HOOKS, "hooks-cursor.json"), "utf8"));

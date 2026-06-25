@@ -55,5 +55,4 @@ Lens skills are **domain-shaped**, not activity-shaped. Where activity skills (`
 
 - **Predecessors:** None — entry point
 - **Successors:** Any skill via routing
-- **May invoke:** —</content>
-</invoke>
+- **May invoke:** —
