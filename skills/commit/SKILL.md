@@ -95,9 +95,8 @@ When subagents commit during `execute`, their prompts must include:
 - No AI attribution in commit messages or PR descriptions
 - Stage only files created or modified for the task
 - If unsure about a file, report it as a concern — don't stage it
-- Commit messages and PR descriptions follow the **Message Discipline** rules: match the
-  project's existing style, prefer brevity, describe the content not the journey, no
-  "used to be X, now Y" framing
+- Carry the **Message Discipline** rules (above) in the prompt — the subagent has no other
+  way to see them — so commit messages and PR descriptions follow them
 
 ## Integration
 

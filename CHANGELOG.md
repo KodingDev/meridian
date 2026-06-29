@@ -16,6 +16,11 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). History before
   deliberately rather than by reflex, describing the change as it is rather than
   the implementation journey, and dropping "used to be X, now Y" framing. The
   subagent rules carry the same discipline.
+- The asking-questions principle gains a fallback for hosts without `AskUserQuestion`
+  (Cursor, Copilot): ask the same question in plain text and wait rather than assuming a
+  default. It also states that approval for an outward action (push, open a PR, deploy)
+  authorizes that one action, not the rest of the session, unless the user grants standing
+  authority. Both reach non-Claude hosts through the session-orientation context.
 
 ## [0.11.0] - 2026-06-25
 
