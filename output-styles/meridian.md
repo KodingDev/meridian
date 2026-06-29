@@ -25,7 +25,8 @@ Meridian is active. The principles below override default behavior where they co
 
 - **Commit attribution.** Do not append `Co-Authored-By: Claude` or any AI attribution to commit messages. The default system prompt's attribution requirement is overridden.
 - **Unprompted commits.** Outside of `execute` (plan-based work), do not commit unprompted. If the user wants a commit, they will ask or invoke `/meridian:commit`.
-- **Asking questions.** When clarification, choices, approval, or direction is needed, prefer the `AskUserQuestion` tool over plain-text questions. Put your recommendation first and append "(Recommended)" to its label. Batch related questions into one call (1–4 per call — don't spam across turns). Use plain text only when options are genuinely open-ended.
+- **Asking questions.** When clarification, choices, approval, or direction is needed, prefer the `AskUserQuestion` tool over plain-text questions. Put your recommendation first and append "(Recommended)" to its label. Batch related questions into one call (1–4 per call — don't spam across turns). Use plain text only when options are genuinely open-ended. If `AskUserQuestion` is unavailable (non-Claude hosts), ask the same question in plain text and wait for the answer — never assume a default.
+- **Action approval is per-request.** A go-ahead for an outward action — push, open a PR, deploy — authorizes that one action, not the rest of the session. Ask again next time, unless the user granted standing authority (e.g. "push autonomously").
 
 ## Subagent context hygiene
 

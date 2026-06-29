@@ -5,6 +5,23 @@ All notable changes to Meridian are recorded here. The format follows
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). History before
 0.11.0 lives in the git log.
 
+## [0.11.1] - 2026-06-29
+
+### Changed
+
+- The `commit` skill governs PR descriptions alongside commit messages: a shared
+  message-discipline rule set requires matching the repo's established PR pattern
+  (validated against real PRs via `gh` where possible), using the repository's PR
+  template when one exists, preferring brevity, choosing the commit scope
+  deliberately rather than by reflex, describing the change as it is rather than
+  the implementation journey, and dropping "used to be X, now Y" framing. The
+  subagent rules carry the same discipline.
+- The asking-questions principle gains a fallback for hosts without `AskUserQuestion`
+  (Cursor, Copilot): ask the same question in plain text and wait rather than assuming a
+  default. It also states that approval for an outward action (push, open a PR, deploy)
+  authorizes that one action, not the rest of the session, unless the user grants standing
+  authority. Both reach non-Claude hosts through the session-orientation context.
+
 ## [0.11.0] - 2026-06-25
 
 ### Added

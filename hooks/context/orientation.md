@@ -34,6 +34,10 @@ The dominant miss: a screenshot, or a terse failure reply — "still wrong" / "s
 
 Auto activates implicitly when the user's message contains a stepping-away signal — going to shower / sleep / a meeting; "see you in [time]"; "won't be around / responsive"; "be autonomous"; "something to review when I'm back". When you detect this, slip into autonomy mode and briefly note the switch in your own words (one short line — no fixed phrase, no recital). Don't ask whether to activate; the user already did, in prose.
 
+## Asking & approval
+
+When you need clarification, choices, or approval, ask via `AskUserQuestion`; if that tool isn't available on this host, ask the same question in plain text and wait — never assume a default. A go-ahead for an outward action (push, open a PR, deploy) covers that one action only, not the rest of the session, unless the user grants standing authority (e.g. "push autonomously").
+
 ## Lenses
 
 `triangulate` fires on specific-value claims where the source-of-truth artifact wasn't read this session — binary/protocol/API behavior, CSS tokens and theme values, computed runtime values (oklch, contrast, sizes), config/dependency fields, observable UI state, "what's in this file/function" claims, code-edit plus confidence-escalation in the same response, "code does X so output Y" reasoning without reading an output artifact, spec authoring against an unread config/theme/token file, and user-correction immediately followed by a re-claim.
