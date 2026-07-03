@@ -5,6 +5,25 @@ All notable changes to Meridian are recorded here. The format follows
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). History before
 0.11.0 lives in the git log.
 
+## [0.11.2] - 2026-07-03
+
+### Added
+
+- Codex host support, alongside the existing Claude Code, Cursor, and Copilot hosts.
+  `detectHost` recognizes Codex by the un-prefixed `PLUGIN_ROOT` it sets — Claude sets only
+  `CLAUDE_PLUGIN_ROOT`, which Codex also sets as a compat alias — and routes Codex session
+  state to `CODEX_HOME` (default `~/.codex`). Codex loads the plugin's default
+  `hooks/hooks.json` and shares Claude's `hookSpecificOutput` contract, so orientation and
+  the periodic routing audit inject on `SessionStart` and `UserPromptSubmit`, and the
+  commit-attribution `PreToolUse` guard applies.
+
+### Fixed
+
+- Copilot's `research` and `triangulate` subagents keep web access: their `tools` arrays add
+  Copilot's `web_fetch` tool, which — unlike `Read`/`Grep`/`Glob`/`Bash`, whose Claude names
+  Copilot resolves as aliases — has no Claude-name alias, so `WebFetch`/`WebSearch` alone
+  resolved to nothing and left those agents with no web tool.
+
 ## [0.11.1] - 2026-06-29
 
 ### Changed

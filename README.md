@@ -58,9 +58,13 @@ Hooks are Node scripts (`node ./hooks/*.mjs`) — no Git Bash or shell polyglot 
 
 ### GitHub Copilot CLI
 
-Copilot CLI installs the same plugin via its `/plugin` commands and loads the skills and subagents directly. Subagent `tools` are declared as YAML arrays of Claude tool names (`[Read, Grep, Glob, Bash, …]`); Copilot resolves these case-insensitively to its own primitives (`read`, `search`, `execute`, `web`), so the agents get full file/search/shell/web access rather than the bare baseline.
+Copilot CLI installs the same plugin via its `/plugin` commands and loads the skills and subagents directly. Copilot resolves the Claude subagent tool names as compatible aliases — `Read`, `Grep`, `Glob`, `Bash` map to its `view`, `grep`, `glob`, `bash` tools — so file, search, and shell access carry over unchanged. Its web tool (`web_fetch`) has no Claude-name alias, so the agents that need the web (`research`, `triangulate`) also list `web_fetch` explicitly; otherwise `WebFetch`/`WebSearch` resolve to nothing and the agent silently loses web access.
 
 Hooks ship in Copilot's own format: Copilot's command schema treats `command` as a shell string and has no `args` array, so the Claude exec-form config would run a bare `node`. Copilot is pointed at `hooks/hooks-copilot.json` via `.plugin/plugin.json` (a manifest slot Copilot reads but Claude and Cursor don't). Session orientation injects via a flat `additionalContext` on `sessionStart`; prompt submission is state-only, because Copilot's `userPromptSubmitted` hook cannot inject context (same ceiling as Cursor).
+
+### Codex
+
+Codex CLI installs the plugin from the same marketplace and loads the plugin's default `hooks/hooks.json` — the same Claude-shaped hook config (event → matcher groups → `{ "type": "command" }`) — sharing Claude's `hookSpecificOutput` context contract. So, unlike Cursor and Copilot, orientation injects on `SessionStart` **and** the routing audit injects on `UserPromptSubmit`, and the commit-attribution `PreToolUse` guard runs. Codex is detected by the un-prefixed `PLUGIN_ROOT` it sets (Claude sets only `CLAUDE_PLUGIN_ROOT`, which Codex also sets as a compat alias); state lives under `CODEX_HOME` (default `~/.codex`). Codex does not honor a plugin-manifest hook redirect ([openai/codex#16430](https://github.com/openai/codex/issues/16430)), so there is no Codex-specific hooks file — the default `hooks/hooks.json` drives it. Plugin hooks install untrusted; run one interactive Codex session to review and trust them, after which they fire automatically.
 
 Hook tests: `node --test test/meridian-hooks.test.mjs`
 

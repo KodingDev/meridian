@@ -96,6 +96,23 @@ test("hooks.json SessionStart matcher stays empty so it catches the compact sour
   }
 });
 
+test("session-start emits orientation under Codex (un-prefixed PLUGIN_ROOT)", () => {
+  // Codex is detected via PLUGIN_ROOT and, like Claude, takes the hookSpecificOutput
+  // emit path — so the same orientation payload must come back. CODEX_HOME points state
+  // at the temp dir so the real ~/.codex is untouched.
+  const cfg = tmpConfig();
+  const { code, stdout } = runHook(
+    "session-start.mjs",
+    { session_id: SID, hook_event_name: "SessionStart", source: "startup" },
+    { PLUGIN_ROOT: "/fake/plugin", CLAUDE_PLUGIN_ROOT: "/fake/plugin", CODEX_HOME: cfg },
+  );
+  assert.equal(code, 0);
+  const out = JSON.parse(stdout);
+  assert.equal(out.hookSpecificOutput.hookEventName, "SessionStart");
+  assert.match(out.hookSpecificOutput.additionalContext, /\[Meridian orientation\]/);
+  rmSync(cfg, { recursive: true, force: true });
+});
+
 test("pre-tool-use denies a git commit carrying AI attribution", () => {
   for (const command of [
     'git commit -m "feat: x\n\nCo-Authored-By: Claude <noreply@anthropic.com>"',

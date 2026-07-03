@@ -14,7 +14,7 @@
  * @property {string} [hook_event_name]
  */
 
-/** @typedef {"claude" | "cursor" | "copilot"} HostName */
+/** @typedef {"claude" | "cursor" | "copilot" | "codex"} HostName */
 
 /** The hook events that can inject context. @typedef {"SessionStart" | "UserPromptSubmit"} HookEvent */
 
