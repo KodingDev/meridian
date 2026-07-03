@@ -22,11 +22,14 @@ function resolveStateBase(name) {
   const claude = join(homedir(), ".claude");
   const cursor = join(homedir(), ".cursor");
   const copilot = process.env.COPILOT_HOME || join(homedir(), ".copilot");
-  // Copilot sets CLAUDE_PLUGIN_ROOT too, so its branch must precede that fallback.
+  const codex = process.env.CODEX_HOME || join(homedir(), ".codex");
+  // Copilot and Codex both set CLAUDE_PLUGIN_ROOT (as a compat alias), so their
+  // branches must precede that fallback or they'd resolve to ~/.claude.
   const candidates = [
     () => process.env.CLAUDE_CONFIG_DIR,
     () => name === "cursor" && cursor,
     () => name === "copilot" && copilot,
+    () => name === "codex" && codex,
     () => process.env.CLAUDE_PLUGIN_ROOT && claude,
     () => existsSync(claude) && claude,
     () => existsSync(cursor) && cursor,
@@ -41,9 +44,14 @@ function resolveStateBase(name) {
 /**
  * Detect the host once. Cursor sets `CURSOR_PLUGIN_ROOT` and injects context only
  * on `SessionStart` (via `additional_context`); Copilot sets `COPILOT_PLUGIN_ROOT`
- * and injects on `SessionStart` only (via flat `additionalContext`); Claude injects
- * on every event (via `hookSpecificOutput`). Copilot also sets `CLAUDE_PLUGIN_ROOT`,
- * so it must be checked before the Claude default.
+ * and injects on `SessionStart` only (via flat `additionalContext`); Codex sets the
+ * un-prefixed `PLUGIN_ROOT` and, like Claude, injects on every event via
+ * `hookSpecificOutput`; Claude injects on every event via `hookSpecificOutput`.
+ * Copilot and Codex also set `CLAUDE_PLUGIN_ROOT` (compat), so both must be checked
+ * before the Claude default. Codex ships no unique identity var, so the un-prefixed
+ * `PLUGIN_ROOT` — which Codex sets but Claude does not — is the documented
+ * discriminator; a misdetect only picks the wrong state dir, since Codex and Claude
+ * share the `hookSpecificOutput` emit shape.
  * @returns {Host}
  */
 export function detectHost() {
@@ -52,7 +60,9 @@ export function detectHost() {
     ? "cursor"
     : process.env.COPILOT_PLUGIN_ROOT
       ? "copilot"
-      : "claude";
+      : process.env.PLUGIN_ROOT
+        ? "codex"
+        : "claude";
   return {
     name,
     stateBase: resolveStateBase(name),

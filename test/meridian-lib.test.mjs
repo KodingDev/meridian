@@ -132,13 +132,44 @@ test("Copilot state base stays ~/.copilot even when CLAUDE_PLUGIN_ROOT is also s
   }
 });
 
+test("detectHost resolves the Codex state base and injects on every event", () => {
+  // Codex ships no unique identity var; it sets the un-prefixed PLUGIN_ROOT (plus
+  // CLAUDE_PLUGIN_ROOT for compat) — the documented discriminator from Claude, which
+  // sets only CLAUDE_PLUGIN_ROOT. Like Claude, Codex injects on every event.
+  const saved = {
+    CURSOR_PLUGIN_ROOT: process.env.CURSOR_PLUGIN_ROOT,
+    COPILOT_PLUGIN_ROOT: process.env.COPILOT_PLUGIN_ROOT,
+    PLUGIN_ROOT: process.env.PLUGIN_ROOT,
+    CODEX_HOME: process.env.CODEX_HOME,
+    CLAUDE_CONFIG_DIR: process.env.CLAUDE_CONFIG_DIR,
+    CLAUDE_PLUGIN_ROOT: process.env.CLAUDE_PLUGIN_ROOT,
+  };
+  delete process.env.CLAUDE_CONFIG_DIR;
+  delete process.env.CURSOR_PLUGIN_ROOT;
+  delete process.env.COPILOT_PLUGIN_ROOT;
+  delete process.env.CODEX_HOME;
+  process.env.PLUGIN_ROOT = "/fake/plugin";
+  process.env.CLAUDE_PLUGIN_ROOT = "/fake/plugin";
+  const host = detectHost();
+  assert.equal(host.name, "codex");
+  assert.equal(host.stateBase, join(homedir(), ".codex"));
+  assert.equal(host.supportsContext("SessionStart"), true);
+  assert.equal(host.supportsContext("UserPromptSubmit"), true);
+  for (const [key, val] of Object.entries(saved)) {
+    if (val === undefined) delete process.env[key];
+    else process.env[key] = val;
+  }
+});
+
 test("detectHost defaults to claude and injects on every event", () => {
   const saved = {
     CURSOR_PLUGIN_ROOT: process.env.CURSOR_PLUGIN_ROOT,
     COPILOT_PLUGIN_ROOT: process.env.COPILOT_PLUGIN_ROOT,
+    PLUGIN_ROOT: process.env.PLUGIN_ROOT,
   };
   delete process.env.CURSOR_PLUGIN_ROOT;
   delete process.env.COPILOT_PLUGIN_ROOT;
+  delete process.env.PLUGIN_ROOT;
   const host = detectHost();
   assert.equal(host.name, "claude");
   assert.equal(host.supportsContext("UserPromptSubmit"), true);
