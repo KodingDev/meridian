@@ -5,6 +5,64 @@ All notable changes to Meridian are recorded here. The format follows
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). History before
 0.11.0 lives in the git log.
 
+## [0.11.3] - 2026-07-06
+
+### Added
+
+- The output style grounds claims in the project's own artifacts, not just external docs:
+  read the existing code, spec, and canonical data before writing competing logic; cite
+  real measurements (settled invoices, logs, profiles) for cost/performance/architecture
+  decisions. A new operational-discipline section prefers a reusable script over repeated
+  one-off tool calls and reads state at its source instead of polling.
+- The output style's voice rules add a calibrated-reporting register: once verification
+  is exhausted, remaining conclusions are presented as bets — observed facts separated
+  from inferences, confidence and blind spots named, each bet carrying what would prove
+  it wrong.
+- `auto` gains autonomy stamina: the horizon for stepped-away work is honest readiness
+  ("I'm ready for you"), not elapsed time; before ending a turn, remaining verifiable
+  work means the turn is not over. Blockers must be earned — try another angle, dig
+  deeper, or dispatch a subagent before declaring one; a genuine fork is a decision only
+  the human can make (taste, money, irreversibility).
+- `debug` requires instrumenting the real code path — logging added to the actual
+  executable run with real data, never one-off probe scripts or simulations — and holds
+  fixes to a root-cause bar: a fix must explain why the bug existed, or it is a
+  workaround, not a fix.
+- `review`'s craft lens flags symptom patches: a guard, carve-out, or special case that
+  narrows a visible failure while the underlying cause remains, even when the diff
+  improves behavior.
+- `execute` verification exercises the real flow with real data where a runtime surface
+  exists, not synthetic probes.
+- `brainstorm` re-reads the user's provided material (request, plan, handoff, spec) in
+  full before asking any clarifying question.
+- `delegate`'s model selection names the expensive failure — a wide fan-out at flagship
+  pricing doing mechanical work a small model does identically — and requires the
+  orchestrator to read the final synthesis itself: the conclusion is not delegable.
+
+### Changed
+
+- `respond` no longer treats user feedback as trusted-implement-after-understanding:
+  the user is trusted on intent and priorities, but suggestions are evaluated on
+  technical merits like anyone's, per the Challenge Protocol.
+- The session orientation is the single routing authority. It absorbs the one line the
+  router skill carried that it lacked (visual regressions are bugs even when they
+  appeared one step ago in the same session) and closes with a statement of authority
+  instead of a pointer to the router skill.
+
+### Removed
+
+- The `meridian` router skill. Its content was a near-verbatim copy of the session
+  orientation, which is injected every session — so the "invoke for the full routing
+  reference" pointer never fired, and the two copies had already drifted in wording.
+  Skills that referenced "the meridian router" now reference the orientation's routing
+  table.
+- The `## Integration` footers (Predecessors / Successors / May invoke) on every skill.
+  Routing is owned by the orientation, and each skill's body already names the skills it
+  invokes inline; the footers changed no behavior.
+- `research`'s "HARD-GATE Rationale (Dual-Location Enforcement)" section — a maintainer
+  note, not an instruction to the model. The constraint it recorded still holds: the
+  skill's gate and the `meridian:research` agent's gate are duplicated intentionally
+  (caller contract vs. operative rule) and their wordings must stay aligned.
+
 ## [0.11.2] - 2026-07-03
 
 ### Added

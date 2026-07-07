@@ -26,7 +26,7 @@ For borderline calls, prefer `brainstorm` if the change needs more than one or t
 
 A user message during an active skill is not automatically a continuation of that skill. Re-classify each new message against the table above.
 
-The dominant miss: a screenshot, or a terse failure reply — "still wrong" / "still the same" / "doesn't work" / "still broken" / "not fixed" / "nope", *including* one-word or image-only messages — arriving during `execute` or `sketch` is a `debug` signal, not a "keep executing" signal. The terseness is the tell: when a fix just shipped and the reply is a short dismissal, the fix didn't land. STOP the patch loop immediately — do not emit another speculative fix in the same turn. Pause the active skill, invoke `meridian:debug`, complete root-cause investigation, return once the bug is understood. (A UserPromptSubmit hook reinforces the unambiguous "still …" / "not fixed" phrasings, but the rule is yours to apply on screenshots and one-word rejections the hook can't safely match.)
+The dominant miss: a screenshot, or a terse failure reply — "still wrong" / "still the same" / "doesn't work" / "still broken" / "not fixed" / "nope", *including* one-word or image-only messages — arriving during `execute` or `sketch` is a `debug` signal, not a "keep executing" signal. The terseness is the tell: when a fix just shipped and the reply is a short dismissal, the fix didn't land. STOP the patch loop immediately — do not emit another speculative fix in the same turn. Pause the active skill, invoke `meridian:debug`, complete root-cause investigation, return once the bug is understood. Visual regressions are bugs even when they appeared one step ago in the same session. (A UserPromptSubmit hook reinforces the unambiguous "still …" / "not fixed" phrasings, but the rule is yours to apply on screenshots and one-word rejections the hook can't safely match.)
 
 ## Autonomy (`/auto`)
 
@@ -44,6 +44,4 @@ When you need clarification, choices, or approval, ask via `AskUserQuestion`; if
 
 Two tiers — the default is cheap, so it actually fires: **Tier 1 (Ground)** is the always-on reflex — before asserting any such value, just read the artifact inline (grep / Read / run / screenshot). No subagent, no audit file. This is the 90% case; do it silently and state the claim with the evidence. **Tier 2 (Triangulate)** is the heavy escalation — dispatch the `meridian:triangulate` agent and write a Ground Truth Audit (inline row + full file at `.meridian/audits/`) ONLY when the claim is contested or load-bearing: candidate sources may disagree, the claim gates an expensive or irreversible action, or the user already pushed back once. Don't skip Tier 1 because Tier 2 feels too heavy — grounding is one read.
 
-## When uncertain
-
-Invoke `meridian:meridian` via the Skill tool for the full routing reference. The pillars, protocols, and conventions are in the active output style; the orientation above is the working subset.
+This orientation is the routing authority. The pillars, protocols, and conventions live in the active output style.

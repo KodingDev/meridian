@@ -31,19 +31,9 @@ Verify before you build. Training data is a starting point — live documentatio
 2. **Dispatch the `meridian:research` agent** as a subagent (`subagent_type: meridian:research`). Prompt body: the query and any context the agent needs to find the answer (target library version, framework, etc.). Do NOT include conversation history or your reasoning about the problem.
 3. **Return the agent's verdict to the caller verbatim.** The agent returns verified facts with source URLs (or "Could not verify" with explanation). Don't paraphrase, don't summarize, don't add hedging.
 
-## HARD-GATE Rationale (Dual-Location Enforcement)
-
-The HARD-GATE above duplicates the agent's gate intentionally — the skill's gate is the contract callers (other skills using `invoke meridian:research`) rely on; the agent's gate is the operative rule the agent itself executes against. Keep both wordings aligned to prevent drift.
-
 ## When Research Fails
 
 If the agent returns "Could not verify":
 
 - **Claim is critical to implementation:** Consult the user before proceeding with unverified assumptions.
 - **Claim is peripheral:** Surface the unverified assumption explicitly to the caller; do NOT silently proceed as if confirmed.
-
-## Integration
-
-- **Predecessors:** `brainstorm`, `debug`, `execute`, `sketch`, or direct invocation
-- **Successors:** Returns to caller
-- **May invoke:** `meridian:research` agent (heavy doc-reading)

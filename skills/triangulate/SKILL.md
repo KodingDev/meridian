@@ -64,9 +64,3 @@ This is the escalation path only. For Tier 1, there is no process: read the arti
 ## Audit Formats
 
 Both the inline row (stitched into the active spec/sketch at step 4) and the full audit file (written at step 5) follow `references/audit-format.md`. Read it before writing either.
-
-## Integration
-
-- **Predecessors:** `meridian` routing (auto on lens triggers), `brainstorm`, `execute`, `debug`, `sketch`, or direct invocation
-- **Successors:** Returns to caller with the audit row reference. Caller proceeds with the verified claim or surfaces the gate violation.
-- **May invoke:** `meridian:triangulate` agent (heavy multi-source reading)

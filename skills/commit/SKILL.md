@@ -97,9 +97,3 @@ When subagents commit during `execute`, their prompts must include:
 - If unsure about a file, report it as a concern — don't stage it
 - Carry the **Message Discipline** rules (above) in the prompt — the subagent has no other
   way to see them — so commit messages and PR descriptions follow them
-
-## Integration
-
-- **Predecessors:** `execute`, `debug`, `respond`, or direct invocation
-- **Successors:** None (terminal)
-- **May invoke:** —

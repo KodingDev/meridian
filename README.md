@@ -33,7 +33,7 @@ Hard-won knowledge dies with the session. You debug something for two hours, nai
 | `commit` | Clean git commits, no AI attribution |
 | `document` | Human-readable docs from resolved work |
 
-Three more compose with these rather than standing alone: `meridian` (the routing reference, for when it's unclear which skill fits), `triangulate` (a verification lens that grounds specific-value claims against their source), and `auto` (a modifier that runs any task autonomously when you step away).
+Two more compose with these rather than standing alone: `triangulate` (a verification lens that grounds specific-value claims against their source) and `auto` (a modifier that runs any task autonomously when you step away). Routing lives in the session orientation injected at startup — there is no separate router skill.
 
 ## What gets installed
 
