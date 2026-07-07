@@ -61,7 +61,7 @@ For each task:
 1. Mark it in progress
 2. Search the codebase for existing utilities, similar features, and data access patterns relevant to this task. Do not hardcode values that exist in data files or utilities. Do not reimplement existing logic.
 3. Implement directly or dispatch via `meridian:delegate` (per execution mode preference). If dispatching: include User Constraints from the spec in the subagent prompt. If inline: consult User Constraints before implementing.
-4. Run verification — tests, typecheck, lint, whatever the project uses
+4. Run verification — tests, typecheck, lint, whatever the project uses. Where the task has a runtime surface, exercise the real flow with real data — run the actual executable, drive the actual page — not a synthetic probe that only proves your assumptions
 5. If verification fails: invoke `meridian:debug`. Do not guess-fix.
 6. If subagent was used: verify independently. Check the diff. Run tests yourself.
 7. Present a brief verification summary: what was checked, results, any discrepancies. Also check against User Constraints — violations are defects. For UI tasks, check pattern consistency with existing pages. Keep to 2-4 lines — facts only.
@@ -117,9 +117,3 @@ Match change scope to request scope, and don't gold-plate:
 - "fix X" / "tweak Y" means touch only X / Y; "redesign Z" earns a broader rewrite
 - If a subagent returns work beyond the spec, strip it before accepting
 - If a small fix requires touching more code than expected, explain why first. Files changed that the user didn't mention mean you over-scoped.
-
-## Integration
-
-- **Predecessors:** `brainstorm`, or direct invocation with clear requirements
-- **Successors:** `commit`, `document`
-- **May invoke:** `delegate`, `review`, `research`

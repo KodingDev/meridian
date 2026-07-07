@@ -19,7 +19,7 @@ Evaluate review feedback technically before acting on it. This applies to all fe
 
 4. **Evaluate** — source determines scrutiny level:
    - *Review subagent:* generated under controlled conditions with full diff access. Generally reliable, but verify against codebase reality.
-   - *User:* trusted. Implement after understanding. Still ask if scope is unclear.
+   - *User:* trusted on intent and priorities — but their suggestions still get evaluated on technical merits, same as anyone's (the Challenge Protocol applies; a suggestion is an input, not an order). Still ask if scope is unclear.
    - *External reviewer (PR, GitHub):* is the suggestion correct? Does it break existing functionality? Does the reviewer understand the full context? Does it conflict with the user's architectural decisions?
 
 5. **Respond** — technical acknowledgment or reasoned pushback. Never performative agreement.
@@ -60,9 +60,3 @@ How: use technical reasoning. Reference working code or tests. Ask specific ques
 State the correction factually and move on:
 - "You were right — I checked [X] and it does [Y]. Fixing."
 - No long apology. No defending why you pushed back. Correct and continue.
-
-## Integration
-
-- **Predecessors:** External review feedback (human, PR comments)
-- **Successors:** `commit` (if changes made)
-- **May invoke:** —

@@ -85,9 +85,3 @@ After aggregating the three lens passes, the review returns:
 - Verdict: **Ship it / Fix material gaps and ship / Do not ship**, reconciled to most-severe across the lenses per step 3. `Do not ship` requires the approach to be fundamentally wrong — not merely the presence of material gaps. Fixable material-gap findings produce `Fix material gaps and ship`.
 
 No "strengths" section. Working code is the baseline, not an achievement. No list padding — if there are only two material gaps and no clarity issues, return exactly that.
-
-## Integration
-
-- **Predecessors:** `execute`, or direct invocation
-- **Successors:** Fix defects (back to implementation)
-- **May invoke:** —

@@ -36,6 +36,7 @@ Phase 1 requires tool calls, not speculation. Read the code, run the commands, c
 3. **Check recent changes.** Git diff, recent commits, new dependencies, config changes, environmental differences.
 4. **Gather evidence in multi-component systems.** Log at each component boundary. Run once. Analyze where data goes wrong. Don't guess which layer is broken.
 5. **Trace data flow.** Find where bad values originate. Trace upstream to the source. Fix at source, not at symptom.
+6. **Instrument the real code path.** Evidence comes from running the actual executable with real data — add logging to the real code and run it again. Do not write one-off probe scripts or simulations; they test your assumptions about the system, not the system. When re-theorizing stalls, read the primary artifact (the source, the binary output, the actual data) instead of forming another theory about it.
 
 ## Phase 2 — Pattern Analysis
 
@@ -52,7 +53,7 @@ Phase 1 requires tool calls, not speculation. Read the code, run the commands, c
 ## Phase 4 — Implementation
 
 1. **Write a failing test** that reproduces the bug.
-2. **Implement a single fix** addressing the root cause.
+2. **Implement a single fix** addressing the root cause. The fix must explain why the bug existed — a guard, retry, or special case that makes the symptom disappear without answering that question is a workaround wearing a fix's clothes, and the skill is not done.
 3. **Verify** — test passes, no regressions.
 4. **If 3+ fix attempts have failed: stop.** This is not a failed hypothesis — this is likely a wrong architecture. Discuss with the user before attempting more fixes.
 
@@ -69,9 +70,3 @@ If systematic investigation reveals the issue is truly environmental, timing-dep
 4. Consider invoking `meridian:document` to capture the investigation for future sessions
 
 Most "no root cause" verdicts turn out to be incomplete investigation. Treat the conclusion with skepticism — it's the convenient answer, not usually the right one.
-
-## Integration
-
-- **Predecessors:** `meridian` routing, or direct invocation
-- **Successors:** `commit` (if fix applied)
-- **May invoke:** `research`

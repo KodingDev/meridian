@@ -14,7 +14,7 @@ A lightweight spec for small fixes. The spec is lighter than `brainstorm`'s; the
 
 ## When to Use
 
-Primarily user-invoked via `/meridian:sketch [optional description]`. Auto-invocation by the meridian router is rare and conservative — only fires for clearly-small fixes per the routing table. Do NOT auto-invoke if any Escape Hatch trigger applies. Unfamiliar external APIs alone are not a disqualifier — they trigger `meridian:research` at step 2.
+Primarily user-invoked via `/meridian:sketch [optional description]`. Auto-invocation via the orientation's routing table is rare and conservative — only fires for clearly-small fixes. Do NOT auto-invoke if any Escape Hatch trigger applies. Unfamiliar external APIs alone are not a disqualifier — they trigger `meridian:research` at step 2.
 
 ## Process
 
@@ -59,9 +59,3 @@ Stop and transition to `brainstorm` if mid-flow you discover:
 - The user adds requirements that exceed the original 1-2 sentence framing
 
 On escape: if the sketch file is untracked by git, delete it; otherwise leave it and warn the user. Pass any captured User Constraints into the `brainstorm` invocation message, then invoke `brainstorm` via the `Skill` tool.
-
-## Integration
-
-- **Predecessors:** `meridian` routing, or direct invocation
-- **Successors:** `execute`
-- **May invoke:** `research`, `brainstorm` (escape hatch)

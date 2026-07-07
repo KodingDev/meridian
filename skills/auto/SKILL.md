@@ -17,11 +17,11 @@ The "I'm going for a shower" skill. The user is stepping away and wants somethin
 Either of:
 
 - **Explicitly** — user invokes `/meridian:auto <task>`, e.g. `/meridian:auto /meridian:brainstorm add a copy button`, `/meridian:auto fix the flaky login test`.
-- **Auto-activated** — the `meridian` entry skill detected a stepping-away signal in the user's message (e.g. "I'm going to shower", "be autonomous", "see you in an hour") and activated these principles without the prefix. The routing and behavior are identical from here.
+- **Auto-activated** — the session orientation detected a stepping-away signal in the user's message (e.g. "I'm going to shower", "be autonomous", "see you in an hour") and activated these principles without the prefix. The routing and behavior are identical from here.
 
 ## Process
 
-1. **Parse the wrapped task.** Everything after `/meridian:auto` is the real request. Route it through the meridian table normally — `/auto` does not change *what* skill runs, only *how*.
+1. **Parse the wrapped task.** Everything after `/meridian:auto` is the real request. Route it through the orientation's routing table normally — `/auto` does not change *what* skill runs, only *how*.
 
 2. **Activate autonomy mode for the remainder of the conversation.** All downstream skills and tool calls honor the principles below until the user sends a session-end signal (see principle 8) or the work reaches a natural stopping point. Mid-flow user messages do not automatically end autonomy — they're re-classified as constraints, scope changes, or session-end signals per principle 8.
 
@@ -38,6 +38,8 @@ These override the default behavior of other skills *only on the axes listed*. E
 - **Skip clarifications that have a sensible default.** Pick the obvious choice, state it in the final summary.
 - **Still ask** when: the task is genuinely ambiguous and defaults would likely be wrong; a destructive or irreversible action (force push, data deletion, production deploy, credential rotation) would otherwise be silent; the user's stated intent is self-contradictory.
 
+The test for a genuine fork: is the decision one only the human can make — taste, money, or irreversibility? Everything else has a reasonable default you can pick and document.
+
 When unsure whether to ask: don't. Document the decision instead.
 
 ### 2. Bias to completion over breadth — honestly
@@ -45,6 +47,8 @@ When unsure whether to ask: don't. Document the decision instead.
 Finish one demonstrable thing rather than starting three. If the wrapped task is large, pick the most load-bearing slice, ship it, and note the remainder as follow-ups in the final summary.
 
 **"Complete" means complete in the sense the user asked for.** Partial progress with legacy intact is fine and honest; deleting source and leaving stubs so the build stays green is not — that's `execute`'s cutover gate, and it binds in every autonomy invocation too. Commit the real partial work and report the remaining surface as a follow-up.
+
+**The horizon is honest readiness, not elapsed time.** "Going to bed" / "see you tomorrow" means the user expects sustained hours of work, not a wrap-up thirty minutes later. Before ending the turn, check: is there verifiable work still in reach — a gap you could close and confirm with code, a follow-up you could ship instead of file? If yes, the turn is not over. Stop when you can honestly say "I'm ready for you", not when the current slice happens to finish.
 
 ### 3. Document every non-obvious decision
 
@@ -71,9 +75,11 @@ Autonomy is not recklessness. Do not, without explicit instruction in the wrappe
 
 If the wrapped task requires one of these, do it. Otherwise stop and leave a note in the summary.
 
-### 6. Report blockers honestly
+### 6. Report blockers honestly — after actually fighting them
 
-If something truly cannot proceed without user input:
+"Blocked" is a verdict you earn, not a reflex. Friction is not a blocker: before declaring one, try a different angle, dig deeper into the failing layer, dispatch a subagent at the sub-problem. Handing work back at the first obstacle — when the user could reasonably ask "why didn't you just try X?" — is the failure mode this principle exists to prevent. A real blocker means the path forward needs a human-only decision or information you cannot obtain.
+
+When something truly cannot proceed without user input:
 - Make the best reasonable partial progress first
 - Commit the partial work
 - End with a clear "BLOCKED ON:" line in the summary stating what you need
@@ -114,10 +120,3 @@ When the wrapped task finishes (or blocks), end with a message in this shape:
 ## Blocked (omit if none)
 - <what I need from you>
 ```
-
-## Integration
-
-- **Predecessors:** Direct invocation only
-- **Successors:** Any skill via the wrapped task
-- **May invoke:** Any skill (runs them in autonomy mode)
-- **On completion:** Autonomy mode persists until a session-end signal (principle 8) — mid-flow messages are re-classified as constraints or scope changes, not exits.

@@ -63,14 +63,10 @@ Before dispatching, verify your decomposition covers the full scope. If you only
 ## Model Selection
 
 Match capability to task complexity:
-- **Mechanical tasks** (isolated functions, clear specs, 1-2 files): fastest available model
+- **Mechanical tasks** (isolated functions, clear specs, extraction, classification, per-chunk summarization): fastest available model, fanned wide
 - **Integration tasks** (multi-file, pattern matching): standard model
-- **Architecture and review tasks**: most capable model
+- **Architecture, synthesis, and review tasks**: most capable model, kept few
+
+Defaulting every subagent to your own tier is the expensive failure: a wide fan-out at flagship pricing doing what a small model does identically. The inverse holds at the end — whatever the fleet produced, read the final synthesis yourself, once. The conclusion is not delegable.
 
 When the platform supports it, consider using lower `effort` settings for mechanical subagents — they don't need deep thinking for straightforward implementation work.
-
-## Integration
-
-- **Predecessors:** `execute`, or direct invocation
-- **Successors:** Returns to caller
-- **May invoke:** —

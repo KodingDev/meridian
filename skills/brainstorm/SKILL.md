@@ -22,7 +22,7 @@ Do NOT invoke any implementation skill, write any code, scaffold any project, or
 
 3. **Identify research needs** — if the task involves external APIs, libraries, or patterns you haven't verified, invoke `meridian:research` before continuing. Do not design around assumptions about how an API works.
 
-4. **Ask clarifying questions — but only when the answer changes the spec.** Questions are gates with cost: every `AskUserQuestion` stalls progress and trades the user's attention for information you could often have inferred. Ask only when *both* are true:
+4. **Ask clarifying questions — but only when the answer changes the spec.** Questions are gates with cost: every `AskUserQuestion` stalls progress and trades the user's attention for information you could often have inferred. Before asking anything, re-read what the user already handed you — the request, any linked plan, handoff doc, or spec — in full; the answer is usually already there, and a question it already answers reads as not having read it. Then ask only when *both* are true:
 
    - **Defaults would likely be wrong** — you genuinely cannot infer the right answer from the request, codebase, and prior conventions. If you can write a defensible draft and the user can redirect, that's not a clarifying question — that's a draft.
    - **The choice has multiple-edit-cost downside** — picking the wrong default means rewriting load-bearing structure later, not tweaking a label or copy string.
@@ -63,9 +63,3 @@ Do NOT invoke any implementation skill, write any code, scaffold any project, or
 
 - **YAGNI ruthlessly** — cut unnecessary features from every design.
 - **Targeted improvements only** — where existing code has problems that affect the work (overgrown files, tangled responsibilities), fold the fix into the design; don't propose unrelated refactoring.
-
-## Integration
-
-- **Predecessors:** `meridian` routing, or direct invocation
-- **Successors:** `execute`
-- **May invoke:** `research`

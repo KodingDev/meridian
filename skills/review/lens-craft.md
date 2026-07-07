@@ -33,6 +33,7 @@ For each change, search for existing utilities and helpers that could replace ne
 - Spaghetti growth: a new conditional bolted into an unrelated flow, or a condition chain branching on the same discriminant — push it behind a dedicated abstraction or typed dispatcher rather than tangling the existing path
 - Cohesion erosion: a previously focused module becoming more coupled, more stateful, or harder to scan
 - "Temporary" branching or flags likely to harden into permanent debt
+- Symptom patch: a fix that narrows a visible failure (a guard, a carve-out, one more special case) while the cause it papers over remains — "better" is not "good"; flag it even when the diff genuinely improves behavior
 
 ## AI Slop
 Comments are the highest-signal tell. Judge every comment **added in the diff** by value, not by count — a comment earns its place only when it captures non-obvious *why* (a hidden constraint, a subtle invariant, a workaround for a specific bug). The code already states the *what*. Flag the rest for removal:
