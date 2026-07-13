@@ -1,17 +1,17 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
   "name": "meridian",
-  "description": "Research-first workflows, ruthless code review, and orchestrator-led reasoning for Claude Code.",
+  "description": "Professional engineering discipline with user-owned workflows and model-specific corrections.",
   "owner": {
     "name": "KodingDev"
   },
   "plugins": [
     {
       "name": "meridian",
-      "description": "Research-first workflows, ruthless code review, orchestrator-led reasoning, and opaque subagent isolation for the entire development lifecycle.",
+      "description": "Professional engineering discipline with user-owned workflows and model-specific corrections.",
       "source": "./",
       "category": "development",
-      "homepage": "https://github.com/KodingDev/claude-plugins"
+      "homepage": "https://github.com/KodingDev/meridian"
     }
   ]
 }

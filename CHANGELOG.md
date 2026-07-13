@@ -5,6 +5,26 @@ All notable changes to Meridian are recorded here. The format follows
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). History before
 0.11.0 lives in the git log.
 
+## [0.12.0] - 2026-07-13
+
+### Added
+
+- A model-independent professional engineering standard and atomic model adapters selected from named profiles at session start.
+- Manual-invocation policy for formal flows across Claude Code, Cursor, Copilot, and Codex skill metadata.
+- Optional project-instruction sections for customer security, compliance, verification, deployment, rollback, artifacts, and allowed environments.
+
+### Changed
+
+- Formal `brainstorm`, `sketch`, `execute`, `review`, `commit`, `document`, and `auto` flows are user-owned. They no longer invoke one another automatically or repeat approval already granted by invocation.
+- `debug`, `research`, `triangulate`, `delegate`, and `respond` are narrow model-invoked disciplines with risk-proportionate process.
+- `execute` performs proportionate verification but no longer launches formal review or commit flows.
+- Formal review enumerates tracked and untracked working-tree changes before dispatching independent lenses.
+- Interactive flows use structured question tools when available and fall back to plain text on hosts without them.
+
+### Removed
+
+- The forced Meridian output style, automatic workflow routing table, periodic routing audit, terse-failure reroute, and their session state machinery.
+
 ## [0.11.3] - 2026-07-06
 
 ### Added

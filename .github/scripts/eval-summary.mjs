@@ -8,7 +8,7 @@ const result = JSON.parse(readFileSync(process.argv[2], "utf8"));
 const rows = result.results?.results ?? result.results ?? [];
 
 let passed = 0;
-const lines = ["| | Prompt | Routed to | Expected |", "|---|---|---|---|"];
+const lines = ["| | Prompt | Skill used | Expected |", "|---|---|---|---|"];
 for (const row of rows) {
   const prompt = String(row.vars?.prompt ?? "")
     .replace(/\|/g, "\\|")
@@ -20,5 +20,5 @@ for (const row of rows) {
   lines.push(`| ${row.success ? "✅" : "❌"} | ${prompt} | \`${got}\` | \`${want}\` |`);
 }
 
-console.log(`## Routing eval — ${passed}/${rows.length} passed\n`);
+console.log(`## Invocation-boundary eval — ${passed}/${rows.length} passed\n`);
 console.log(lines.join("\n"));

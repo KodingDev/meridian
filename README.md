@@ -1,78 +1,118 @@
 # Meridian
 
-Claude Code plugin for development workflows that don't fall apart in long sessions.
+Professional engineering discipline without taking ownership of your workflow.
 
-## Why
+Meridian gives coding agents one model-independent quality standard, lets projects supply their own customer and repository policy, and applies small model-specific corrections where a model has a repeatable failure mode. It does not route ordinary requests into mandatory planning, review, documentation, or commit pipelines.
 
-[Superpowers](https://github.com/obra/superpowers) is great. Skill-based workflows, iterative spec review, subagent-driven development — all genuinely good ideas that I used for a long time. But some patterns kept showing up that I wanted to fix:
+## How it works
 
-Agents get confident in their own prior reasoning. If you review code, fix stuff, then review again — the second pass comes back suspiciously clean. The agent's own reasoning from the first review is right there in context, and it can't really fathom that it missed something when its own thoughts are telling it everything was fine. Meridian isolates review subagents so the orchestrator only ever sees defects and a verdict, not the reviewer's internal reasoning.
+Meridian has four layers:
 
-They trust their training data way too much. Confidently writing code against APIs that have changed, using library features that don't work the way they remember — then wasting ages debugging when a quick docs check would've caught it upfront. Meridian verifies external APIs against live documentation before writing code.
+1. **Professional engineering standard** — shared expectations for correctness, evidence, security, maintainability, operability, delivery hygiene, user agency, proportionality, and stopping.
+2. **Project policy** — your `CLAUDE.md`, `AGENTS.md`, and repository instructions define customer, compliance, tooling, deployment, rollback, and artifact requirements.
+3. **Model adapters** — atomic corrections for observable quirks such as comment narration or recursive reviewing. They change steering, never the quality bar or authorization.
+4. **Skills** — formal flows are user-owned; narrow engineering disciplines can be selected by the model inside an ordinary task.
 
-Skill systems can be too rigid. Not everything needs the full brainstorm -> plan -> execute pipeline. Changing a button color shouldn't require a design spec. Meridian uses judgment about what warrants ceremony and what just needs doing.
-
-Agents commit stuff you didn't ask for. Spec files staged automatically, AI attribution in every message, design docs forced past your gitignore. Meridian doesn't commit anything without asking, doesn't stage spec files, and doesn't put "Co-Authored-By: Claude" in your commits.
-
-They don't push back enough. If you ask for something that'll cause problems, the agent should say so — with evidence and actual alternatives, each with an honest case made for it. And once you've picked a direction, it should go all in, not half-ass it and relitigate in review.
-
-Hard-won knowledge dies with the session. You debug something for two hours, nail the root cause, and next session the agent suggests the exact approach you already ruled out. Meridian has a documentation skill for capturing gotchas, debugging context, and "we already tried this" notes so future sessions don't start from scratch.
+The result is deliberately asymmetric: different models may receive different corrective wording, but every model owes the same professional outcome.
 
 ## Skills
 
-| Skill | Does |
-|-------|------|
-| `research` | Verify APIs/libs against live docs before implementing |
-| `brainstorm` | Design exploration -> spec through conversation |
-| `sketch` | Lightweight spec for a small, well-scoped fix |
-| `execute` | Implement from spec with verification gates |
-| `delegate` | Dispatch subagents with clean context isolation |
-| `debug` | Root-cause investigation, no fixes without understanding |
-| `review` | Code review via isolated subagent |
-| `respond` | Evaluate review feedback before acting on it |
-| `commit` | Clean git commits, no AI attribution |
-| `document` | Human-readable docs from resolved work |
+### User-invoked flows
 
-Two more compose with these rather than standing alone: `triangulate` (a verification lens that grounds specific-value claims against their source) and `auto` (a modifier that runs any task autonomously when you step away). Routing lives in the session orientation injected at startup — there is no separate router skill.
+These run only when you invoke them. One flow never silently enrolls you in another.
 
-## What gets installed
+| Skill | Purpose |
+| --- | --- |
+| `brainstorm` | Develop an idea into an approved implementation spec |
+| `sketch` | Produce a lightweight contract for a small change |
+| `execute` | Implement an approved spec or clear scope with proportionate verification |
+| `review` | Perform a focused, report-only code review |
+| `commit` | Create one clean, narrowly staged commit |
+| `document` | Capture requested durable engineering knowledge |
+| `auto` | Grant elevated autonomy for reversible, in-scope work |
 
-- A `Meridian` output style applied automatically while the plugin is enabled (overrides any `/output-style` selection while loaded). It carries the durable principles — three pillars, voice, commit-attribution override, the challenge protocol — directly in the system prompt rather than relying on per-turn reminders.
-- A session-start hook that injects the routing table and active-mode triggers as a quiet system reminder at the start of every session, so the orientation is felt rather than announced.
-- The skills below, dispatched by judgement against the routing table.
+Invoking a flow authorizes its ordinary documented behavior. Separate approval is still required for destructive operations, unrequested external effects, material scope expansion, and unresolved high-cost choices.
 
-## Install
+### Model-invoked disciplines
+
+These are narrow internal tools, not workflow gates:
+
+| Skill | Purpose |
+| --- | --- |
+| `debug` | Diagnose failures from evidence before fixing them |
+| `research` | Verify unstable external behavior against primary sources |
+| `triangulate` | Escalate contested or load-bearing claims beyond one source |
+| `delegate` | Isolate genuinely independent or context-heavy work |
+| `respond` | Evaluate review feedback while preserving user intent |
+
+## Model profiles
+
+At session start Meridian injects the professional standard followed by the adapters for the resolved profile. Resolution order is:
+
+1. `MERIDIAN_MODEL_PROFILE`
+2. exact model identifier
+3. registered model-family prefix
+4. host-local fallback
+5. baseline standard only
+
+Initial profiles are:
+
+| Profile | Adapters |
+| --- | --- |
+| `opus-4.8` | comment narration, artifact overproduction |
+| `sol` | review recursion, depth escalation, workflow literalism, agreement seeking |
+| `fable` | none |
+
+Only model identifiers observed from host payloads or documented by the host are mapped automatically. Unknown models receive the baseline rather than a guessed profile.
+
+Set a host-local fallback in `<state-base>/meridian/config.json`:
+
+```json
+{
+  "fallbackProfile": "sol"
+}
+```
+
+The state base is host-specific, such as `CODEX_HOME` for Codex. GitHub Copilot does not currently expose a model identifier in its documented session-start payload, so use the environment override or fallback there.
+
+## Installation
 
 ### Claude Code
 
-```
+```text
 /plugin marketplace add KodingDev/meridian
 /plugin install meridian@meridian
 ```
 
 ### Cursor
 
-Install from the [Cursor plugin marketplace](https://cursor.com/marketplace), or enable **Third-party skills** in Cursor Settings → Features if you use the Claude plugin bundle.
+Install Meridian from the Cursor plugin marketplace, or enable third-party skills and install the Claude plugin bundle.
 
-Hooks are Node scripts (`node ./hooks/*.mjs`) — no Git Bash or shell polyglot required. Session orientation injects via `additional_context` on `sessionStart`. If hooks fail silently, check View → Output → **Hooks** and restart Cursor after updating the plugin.
+### GitHub Copilot CLI and Codex
 
-### GitHub Copilot CLI
+Install the same plugin bundle through the host's plugin support. Meridian ships host-specific hook manifests where their schemas differ. The session hook is read-only context composition; the existing pre-tool commit guard still blocks AI attribution and staging ignored `.meridian/` working artifacts where supported.
 
-Copilot CLI installs the same plugin via its `/plugin` commands and loads the skills and subagents directly. Copilot resolves the Claude subagent tool names as compatible aliases — `Read`, `Grep`, `Glob`, `Bash` map to its `view`, `grep`, `glob`, `bash` tools — so file, search, and shell access carry over unchanged. Its web tool (`web_fetch`) has no Claude-name alias, so the agents that need the web (`research`, `triangulate`) also list `web_fetch` explicitly; otherwise `WebFetch`/`WebSearch` resolve to nothing and the agent silently loses web access.
+## Project policy
 
-Hooks ship in Copilot's own format: Copilot's command schema treats `command` as a shell string and has no `args` array, so the Claude exec-form config would run a bare `node`. Copilot is pointed at `hooks/hooks-copilot.json` via `.plugin/plugin.json` (a manifest slot Copilot reads but Claude and Cursor don't). Session orientation injects via a flat `additionalContext` on `sessionStart`; prompt submission is state-only, because Copilot's `userPromptSubmitted` hook cannot inject context (same ceiling as Cursor).
+Use repository instructions for requirements that vary by customer or environment. The included `templates/CLAUDE.md` provides optional headings for security and compliance, required verification, deployment and rollback, repository artifacts, and allowed tools. Meridian intentionally ships no AWS-, employer-, customer-, or Stella-specific defaults.
 
-### Codex
+## Development
 
-Codex CLI installs the plugin from the same marketplace and loads the plugin's default `hooks/hooks.json` — the same Claude-shaped hook config (event → matcher groups → `{ "type": "command" }`) — sharing Claude's `hookSpecificOutput` context contract. So, unlike Cursor and Copilot, orientation injects on `SessionStart` **and** the routing audit injects on `UserPromptSubmit`, and the commit-attribution `PreToolUse` guard runs. Codex is detected by the un-prefixed `PLUGIN_ROOT` it sets (Claude sets only `CLAUDE_PLUGIN_ROOT`, which Codex also sets as a compat alias); state lives under `CODEX_HOME` (default `~/.codex`). Codex does not honor a plugin-manifest hook redirect ([openai/codex#16430](https://github.com/openai/codex/issues/16430)), so there is no Codex-specific hooks file — the default `hooks/hooks.json` drives it. Plugin hooks install untrusted; run one interactive Codex session to review and trust them, after which they fire automatically.
+```text
+pnpm check
+node --test test/meridian-hooks.test.mjs
+```
 
-Hook tests: `node --test test/meridian-hooks.test.mjs`
+The live evaluation harness is on-demand because it makes paid model calls:
+
+```text
+pnpm eval
+pnpm eval:view
+```
 
 ## Credit
 
-Built on ideas from [superpowers](https://github.com/obra/superpowers) by Jesse Vincent — the skill-based workflow, subagent development, and iterative spec review all come from there. Meridian wouldn't exist without it.
-
-Orchestration approach informed by Anthropic's [context engineering research](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents) and the [Claude Certification Guide](https://claudecertificationguide.com).
+Built on ideas from [Superpowers](https://github.com/obra/superpowers) by Jesse Vincent and informed by Matt Pocock's user-invoked/model-invoked skill split.
 
 ## License
 

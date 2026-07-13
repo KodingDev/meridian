@@ -1,16 +1,12 @@
-// Host detection and every host-coupled behavior: where state lives, whether an
-// event injects context, and the shape of the stdout payload. Detected once per
-// process; nothing outside this module branches on the host.
+// Host detection and every host-coupled behavior: where config lives and the shape
+// of the stdout payload. Detected once per process.
 
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync } from "node:fs";
 import { homedir } from "node:os";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 
 /** @typedef {import("./types.mjs").Host} Host */
 /** @typedef {import("./types.mjs").HostName} HostName */
-
-const CONTEXT_DIR = join(dirname(fileURLToPath(import.meta.url)), "..", "context");
 
 /**
  * Resolve the state base in priority order, short-circuiting so `existsSync`
@@ -44,9 +40,8 @@ function resolveStateBase(name) {
 /**
  * Detect the host once. Cursor sets `CURSOR_PLUGIN_ROOT` and injects context only
  * on `SessionStart` (via `additional_context`); Copilot sets `COPILOT_PLUGIN_ROOT`
- * and injects on `SessionStart` only (via flat `additionalContext`); Codex sets the
- * un-prefixed `PLUGIN_ROOT` and, like Claude, injects on every event via
- * `hookSpecificOutput`; Claude injects on every event via `hookSpecificOutput`.
+ * and injects on `SessionStart` only (via flat `additionalContext`); Codex and
+ * Claude use `hookSpecificOutput`.
  * Copilot and Codex also set `CLAUDE_PLUGIN_ROOT` (compat), so both must be checked
  * before the Claude default. Codex ships no unique identity var, so the un-prefixed
  * `PLUGIN_ROOT` — which Codex sets but Claude does not — is the documented
@@ -66,42 +61,20 @@ export function detectHost() {
   return {
     name,
     stateBase: resolveStateBase(name),
-    supportsContext: (event) =>
-      name === "cursor" || name === "copilot" ? event === "SessionStart" : true,
-    emit: (event, text) => {
+    emit: (text) => {
       if (name === "cursor") {
-        if (event === "SessionStart") {
-          process.stdout.write(JSON.stringify({ additional_context: text }) + "\n");
-        }
+        process.stdout.write(JSON.stringify({ additional_context: text }) + "\n");
         return;
       }
       if (name === "copilot") {
-        if (event === "SessionStart") {
-          process.stdout.write(JSON.stringify({ additionalContext: text }) + "\n");
-        }
+        process.stdout.write(JSON.stringify({ additionalContext: text }) + "\n");
         return;
       }
       /** @type {{ hookSpecificOutput: { hookEventName: string; additionalContext: string } }} */
-      const payload = { hookSpecificOutput: { hookEventName: event, additionalContext: text } };
+      const payload = {
+        hookSpecificOutput: { hookEventName: "SessionStart", additionalContext: text },
+      };
       process.stdout.write(JSON.stringify(payload) + "\n");
     },
   };
-}
-
-/**
- * Inject a `context/<filename>` file via the host. No-op when the host doesn't
- * inject for this event or the file is missing.
- * @param {Host} host
- * @param {import("./types.mjs").HookEvent} event
- * @param {string} filename
- */
-export function emitContextFile(host, event, filename) {
-  if (!host.supportsContext(event)) return;
-  let text;
-  try {
-    text = readFileSync(join(CONTEXT_DIR, filename), "utf8");
-  } catch {
-    return;
-  }
-  host.emit(event, text.trimEnd());
 }

@@ -1,87 +1,33 @@
 ---
 name: review
-description: Use after completing implementation, before merging, or when the user asks for a review
+description: Run an independent, report-only review of a change.
+disable-model-invocation: true
 ---
-
-<HARD-GATE>
-Do NOT skip automated checks (lint, typecheck, build, test) before dispatching the review subagent. Do NOT approve merging with unaddressed material-gap defects.
-</HARD-GATE>
-
-<HARD-GATE>
-Default mode is **report-only**. `review` produces a findings list and verdict; it does NOT modify code unless the invoking request explicitly asks for fixes ("review and fix", "fix any issues you find", "apply the suggestions"). If you are invoked by `execute`, return findings — `execute` decides what to address based on finding class. The orchestrator/user acts on findings, not `review`.
-
-The reviewer's verdict is not yours to pre-empt. You MUST NOT emit or queue any edit, write, build, commit, or other downstream tool call in the same turn that dispatches the reviewer subagents — and not at all until all three verdicts have actually returned and you have aggregated them. Queuing fixes alongside the dispatch predetermines the conclusion — it breaks the blind. Dispatch, wait, aggregate, *then* act.
-</HARD-GATE>
 
 # Review
 
-Code review that catches what matters. Dispatched as three **blind** lens passes in parallel — each reviewer sees only the diff and its rubric, never the orchestrator's reasoning or the other passes, so nothing predetermines the verdict.
-
-By default, review **reports** — it does not fix. This is deliberate: a spec or diff getting reviewed and then auto-edited makes it impossible to see what the reviewer flagged vs. what was changed in response. Findings go up; fixes happen at the caller's discretion.
+Invocation authorizes one risk-proportionate independent review. The default is report-only; modify code only when the user explicitly asks for review and fixes.
 
 ## Process
 
-### 1. Run Automated Checks First
+1. Read project instructions and the relevant spec when present. Enumerate the complete change with `git status --short`, including staged, unstaged, deleted, and untracked files. Read both tracked diffs and the full contents of every untracked file in scope; `git diff` alone is never a complete working-tree review.
+2. Run the automated checks appropriate to the changed surface before manual review. Report failures instead of hiding them.
+3. Select only the lenses justified by the diff:
+   - **Correctness & Safety** (`lens-correctness.md`) always.
+   - **Craft & Simplicity** (`lens-craft.md`) for implementation, structure, reuse, naming, or maintainability changes.
+   - **Performance & Architecture** (`lens-performance.md`) for hot paths, rendering, concurrency, resource use, interface design, or architectural changes.
+   - Use all lenses when the user requests a comprehensive review or the blast radius warrants it.
+4. Dispatch the selected lenses independently with project instructions, relevant spec, implementation description, only that lens's rubric path, and a complete change manifest. For committed changes, include the diff range. For working-tree changes, include staged and unstaged diffs plus untracked file paths and instruct the reviewer to read their contents. Do not pass conversation history, prior findings, or orchestrator reasoning.
+5. Aggregate findings by `file:line` and issue, preserve finding class and category, and reconcile the verdict:
+   - approach-level unsoundness: **Do not ship**;
+   - localized material gaps: **Fix material gaps and ship**;
+   - no material gaps: **Ship it**.
+6. Return the deduplicated findings and verdict. Do not pad the report with strengths or speculative nits.
 
-Run whatever the project uses — lint, typecheck, build, test. Fix failures before dispatching the reviewer; don't waste review time on things automation catches.
+If fixes were explicitly requested, address material gaps and run targeted verification. Start another full review only when a material design change invalidates the first review or the user asks for one.
 
-### 2. Dispatch Three Lens Passes
+## Finding classes
 
-The review fans out into exactly three lens passes — always all three, regardless of what changed. Each pass is the same `meridian:reviewer` agent reviewing the full diff against one lens's rubric; an agent naturally reports only on the dimensions present in its slice of the diff (a config-only diff may legitimately come back empty from a lens). The lenses and their rubric files are listed under [Lenses](#lenses) below.
-
-Compute the diff range: base SHA from `git merge-base HEAD origin/master` (or equivalent) for initial reviews. For re-reviews after fixing defects, use the commit before fixes began.
-
-Dispatch all three lenses **in a single message** — three `Agent` calls with `subagent_type: meridian:reviewer`. Each dispatch's prompt body contains:
-
-- A **lens-role line**: "You are the **<lens name>** pass. Read your rubric file (path below) and review the diff against ONLY that rubric, in depth."
-- The **absolute path** to that lens's rubric file in this skill's directory (the reviewer reads it itself — do NOT copy the rubric contents into the prompt; the subagent has no other way to locate the file)
-- The diff range
-- The project CLAUDE.md content (conventions)
-- The spec file content, if one exists
-- A description of what was implemented
-
-Do NOT pass: conversation history, prior review results, the orchestrator's reasoning, or the other lenses' rubrics or results — keep each pass blind. Each reviews the diff on its own merits.
-
-### 3. Aggregate
-
-Wait for all three lens passes to return, then merge them into one report:
-
-- **Dedup findings** — key on `file:line` + the issue. Collapse same-line / same-issue duplicates to one; keep same-line / different-category findings separately. Dedup is a safety net, expected to fire rarely — the three lenses cover disjoint dimensions, so identical cross-lens findings are uncommon.
-- **Concatenate** Smells and Simplification Opportunities across lenses (informational; no dedup).
-- **Reconcile verdicts** in two ordered steps. Each lens emits its verdict per the reviewer doctrine, where "Do not ship" means the change is fundamentally wrong — not merely that it carries a localized material gap (those are "Fix material gaps and ship").
-  1. **Normalize each lens verdict (downgrade check, runs first).** For every lens that returned "Do not ship", inspect its cited rationale. If the rationale asserts the chosen approach or structure is wrong, keep "Do not ship"; if every cited item is instead a fixable defect (specific things to change, not "this design is wrong"), treat that lens's verdict as "Fix material gaps and ship".
-  2. **Take most-severe of the normalized verdicts.** Any remaining "Do not ship" → **Do not ship**; else if any finding is `material-gap` → **Fix material gaps and ship**; else → **Ship it**.
-
-  The downgrade step always precedes most-severe, so a localized defect a lens mislabeled "Do not ship" cannot escalate the merged verdict. A merged "Do not ship" therefore always reflects a genuine approach-level problem.
-
-Present one merged findings list (each finding keeps its `finding-class` label and originating category) and one verdict.
-
-### 4. Return Results
-
-`review` is report-only by default (see the hard-gate above). Return findings to the caller, classified by `finding-class` (below). The caller — `execute`, or the user directly — decides what to address.
-
-Only act on findings directly if the invoking request explicitly said to ("review and fix", "apply the suggestions"). In that case: fix material-gap findings first, consider prose-clarity on a cost-benefit basis, skip implementation-detail. Then re-run automated checks, and re-review if material-gap fixes were substantial (dispatch fresh subagents — a re-review stays blind; the previous passes' reasoning must not carry over).
-
-## Lenses
-
-Every review dispatches all three. Each lens's rubric lives in its own file; the orchestrator passes the relevant file's **path** in that lens's dispatch prompt and the reviewer reads it (per step 2).
-
-| Lens | Rubric file | Dimensions |
-|------|-------------|------------|
-| **Correctness & Safety** | `lens-correctness.md` | Security, Testing, Library Misuse, Logic & Error Handling |
-| **Craft & Simplicity** | `lens-craft.md` | Code Reuse, Simplification, Quality Patterns, AI Slop, Code Style & Conventions, Naming |
-| **Performance & Architecture** | `lens-performance.md` | Efficiency, Rendering Performance, Framework Anti-Patterns, API Design |
-
-## Finding Classification
-
-Every finding carries one of three classes — `material-gap` (blocking: incorrect, incomplete, or harmful), `prose-clarity` (cheap real clarity win), or `implementation-detail` (an opinion on a detail that is neither wrong nor unclear — dropped by default). The reviewer agent owns the full definitions and the emit/drop bar; the orchestrator consumes the labels to triage. Unclassified findings are noise.
-
-## What the Orchestrator Sees
-
-After aggregating the three lens passes, the review returns:
-- A findings list — the deduped union across the three lenses — with file:line references AND a `finding-class` label per finding (`material-gap` | `prose-clarity` | `implementation-detail`)
-- Smells (unclassified but honest observations — not required action)
-- Simplification opportunities (explicitly labeled as such; the caller decides)
-- Verdict: **Ship it / Fix material gaps and ship / Do not ship**, reconciled to most-severe across the lenses per step 3. `Do not ship` requires the approach to be fundamentally wrong — not merely the presence of material gaps. Fixable material-gap findings produce `Fix material gaps and ship`.
-
-No "strengths" section. Working code is the baseline, not an achievement. No list padding — if there are only two material gaps and no clarity issues, return exactly that.
+- `material-gap`: incorrect, incomplete, unsafe, or materially harmful.
+- `prose-clarity`: a concrete, inexpensive clarity defect.
+- `implementation-detail`: non-blocking preference; omit unless the user requested exhaustive detail.
