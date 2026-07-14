@@ -1,19 +1,54 @@
-# Prompts that should trigger NO skill — the orientation "just do it" row.
-# skill-used has no negation form; assert skillCalls is empty via javascript.
+# Ordinary language must not implicitly invoke a user-owned Meridian flow.
 - vars:
-    prompt: "What does the parseConfig function do?"
+    prompt: "Build a notification system with email and in-app delivery."
   assert:
     - type: javascript
       value: |
         const skillCalls = context.providerResponse?.metadata?.skillCalls || [];
         return skillCalls.length === 0;
-  description: "trivial question → just answer, no skill"
+  description: "feature request does not enroll the user in a planning or execution flow"
 
 - vars:
-    prompt: "Rename the getUser function to fetchUser everywhere it's used."
+    prompt: "Fix the navbar hover colour."
   assert:
     - type: javascript
       value: |
         const skillCalls = context.providerResponse?.metadata?.skillCalls || [];
         return skillCalls.length === 0;
-  description: "trivial rename → just do it (orientation 'rename X to Y'), not sketch"
+  description: "small change does not auto-create a sketch"
+
+- vars:
+    prompt: "Review the auth refactor before I merge it."
+  assert:
+    - type: javascript
+      value: |
+        const skillCalls = context.providerResponse?.metadata?.skillCalls || [];
+        return skillCalls.length === 0;
+  description: "ordinary review request does not bypass manual-only skill policy"
+
+- vars:
+    prompt: "Commit the current change."
+  assert:
+    - type: javascript
+      value: |
+        const skillCalls = context.providerResponse?.metadata?.skillCalls || [];
+        return skillCalls.length === 0;
+  description: "ordinary commit request does not bypass manual-only skill policy"
+
+- vars:
+    prompt: "Write up what we learned from this debugging session."
+  assert:
+    - type: javascript
+      value: |
+        const skillCalls = context.providerResponse?.metadata?.skillCalls || [];
+        return skillCalls.length === 0;
+  description: "ordinary documentation request does not bypass manual-only skill policy"
+
+- vars:
+    prompt: "What does parseConfig do?"
+  assert:
+    - type: javascript
+      value: |
+        const skillCalls = context.providerResponse?.metadata?.skillCalls || [];
+        return skillCalls.length === 0;
+  description: "simple question uses no skill"

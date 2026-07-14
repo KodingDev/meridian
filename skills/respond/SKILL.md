@@ -1,62 +1,19 @@
 ---
 name: respond
-description: Use when receiving code review results from a subagent, human reviewer, or PR comments
+description: Evaluate and address concrete code-review feedback against repository reality.
 ---
 
 # Respond
 
-Evaluate review feedback technically before acting on it. This applies to all feedback — from the isolated review subagent, from human reviewers on PRs, from the user directly. The process is the same; the trust level differs.
+User intent, priorities, and accepted tradeoffs are authoritative. Technical explanations and proposed fixes remain claims to verify against the code and evidence.
 
 ## Process
 
-1. **Read** the complete feedback without reacting.
+1. Read all feedback and its surrounding diff context.
+2. Separate requested outcomes from technical assertions about the cause or solution.
+3. Verify each technical assertion against repository behavior, tests, and relevant documentation.
+4. Apply correct in-scope fixes one at a time with focused verification.
+5. Push back concisely when a suggestion is technically wrong, breaks existing behavior, conflicts with an accepted decision, or expands scope without value.
+6. Report what changed, what was declined, and the evidence supporting either result.
 
-2. **Understand** — restate each item in your own words. If ANY item is unclear, use `AskUserQuestion` to ask about ALL unclear items before implementing anything. Batch them into a single call (up to 4 questions). Don't implement half the feedback and ask about the rest later — items may be related.
-
-3. **Verify** — check each suggestion against codebase reality.
-   - Does the code actually do what the reviewer claims?
-   - Is the suggestion technically sound for THIS codebase?
-
-4. **Evaluate** — source determines scrutiny level:
-   - *Review subagent:* generated under controlled conditions with full diff access. Generally reliable, but verify against codebase reality.
-   - *User:* trusted on intent and priorities — but their suggestions still get evaluated on technical merits, same as anyone's (the Challenge Protocol applies; a suggestion is an input, not an order). Still ask if scope is unclear.
-   - *External reviewer (PR, GitHub):* is the suggestion correct? Does it break existing functionality? Does the reviewer understand the full context? Does it conflict with the user's architectural decisions?
-
-5. **Respond** — technical acknowledgment or reasoned pushback. Never performative agreement.
-
-6. **Implement** — one item at a time, test each. Order: blocking issues first, then simple fixes, then complex fixes.
-
-## Forbidden: Validation and Gratitude
-
-No validation phrases, no gratitude, no performative agreement — of any kind, not only the examples below. If you find yourself writing an affirming opener, delete it.
-
-Examples of the pattern:
-- "You're absolutely right!"
-- "Great point!" / "Excellent feedback!"
-- "Let me implement that now" (before verification)
-- "Thanks for catching that"
-
-Actions speak. Just fix it and show in the diff.
-
-## When to Push Back
-
-Push back when:
-- Suggestion breaks existing functionality
-- Reviewer lacks full context
-- Violates YAGNI (adding features nothing uses)
-- Technically incorrect for this stack
-- Conflicts with the user's prior architectural decisions
-
-How: use technical reasoning. Reference working code or tests. Ask specific questions. If it's architectural, involve the user.
-
-## When Feedback IS Correct
-
-- "Fixed. [Brief description]"
-- "[Issue] was real — fixed in [location]."
-- Or just fix it silently. The diff speaks.
-
-## When You Pushed Back and Were Wrong
-
-State the correction factually and move on:
-- "You were right — I checked [X] and it does [Y]. Fixing."
-- No long apology. No defending why you pushed back. Correct and continue.
+Avoid performative agreement, but ordinary human acknowledgment is fine. If your earlier technical conclusion was wrong, correct it directly without defensive explanation.

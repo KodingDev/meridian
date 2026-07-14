@@ -1,11 +1,18 @@
 #!/usr/bin/env node
-import { detectHost, emitContextFile } from "./lib/host.mjs";
-import { readInput, sessionId } from "./lib/signals.mjs";
-import { pruneStale } from "./lib/state.mjs";
-
-const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
+import { loadBehaviorContext } from "./lib/behavior.mjs";
+import { detectHost } from "./lib/host.mjs";
+import { readInput } from "./lib/signals.mjs";
 
 const host = detectHost();
-pruneStale(host, sessionId(readInput()), SEVEN_DAYS_MS);
-// Fires on every SessionStart source — including `compact`, which restores the routing table after compaction drops the originally-injected orientation.
-emitContextFile(host, "SessionStart", "orientation.md");
+const input = readInput();
+
+try {
+  const context = loadBehaviorContext({
+    input,
+    stateBase: host.stateBase,
+    environmentProfile: process.env.MERIDIAN_MODEL_PROFILE,
+  });
+  host.emit(context);
+} catch (error) {
+  process.stderr.write(`Meridian could not load its professional standard: ${String(error)}\n`);
+}

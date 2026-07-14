@@ -4,66 +4,80 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { auditDue, isFailureSignal, sessionId } from "../hooks/lib/signals.mjs";
 import { detectHost } from "../hooks/lib/host.mjs";
+import {
+  activeModel,
+  composeBehavior,
+  loadBehaviorContext,
+  resolveProfile,
+} from "../hooks/lib/behavior.mjs";
 
-test("sessionId accepts safe session_id / conversation_id, rejects the rest", () => {
-  assert.equal(sessionId({ session_id: "abc-123_DEF" }), "abc-123_DEF");
-  assert.equal(sessionId({ conversation_id: "cursor-conv-1" }), "cursor-conv-1");
-  assert.equal(sessionId({ sessionId: "copilot-1" }), "copilot-1");
-  assert.equal(sessionId({ session_id: "s", conversation_id: "c" }), "s", "session_id wins");
+const REGISTRY = {
+  profiles: { exact: ["a"], family: ["b"], fallback: [] },
+  modelMatches: [
+    { prefix: "model-", profile: "family" },
+    { exact: "model-exact", profile: "exact" },
+  ],
+};
+
+test("activeModel prefers model_id and ignores empty identifiers", () => {
+  assert.equal(activeModel({ model_id: "cursor-id", model: "fallback" }), "cursor-id");
+  assert.equal(activeModel({ model_id: " ", model: "fallback" }), "fallback");
+  assert.equal(activeModel({}), null);
+});
+
+test("resolveProfile applies override, exact, family, fallback, then baseline", () => {
+  assert.equal(resolveProfile(REGISTRY, "fallback", "model-exact", null), "fallback");
+  assert.equal(resolveProfile(REGISTRY, null, "model-exact", "fallback"), "exact");
+  assert.equal(resolveProfile(REGISTRY, null, "model-other", "fallback"), "family");
+  assert.equal(resolveProfile(REGISTRY, null, "unknown", "fallback"), "fallback");
+  assert.equal(resolveProfile(REGISTRY, null, "unknown", null), null);
+  assert.equal(resolveProfile(REGISTRY, "missing", "model-exact", "fallback"), null);
+});
+
+test("composeBehavior keeps the standard first and preserves adapter order", () => {
   assert.equal(
-    sessionId({ session_id: "s", sessionId: "p" }),
-    "s",
-    "session_id wins over sessionId",
+    composeBehavior(" standard\n", ["adapter one", "\nadapter two\n"]),
+    "standard\n\nadapter one\n\nadapter two",
   );
-  for (const bad of ["../../etc/evil", "a/b", "has space", "$(touch x)", "", undefined, 42]) {
-    assert.equal(
-      sessionId(/** @type {any} */ ({ session_id: bad })),
-      null,
-      `rejects ${JSON.stringify(bad)}`,
-    );
-  }
-  assert.equal(sessionId({}), null);
 });
 
-test("isFailureSignal matches only terse 'fix didn't land' replies", () => {
-  for (const p of [
-    "still broken",
-    "not fixed",
-    "doesn't work",
-    "still doesnt work",
-    "nope, still wrong",
-    "STILL BROKEN.",
-    "that's still broken",
-    "still  broken", // accidental double-space still matches
-  ]) {
-    assert.equal(isFailureSignal(p), true, `matches ${JSON.stringify(p)}`);
-  }
-  for (const p of [
-    "nope", // bare nope deliberately excluded
-    "no, the real issue is still broken because the cache never clears so rework it", // elaborated
-    "can you add a copy button to the toolbar", // unrelated
-    "is the build working", // question
-    "",
-    42,
-    undefined,
-  ]) {
-    assert.equal(isFailureSignal(p), false, `ignores ${JSON.stringify(p)}`);
-  }
+test("loadBehaviorContext composes detected, fallback, and baseline-only profiles", () => {
+  const stateBase = mkdtempSync(join(tmpdir(), "meridian-profile-"));
+  const opus = loadBehaviorContext({
+    input: { model: "claude-opus-4-8" },
+    stateBase,
+  });
+  assert.match(opus, /professional engineering standard/i);
+  assert.match(opus, /comment narration/i);
+  assert.match(opus, /artifact overproduction/i);
+  assert.ok(opus.indexOf("professional engineering standard") < opus.indexOf("comment narration"));
+  assert.ok(opus.indexOf("comment narration") < opus.indexOf("artifact overproduction"));
+
+  mkdirSync(join(stateBase, "meridian"), { recursive: true });
+  writeFileSync(
+    join(stateBase, "meridian", "config.json"),
+    JSON.stringify({ fallbackProfile: "sol" }),
+  );
+  const fallback = loadBehaviorContext({ input: {}, stateBase });
+  assert.match(fallback, /review recursion/i);
+  assert.doesNotMatch(fallback, /comment narration/i);
+
+  const baseline = loadBehaviorContext({
+    input: { model: "claude-opus-4-8" },
+    stateBase,
+    environmentProfile: "missing",
+  });
+  assert.match(baseline, /professional engineering standard/i);
+  assert.doesNotMatch(baseline, /model adapter/i);
+  rmSync(stateBase, { recursive: true, force: true });
 });
 
-test("auditDue fires every Nth count, never at 0", () => {
-  assert.equal(auditDue(8, 8), true);
-  assert.equal(auditDue(16, 8), true);
-  assert.equal(auditDue(7, 8), false);
-  assert.equal(auditDue(9, 8), false);
-  assert.equal(auditDue(0, 8), false);
-});
-
-test("detectHost resolves the Cursor state base and event support", () => {
+test("detectHost resolves the Cursor state base", () => {
   const saved = {
     CURSOR_PLUGIN_ROOT: process.env.CURSOR_PLUGIN_ROOT,
     CLAUDE_CONFIG_DIR: process.env.CLAUDE_CONFIG_DIR,
@@ -75,15 +89,13 @@ test("detectHost resolves the Cursor state base and event support", () => {
   const host = detectHost();
   assert.equal(host.name, "cursor");
   assert.equal(host.stateBase, join(homedir(), ".cursor"));
-  assert.equal(host.supportsContext("SessionStart"), true);
-  assert.equal(host.supportsContext("UserPromptSubmit"), false);
   for (const [key, val] of Object.entries(saved)) {
     if (val === undefined) delete process.env[key];
     else process.env[key] = val;
   }
 });
 
-test("detectHost resolves the Copilot state base and event support", () => {
+test("detectHost resolves the Copilot state base", () => {
   const saved = {
     CURSOR_PLUGIN_ROOT: process.env.CURSOR_PLUGIN_ROOT,
     COPILOT_PLUGIN_ROOT: process.env.COPILOT_PLUGIN_ROOT,
@@ -99,8 +111,6 @@ test("detectHost resolves the Copilot state base and event support", () => {
   const host = detectHost();
   assert.equal(host.name, "copilot");
   assert.equal(host.stateBase, join(homedir(), ".copilot"));
-  assert.equal(host.supportsContext("SessionStart"), true);
-  assert.equal(host.supportsContext("UserPromptSubmit"), false);
   for (const [key, val] of Object.entries(saved)) {
     if (val === undefined) delete process.env[key];
     else process.env[key] = val;
@@ -132,10 +142,10 @@ test("Copilot state base stays ~/.copilot even when CLAUDE_PLUGIN_ROOT is also s
   }
 });
 
-test("detectHost resolves the Codex state base and injects on every event", () => {
+test("detectHost resolves the Codex state base", () => {
   // Codex ships no unique identity var; it sets the un-prefixed PLUGIN_ROOT (plus
   // CLAUDE_PLUGIN_ROOT for compat) — the documented discriminator from Claude, which
-  // sets only CLAUDE_PLUGIN_ROOT. Like Claude, Codex injects on every event.
+  // sets only CLAUDE_PLUGIN_ROOT. Codex and Claude share the SessionStart output shape.
   const saved = {
     CURSOR_PLUGIN_ROOT: process.env.CURSOR_PLUGIN_ROOT,
     COPILOT_PLUGIN_ROOT: process.env.COPILOT_PLUGIN_ROOT,
@@ -153,15 +163,13 @@ test("detectHost resolves the Codex state base and injects on every event", () =
   const host = detectHost();
   assert.equal(host.name, "codex");
   assert.equal(host.stateBase, join(homedir(), ".codex"));
-  assert.equal(host.supportsContext("SessionStart"), true);
-  assert.equal(host.supportsContext("UserPromptSubmit"), true);
   for (const [key, val] of Object.entries(saved)) {
     if (val === undefined) delete process.env[key];
     else process.env[key] = val;
   }
 });
 
-test("detectHost defaults to claude and injects on every event", () => {
+test("detectHost defaults to claude", () => {
   const saved = {
     CURSOR_PLUGIN_ROOT: process.env.CURSOR_PLUGIN_ROOT,
     COPILOT_PLUGIN_ROOT: process.env.COPILOT_PLUGIN_ROOT,
@@ -172,7 +180,6 @@ test("detectHost defaults to claude and injects on every event", () => {
   delete process.env.PLUGIN_ROOT;
   const host = detectHost();
   assert.equal(host.name, "claude");
-  assert.equal(host.supportsContext("UserPromptSubmit"), true);
   for (const [key, val] of Object.entries(saved)) {
     if (val === undefined) delete process.env[key];
     else process.env[key] = val;

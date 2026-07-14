@@ -1,6 +1,7 @@
 ---
 name: document
-description: Use after completing features, resolving complex bugs, or when hard-won knowledge would otherwise be lost
+description: Capture hard-won engineering knowledge in durable project documentation.
+disable-model-invocation: true
 argument-hint: "[what to document]"
 ---
 
@@ -12,7 +13,6 @@ Capture knowledge for humans. Not for AI, not for ceremony — for the person wh
 
 - After completing a feature with non-obvious behavior
 - After resolving a complex debugging session
-- When the agent recognizes hard-won knowledge is about to be lost with the session
 - When the user asks to document something
 
 ## What to Document and Where

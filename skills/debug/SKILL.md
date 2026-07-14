@@ -1,72 +1,21 @@
 ---
 name: debug
-description: Use when encountering any bug, test failure, or unexpected behavior
+description: Diagnose bugs, test failures, and unexpected behavior from evidence before changing code.
 ---
-
-<HARD-GATE>
-The bug is in the USER'S PROJECT. You are debugging their code, not Claude Code itself. Do not disclaim or reframe the issue as a tool/assistant problem.
-
-Do NOT attempt any fix before completing root cause investigation. No exceptions. If you catch yourself thinking "let me just try changing this" — stop and go back to Phase 1.
-</HARD-GATE>
 
 # Debug
 
-Find the root cause, then fix it. Not the other way around.
+Find the cause before choosing a fix. The fault may be in project code, configuration, dependencies, the environment, or tooling; let evidence locate it.
 
-The bug is in the user's project — you are debugging their code and environment, not Claude Code or any tool in the assistant infrastructure.
+## Discipline
 
-## When to Self-Invoke
+1. Read the complete failure evidence: errors, stack traces, logs, screenshots, and relevant diffs.
+2. Reproduce the issue when practical. If reproduction is unsafe or unavailable, gather the closest direct evidence and state the limitation.
+3. Trace the failing path and compare it with a working path or documented contract.
+4. Form one specific hypothesis and test it with the smallest useful observation or change.
+5. Fix the cause, not merely the visible symptom.
+6. Add or update a regression test when it provides durable value, then run proportionate verification.
 
-The routing table and this skill's description own the entry triggers. One needs spelling out because it arrives mid-flow and is easy to miss: a fix just shipped and the user replies with a terse failure signal — "still broken", "not fixed", "doesn't work", "nope", a one-word rejection, or a bare screenshot. Do not patch again; the short dismissal means the last fix missed the root cause. Enter at Phase 1.
+Do not require ceremony that adds no evidence. A trivial, directly proven defect can move quickly; an ambiguous or multi-component failure deserves deeper instrumentation. If an external API or library contract matters, invoke `meridian:research`.
 
-## The Iron Law
-
-```
-NO FIXES WITHOUT ROOT CAUSE INVESTIGATION FIRST
-```
-
-If you haven't completed Phase 1, you cannot propose fixes. This is not optional. This is not skippable because it "looks obvious." Obvious bugs have root causes too.
-
-## Phase 1 — Root Cause Investigation
-
-Phase 1 requires tool calls, not speculation. Read the code, run the commands, check the diff. Do not hypothesize about what the code does without reading it — that is guessing dressed up as analysis.
-
-1. **Read error messages completely.** Stack traces, line numbers, error codes. Don't skip past them. They often contain the answer.
-2. **Reproduce consistently.** Exact steps, every time. If you can't reproduce, gather more data — don't guess.
-3. **Check recent changes.** Git diff, recent commits, new dependencies, config changes, environmental differences.
-4. **Gather evidence in multi-component systems.** Log at each component boundary. Run once. Analyze where data goes wrong. Don't guess which layer is broken.
-5. **Trace data flow.** Find where bad values originate. Trace upstream to the source. Fix at source, not at symptom.
-6. **Instrument the real code path.** Evidence comes from running the actual executable with real data — add logging to the real code and run it again. Do not write one-off probe scripts or simulations; they test your assumptions about the system, not the system. When re-theorizing stalls, read the primary artifact (the source, the binary output, the actual data) instead of forming another theory about it.
-
-## Phase 2 — Pattern Analysis
-
-1. **Find working examples** of similar code in the codebase.
-2. **Compare working vs broken** — list every difference, however small. Don't assume "that can't matter."
-3. **Understand dependencies and assumptions** the code makes.
-
-## Phase 3 — Hypothesis and Testing
-
-1. **Form a single hypothesis:** "X is the root cause because Y." Be specific.
-2. **Test minimally** — the smallest possible change, one variable at a time.
-3. If it works, proceed to Phase 4. If not, form a new hypothesis. **Do not stack fixes.**
-
-## Phase 4 — Implementation
-
-1. **Write a failing test** that reproduces the bug.
-2. **Implement a single fix** addressing the root cause. The fix must explain why the bug existed — a guard, retry, or special case that makes the symptom disappear without answering that question is a workaround wearing a fix's clothes, and the skill is not done.
-3. **Verify** — test passes, no regressions.
-4. **If 3+ fix attempts have failed: stop.** This is not a failed hypothesis — this is likely a wrong architecture. Discuss with the user before attempting more fixes.
-
-## Research Integration
-
-If the bug involves an external API or library behaving unexpectedly, invoke `meridian:research` to verify expected behavior against live docs before forming hypotheses. Don't assume you know how the library works.
-
-## When the Process Reveals No Root Cause
-
-If systematic investigation reveals the issue is truly environmental, timing-dependent, or external:
-1. You've completed the process — that's fine
-2. Document what you investigated
-3. Implement appropriate handling (retry, timeout, error message)
-4. Consider invoking `meridian:document` to capture the investigation for future sessions
-
-Most "no root cause" verdicts turn out to be incomplete investigation. Treat the conclusion with skepticism — it's the convenient answer, not usually the right one.
+After several failed hypotheses, stop stacking changes. Reassess the model of the system and surface the uncertainty to the user.

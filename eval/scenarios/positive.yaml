@@ -1,71 +1,35 @@
-# One representative prompt per routable skill in the orientation table.
-# Each expect value traces to that skill's description / orientation example.
+# Representative observable triggers for model-owned disciplines only.
 - vars:
-    prompt: "Fix the hover state on the navbar links — they don't change colour."
-  assert:
-    - type: skill-used
-      value: meridian:sketch
-  description: "small, well-scoped UI fix → sketch"
-
-- vars:
-    prompt: "I want to build a notification system with email and in-app delivery."
-  assert:
-    - type: skill-used
-      value: meridian:brainstorm
-  description: "new multi-subsystem feature → brainstorm"
-
-- vars:
-    prompt: "I'm getting 'TypeError: cannot read properties of undefined (reading id)' when the dashboard loads."
+    prompt: "The dashboard crashes with TypeError: cannot read properties of undefined (reading id). Diagnose the cause and fix it."
   assert:
     - type: skill-used
       value: meridian:debug
-  description: "bug with a stack trace → debug"
+  description: "observable runtime failure -> debug"
 
 - vars:
-    prompt: "I'm about to write the payment retry logic against the Stripe PaymentIntents API — verify how its idempotency keys actually behave before I code against them."
+    prompt: "Before implementing this, verify the current Stripe PaymentIntents idempotency behavior against official sources."
   assert:
     - type: skill-used
       value: meridian:research
-  description: "about to write code against an external API → research (verify before building)"
+  description: "unstable external contract -> research"
 
 - vars:
-    prompt: "I just finished the auth refactor — review it before I merge."
+    prompt: "The checked-in config says the limit is 100, but the runtime reports 200. Establish which value actually governs production before changing it."
   assert:
     - type: skill-used
-      value: meridian:review
-  description: "post-implementation quality check → review"
+      value: meridian:triangulate
+  description: "conflicting load-bearing sources -> triangulate"
 
 - vars:
-    prompt: "Here's the reviewer's PR feedback to work through: extract the validation helper, and the retry loop has an off-by-one."
+    prompt: "Here is review feedback: extract the validation helper and change the retry count. Work out which suggestions are technically justified before changing anything."
   assert:
     - type: skill-used
       value: meridian:respond
-  description: "triaging reviewer feedback → respond"
+  description: "technical review suggestions -> respond"
 
 - vars:
-    prompt: "Commit this."
-  assert:
-    - type: skill-used
-      value: meridian:commit
-  description: "explicit commit request → commit"
-
-- vars:
-    prompt: "Write up what we learned debugging that race condition so the next session doesn't repeat it."
-  assert:
-    - type: skill-used
-      value: meridian:document
-  description: "capture hard-won knowledge → document"
-
-- vars:
-    prompt: "Requirements are locked and the design is approved — no planning needed, go implement the token-bucket rate limiter (100 req/min) as Express middleware now."
-  assert:
-    - type: skill-used
-      value: meridian:execute
-  description: "clear approved requirements, ready to build → execute"
-
-- vars:
-    prompt: "Do these three independent jobs in parallel: bump the lint config, split the utils file, and regenerate the API types."
+    prompt: "Investigate these three independent packages in parallel and report which one introduces the dependency cycle."
   assert:
     - type: skill-used
       value: meridian:delegate
-  description: "2+ independent tasks at once → delegate"
+  description: "independent context-heavy investigation -> delegate"

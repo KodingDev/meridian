@@ -1,13 +1,13 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "meridian",
-  "description": "Research-first workflows, ruthless code review, orchestrator-led reasoning, and opaque subagent isolation for the entire development lifecycle.",
-  "version": "0.11.3",
+  "description": "Professional engineering discipline with user-owned workflows and model-specific corrections.",
+  "version": "0.12.0",
   "author": {
     "name": "KodingDev"
   },
-  "homepage": "https://github.com/KodingDev/claude-plugins",
-  "repository": "https://github.com/KodingDev/claude-plugins",
+  "homepage": "https://github.com/KodingDev/meridian",
+  "repository": "https://github.com/KodingDev/meridian",
   "license": "MIT",
-  "keywords": ["workflows", "code-review", "research", "quality", "debugging"]
+  "keywords": ["engineering", "workflows", "quality", "research", "debugging"]
 }

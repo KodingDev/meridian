@@ -1,8 +1,6 @@
 {
   "version": 1,
   "hooks": {
-    "sessionStart": [{ "command": "node ./hooks/session-start.mjs" }],
-    "userPromptSubmitted": [{ "command": "node ./hooks/user-prompt-submit.mjs" }],
-    "sessionEnd": [{ "command": "node ./hooks/session-end.mjs" }]
+    "sessionStart": [{ "command": "node ./hooks/session-start.mjs" }]
   }
 }
