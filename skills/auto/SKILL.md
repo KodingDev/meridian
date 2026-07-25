@@ -27,7 +27,7 @@ It does not authorize scope expansion, push, deploy, force-push, destructive dat
 - Finish the requested outcome rather than starting adjacent work.
 - Keep legacy behavior intact when a migration cannot be completed safely.
 - Treat new user messages as current authority: absorb constraints, stop withdrawn scope, and end autonomous operation when the user takes back control.
-- Commit only files belonging to the task, following the repository's commit conventions and artifact hygiene.
+- Commit only files belonging to the task, per `meridian:commit`.
 - Stop when the professional standard's completion condition is met, not when elapsed time feels sufficient and not after inventing extra work.
 
 ## Handback

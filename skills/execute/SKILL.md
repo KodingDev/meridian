@@ -39,7 +39,7 @@ For each task:
 
 ### 4. Finish
 
-Run the relevant full project checks after focused verification. Formal `meridian:review` and `meridian:commit` are separate user-owned flows; do not invoke them automatically.
+Run the relevant full project checks after focused verification. Formal `meridian:review` and the commit flow are user-owned; do not run them automatically. When a commit message is written, `meridian:commit` holds the conventions.
 
 Report:
 
@@ -61,4 +61,4 @@ An unrelated pre-existing failure is reported accurately but does not change the
 
 When a spec exists, append one pickup-ready entry after each verified task and one completion entry at the end. Record outcomes, decisions not obvious from the diff, deviations, and open concerns. Do not turn the log into a tool-call journal. Do not stage or commit the spec.
 
-Move the spec's **Status** line as the work moves: `IN PROGRESS` when implementation starts, `SHIPPED <sha>` at the completion entry. A spec left at `APPROVED` after delivery is indistinguishable from one that was never started.
+Set the driving spec or sketch's **Status** to `IN PROGRESS` when implementation starts. `SHIPPED <sha>` belongs to whoever commits, since the sha does not exist yet here.

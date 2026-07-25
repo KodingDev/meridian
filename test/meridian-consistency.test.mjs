@@ -82,7 +82,16 @@ test("commit conventions are reachable without authorizing outward actions", () 
 
   assert.match(description, /pull request/i, "description reaches PR authoring");
   assert.match(description, /another skill needs/i, "description is reachable by other skills");
-  assert.match(body, /Consulting this skill authorizes nothing/, "no implicit authorization");
+  assert.match(body, /^<HARD-GATE>$/m, "outward actions sit behind a hard gate");
+  assert.match(
+    body,
+    /require an explicit user request for that action/,
+    "the gate names per-action authorization",
+  );
+  assert.ok(
+    body.indexOf("<HARD-GATE>") < body.indexOf("# Commit"),
+    "the gate is read before the flow",
+  );
   assert.match(body, /^## Pull request descriptions$/m, "PR guidance is present");
 });
 
@@ -133,7 +142,12 @@ test("behavior profiles reference only packaged atomic adapters", () => {
 
   for (const match of registry.modelMatches) {
     assert.ok(registry.profiles[match.profile], `${match.profile} is a known profile`);
-    assert.ok(match.exact || match.prefix, "model match is exact or prefix based");
+    const key = match.exact ?? match.prefix;
+    assert.ok(typeof key === "string" && key.length > 0, "model match has a non-empty key");
+    assert.ok(
+      match.exact === undefined || match.prefix === undefined,
+      "model match is exact or prefix, not both",
+    );
   }
 });
 

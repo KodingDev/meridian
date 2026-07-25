@@ -34,7 +34,7 @@ Invoking a flow authorizes its ordinary documented behavior. Separate approval i
 
 ### Model-invoked disciplines
 
-These are narrow internal tools, not workflow gates:
+The model may reach these inside an ordinary task. They are not workflow gates:
 
 | Skill | Purpose |
 | --- | --- |
@@ -45,7 +45,7 @@ These are narrow internal tools, not workflow gates:
 | `delegate` | Isolate genuinely independent or context-heavy work |
 | `respond` | Evaluate review feedback while preserving user intent |
 
-`commit` holds conventions and a flow. The conventions are reachable whenever a commit message or pull request description is being written, including by other skills. Reaching them authorizes nothing: committing, pushing, and opening or editing a pull request each still require an explicit request.
+`commit` is the exception in this table: it holds conventions and a flow that performs outward actions. The conventions are reachable whenever a commit message or pull request description is being written, including by other skills. Reaching them authorizes nothing: committing, pushing, and opening or editing a pull request sit behind a hard gate and each still require an explicit request.
 
 ## Model profiles
 
@@ -65,7 +65,9 @@ Initial profiles are:
 | `fable` | none | `claude-fable-` prefix |
 | `sol` | review recursion, depth escalation, workflow literalism, agreement seeking | environment override or fallback |
 
-Profiles are named for model families rather than single releases, and families are matched by prefix so a new release in a known family keeps its corrections instead of silently dropping to the baseline.
+Profiles are named for model families rather than single releases, and families are matched by prefix so a later release in a known family keeps its corrections instead of silently dropping to the baseline.
+
+Matching is a plain prefix over the identifier the host reports. A vendor- or region-qualified identifier, such as the `us.anthropic.` form used by Bedrock, does not match a bare family prefix; use the environment override or a host-local fallback there.
 
 Only model identifiers observed from host payloads or documented by the host are mapped automatically. A model outside a mapped family receives the baseline rather than a guessed profile.
 
