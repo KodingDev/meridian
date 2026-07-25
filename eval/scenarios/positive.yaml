@@ -33,3 +33,17 @@
     - type: skill-used
       value: meridian:delegate
   description: "independent context-heavy investigation -> delegate"
+
+- vars:
+    prompt: "Commit the current change."
+  assert:
+    - type: skill-used
+      value: meridian:commit
+  description: "explicit commit request -> commit conventions"
+
+- vars:
+    prompt: "Write the pull request description for this branch."
+  assert:
+    - type: skill-used
+      value: meridian:commit
+  description: "pull request authoring -> commit conventions"

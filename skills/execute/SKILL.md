@@ -60,3 +60,5 @@ An unrelated pre-existing failure is reported accurately but does not change the
 ## Progress Log
 
 When a spec exists, append one pickup-ready entry after each verified task and one completion entry at the end. Record outcomes, decisions not obvious from the diff, deviations, and open concerns. Do not turn the log into a tool-call journal. Do not stage or commit the spec.
+
+Move the spec's **Status** line as the work moves: `IN PROGRESS` when implementation starts, `SHIPPED <sha>` at the completion entry. A spec left at `APPROVED` after delivery is indistinguishable from one that was never started.

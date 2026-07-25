@@ -7,8 +7,8 @@ import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const MANUAL_FLOWS = ["auto", "brainstorm", "commit", "document", "execute", "review", "sketch"];
-const MODEL_DISCIPLINES = ["debug", "delegate", "research", "respond", "triangulate"];
+const MANUAL_FLOWS = ["auto", "brainstorm", "document", "execute", "review", "sketch"];
+const MODEL_DISCIPLINES = ["commit", "debug", "delegate", "research", "respond", "triangulate"];
 
 /** @param {string} rel */
 function readJSON(rel) {
@@ -74,6 +74,16 @@ test("model disciplines remain available for implicit invocation", () => {
     assert.doesNotMatch(body, /^disable-model-invocation:/m, `${name} shared invocation policy`);
     assert.equal(existsSync(join(ROOT, "skills", name, "agents", "openai.yaml")), false);
   }
+});
+
+test("commit conventions are reachable without authorizing outward actions", () => {
+  const body = readFileSync(join(ROOT, "skills", "commit", "SKILL.md"), "utf8");
+  const description = body.match(/^description:\s*(.+)$/m)?.[1] ?? "";
+
+  assert.match(description, /pull request/i, "description reaches PR authoring");
+  assert.match(description, /another skill needs/i, "description is reachable by other skills");
+  assert.match(body, /Consulting this skill authorizes nothing/, "no implicit authorization");
+  assert.match(body, /^## Pull request descriptions$/m, "PR guidance is present");
 });
 
 test("model discipline descriptions stay narrower than baseline grounding", () => {

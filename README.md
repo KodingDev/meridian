@@ -27,7 +27,6 @@ These run only when you invoke them. One flow never silently enrolls you in anot
 | `sketch` | Produce a lightweight contract for a small change |
 | `execute` | Implement an approved spec or clear scope with proportionate verification |
 | `review` | Perform a focused, report-only code review |
-| `commit` | Create one clean, narrowly staged commit |
 | `document` | Capture requested durable engineering knowledge |
 | `auto` | Grant elevated autonomy for reversible, in-scope work |
 
@@ -39,11 +38,14 @@ These are narrow internal tools, not workflow gates:
 
 | Skill | Purpose |
 | --- | --- |
+| `commit` | Commit and pull request conventions, and the one-clean-commit flow |
 | `debug` | Diagnose failures from evidence before fixing them |
 | `research` | Verify unstable external behavior against primary sources |
 | `triangulate` | Escalate contested or load-bearing claims beyond one source |
 | `delegate` | Isolate genuinely independent or context-heavy work |
 | `respond` | Evaluate review feedback while preserving user intent |
+
+`commit` holds conventions and a flow. The conventions are reachable whenever a commit message or pull request description is being written, including by other skills. Reaching them authorizes nothing: committing, pushing, and opening or editing a pull request each still require an explicit request.
 
 ## Model profiles
 
@@ -57,13 +59,15 @@ At session start Meridian injects the professional standard followed by the adap
 
 Initial profiles are:
 
-| Profile | Adapters |
-| --- | --- |
-| `opus-4.8` | comment narration, artifact overproduction |
-| `sol` | review recursion, depth escalation, workflow literalism, agreement seeking |
-| `fable` | none |
+| Profile | Adapters | Mapped by |
+| --- | --- | --- |
+| `claude-opus` | comment narration, artifact overproduction | `claude-opus-` prefix |
+| `fable` | none | `claude-fable-` prefix |
+| `sol` | review recursion, depth escalation, workflow literalism, agreement seeking | environment override or fallback |
 
-Only model identifiers observed from host payloads or documented by the host are mapped automatically. Unknown models receive the baseline rather than a guessed profile.
+Profiles are named for model families rather than single releases, and families are matched by prefix so a new release in a known family keeps its corrections instead of silently dropping to the baseline.
+
+Only model identifiers observed from host payloads or documented by the host are mapped automatically. A model outside a mapped family receives the baseline rather than a guessed profile.
 
 Set a host-local fallback in `<state-base>/meridian/config.json`:
 

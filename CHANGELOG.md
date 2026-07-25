@@ -5,6 +5,23 @@ All notable changes to Meridian are recorded here. The format follows
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). History before
 0.11.0 lives in the git log.
 
+## [0.13.0] - 2026-07-25
+
+### Added
+
+- `commit` carries pull request description guidance: lead with rationale, describe behavior rather than the diff, state the feedback wanted, report what was actually verified, flag breaking changes and migrations, and scale the description to the change.
+- Both commit messages and pull request descriptions are governed by an explicit rule that they describe the resulting code, never the session that produced it, with the circumstantial detail to omit enumerated.
+- Specs and sketches carry a `Status` line through `DRAFT`, `APPROVED`, `IN PROGRESS`, `SHIPPED <sha>`, and `SUPERSEDED BY <file>`. `execute` moves it as implementation proceeds.
+
+### Changed
+
+- Model profiles are named for families and matched by prefix, so a new release in a mapped family keeps its corrections instead of dropping to the baseline. `opus-4.8` becomes `claude-opus` and matches the `claude-opus-` prefix; `fable` matches `claude-fable-`.
+- `commit` is model-invocable. Its conventions are reachable whenever a commit message or pull request description is written, including by other skills. Reaching them authorizes nothing: committing, pushing, and opening or editing a pull request each still require an explicit request.
+
+### Fixed
+
+- Adapter resolution no longer depends on a single exact model identifier, which left every unlisted model on the baseline standard with no corrections applied.
+
 ## [0.12.0] - 2026-07-13
 
 ### Added
