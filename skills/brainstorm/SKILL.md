@@ -41,6 +41,7 @@ This flow produces an approved specification. Do NOT write code, scaffold a proj
 7. **Present design in sections** — scaled to complexity. Simple sections get a few sentences. Complex sections get detail. Get user approval after each section before moving on.
 
 8. **Write spec file** — save to `.meridian/specs/YYYY-MM-DD-<topic>.md`.
+   - First line after the H1 is `**Status**: DRAFT`. The lifecycle is `DRAFT` → `APPROVED` (step 12) → `IN PROGRESS` → `SHIPPED <sha>`, or `SUPERSEDED BY <file>` when another spec absorbs it. Whoever moves the work moves the line; a spec with no status cannot be triaged later.
    - Required sections: **Overview**, **Requirements** (numbered, unambiguous), **Technical Design**, **Constraints**, **User Constraints**, **Acceptance Criteria**.
    - **User Constraints** captures explicit do/don't rules the user stated during brainstorm (e.g., "no glow effects", "use existing utils", "match existing page patterns"). These are non-negotiable implementation rules, distinct from technical Constraints.
    - Scale section depth to complexity — a simple feature gets brief sections, a complex system gets thorough ones.
@@ -56,7 +57,7 @@ This flow produces an approved specification. Do NOT write code, scaffold a proj
 
 11. **User reviews spec** — present the spec, ask for changes. Iterate if needed.
 
-12. **Transition** — once approved, stop with the approved spec. Tell the user they can invoke `meridian:execute` when they want implementation to begin. Do not invoke it on their behalf.
+12. **Transition** — once approved, set **Status** to `APPROVED` and stop with the approved spec. Tell the user they can invoke `meridian:execute` when they want implementation to begin. Do not invoke it on their behalf.
 
 ## Principles
 

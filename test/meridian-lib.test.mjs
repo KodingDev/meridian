@@ -77,6 +77,22 @@ test("loadBehaviorContext composes detected, fallback, and baseline-only profile
   rmSync(stateBase, { recursive: true, force: true });
 });
 
+test("shipped registry applies family corrections beyond the mapped release", () => {
+  const stateBase = mkdtempSync(join(tmpdir(), "meridian-family-"));
+
+  for (const model of ["claude-opus-5", "claude-opus-5[1m]", "claude-opus-4-8"]) {
+    const context = loadBehaviorContext({ input: { model }, stateBase });
+    assert.match(context, /comment narration/i, `${model} receives family adapters`);
+  }
+
+  for (const model of ["claude-sonnet-5", "gpt-5-codex"]) {
+    const context = loadBehaviorContext({ input: { model }, stateBase });
+    assert.doesNotMatch(context, /model adapter/i, `${model} stays on the baseline`);
+  }
+
+  rmSync(stateBase, { recursive: true, force: true });
+});
+
 test("detectHost resolves the Cursor state base", () => {
   const saved = {
     CURSOR_PLUGIN_ROOT: process.env.CURSOR_PLUGIN_ROOT,

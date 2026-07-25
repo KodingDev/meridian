@@ -5,6 +5,27 @@ All notable changes to Meridian are recorded here. The format follows
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). History before
 0.11.0 lives in the git log.
 
+## [0.13.0] - 2026-07-25
+
+### Added
+
+- `commit` carries pull request description guidance: lead with rationale, describe behavior rather than the diff, state the feedback wanted, report what was actually verified, flag breaking changes and migrations, and scale the description to the change.
+- Both commit messages and pull request descriptions are governed by an explicit rule that they describe the resulting code, never the session that produced it, with the circumstantial detail to omit enumerated.
+- Specs and sketches carry a `Status` line through `DRAFT`, `APPROVED`, `IN PROGRESS`, `SHIPPED <sha>`, and `SUPERSEDED BY <file>`. `execute` moves it as implementation proceeds.
+
+### Changed
+
+- Model profiles are named for families and matched by prefix, so a later release in a mapped family keeps its corrections instead of dropping to the baseline. Matching is a plain prefix over the identifier the host reports, so vendor- or region-qualified identifiers (for example the `us.anthropic.` Bedrock form) still fall through to the baseline.
+- **Breaking:** the `opus-4.8` profile is renamed `claude-opus`. A host-local `<state-base>/meridian/config.json` setting `"fallbackProfile": "opus-4.8"` no longer resolves and silently yields the baseline standard with no adapters. Rename the value to `claude-opus`.
+- `claude-fable-` now resolves to the `fable` profile, which carries no adapters by design. A Fable session therefore no longer picks up a configured `fallbackProfile`.
+- `commit` is model-invocable. Its conventions are reachable whenever a commit message or pull request description is written, including by other skills. Reaching them authorizes nothing: committing, pushing, and opening or editing a pull request sit behind a hard gate and each still require an explicit request.
+- `execute` and `auto` point at `meridian:commit` for message conventions instead of restating them, and no longer describe the commit flow as un-reachable.
+- Eval scenarios cover the new boundary: authoring a commit message or pull request description reaches `commit`, while reading history and an implied-approval prompt do not.
+
+### Fixed
+
+- Adapter resolution no longer depends on a single exact model identifier, which left every unlisted model on the baseline standard with no corrections applied.
+
 ## [0.12.0] - 2026-07-13
 
 ### Added

@@ -1,13 +1,17 @@
 {
   "profiles": {
-    "opus-4.8": ["comment-narration", "artifact-overproduction"],
+    "claude-opus": ["comment-narration", "artifact-overproduction"],
     "sol": ["review-recursion", "depth-escalation", "workflow-literalism", "agreement-seeking"],
     "fable": []
   },
   "modelMatches": [
     {
-      "exact": "claude-opus-4-8",
-      "profile": "opus-4.8"
+      "prefix": "claude-opus-",
+      "profile": "claude-opus"
+    },
+    {
+      "prefix": "claude-fable-",
+      "profile": "fable"
     }
   ]
 }

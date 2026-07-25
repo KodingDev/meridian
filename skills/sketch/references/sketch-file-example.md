@@ -1,10 +1,12 @@
 # Sketch File Example
 
 A complete sketch file, for reference. The format is fixed-order: H1 title, then
-Context → Plan → User Constraints (omit if none) → Done When.
+Status → Context → Plan → User Constraints (omit if none) → Done When.
 
 ```markdown
 # Add Copy Button to Code Blocks
+
+**Status**: DRAFT
 
 ## Context
 Code blocks in the docs lack a copy-to-clipboard button, forcing manual selection. Add a button in the top-right corner of each block.

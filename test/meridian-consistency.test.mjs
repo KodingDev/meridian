@@ -7,8 +7,8 @@ import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const MANUAL_FLOWS = ["auto", "brainstorm", "commit", "document", "execute", "review", "sketch"];
-const MODEL_DISCIPLINES = ["debug", "delegate", "research", "respond", "triangulate"];
+const MANUAL_FLOWS = ["auto", "brainstorm", "document", "execute", "review", "sketch"];
+const MODEL_DISCIPLINES = ["commit", "debug", "delegate", "research", "respond", "triangulate"];
 
 /** @param {string} rel */
 function readJSON(rel) {
@@ -76,6 +76,25 @@ test("model disciplines remain available for implicit invocation", () => {
   }
 });
 
+test("commit conventions are reachable without authorizing outward actions", () => {
+  const body = readFileSync(join(ROOT, "skills", "commit", "SKILL.md"), "utf8");
+  const description = body.match(/^description:\s*(.+)$/m)?.[1] ?? "";
+
+  assert.match(description, /pull request/i, "description reaches PR authoring");
+  assert.match(description, /another skill needs/i, "description is reachable by other skills");
+  assert.match(body, /^<HARD-GATE>$/m, "outward actions sit behind a hard gate");
+  assert.match(
+    body,
+    /require an explicit user request for that action/,
+    "the gate names per-action authorization",
+  );
+  assert.ok(
+    body.indexOf("<HARD-GATE>") < body.indexOf("# Commit"),
+    "the gate is read before the flow",
+  );
+  assert.match(body, /^## Pull request descriptions$/m, "PR guidance is present");
+});
+
 test("model discipline descriptions stay narrower than baseline grounding", () => {
   const research = readFileSync(join(ROOT, "skills", "research", "SKILL.md"), "utf8");
   const triangulate = readFileSync(join(ROOT, "skills", "triangulate", "SKILL.md"), "utf8");
@@ -123,7 +142,12 @@ test("behavior profiles reference only packaged atomic adapters", () => {
 
   for (const match of registry.modelMatches) {
     assert.ok(registry.profiles[match.profile], `${match.profile} is a known profile`);
-    assert.ok(match.exact || match.prefix, "model match is exact or prefix based");
+    const key = match.exact ?? match.prefix;
+    assert.ok(typeof key === "string" && key.length > 0, "model match has a non-empty key");
+    assert.ok(
+      match.exact === undefined || match.prefix === undefined,
+      "model match is exact or prefix, not both",
+    );
   }
 });
 
