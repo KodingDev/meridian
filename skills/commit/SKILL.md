@@ -1,12 +1,12 @@
 ---
 name: commit
-description: Conventions for commit messages and pull request descriptions, and the flow that produces one clean commit. Use when writing a commit message, opening or updating a pull request, or when another skill needs commit or PR description conventions.
+description: Commit message and pull request conventions, and the one-clean-commit flow. Use when writing a commit message, opening or updating a pull request, or when another skill needs these conventions.
 argument-hint: "[optional: push, pr]"
 ---
 
 # Commit
 
-Two things live here. **Conventions** govern how commit messages and pull request descriptions are written, and apply whenever one is being written. The **commit flow** produces one clean commit and runs when the user asks for it.
+**Conventions** govern how commit messages and pull request descriptions are written, whenever one is written. The **commit flow** runs when the user asks for it.
 
 ## Authorization
 
@@ -28,47 +28,39 @@ Consulting this skill authorizes nothing. Committing, pushing, and creating or e
 5. Commit without a redundant approval prompt.
 6. If push was explicitly requested, push to the current tracking branch. Ask before choosing a remote or branch that cannot be inferred, and before any destructive recovery from rejection.
 
-## What both artifacts are for
+## Both artifacts are public
 
-A commit message and a pull request description are read by someone who was not present. Assume a competent engineer, months later, with the diff in front of them and no memory of the work.
+They are read by an engineer who was not there: months later, holding the diff, with no memory of the work. Write for that reader.
 
-**Follow the repository's existing convention before any advice here.** Read recent merged commits and pull requests, and use the repository's pull request template when one exists. Convention in the repository outranks convention in this skill: its subject grammar, its sectioning, its label and issue-linking practice. Do not introduce sections a repository does not use.
+**Neither is a diary.** Describe what the code does and why it does it. The session that produced it is invisible to that reader and belongs in conversation instead: attempts and dead ends, rebases and force-pushes, review rounds, conflicts, local environment and machine paths, which host or agent typed it, unrelated pre-existing failures, and back-references like "as discussed" or "per feedback". A sentence that would confuse someone who never saw the session is a diary entry. Cut it.
 
-**Describe the resulting code, not the work that produced it.** Everything about the session is invisible to the reader and belongs in conversation instead:
-
-- how many attempts it took, what was tried and abandoned, what a review or a reviewer said
-- rebasing, conflicts, force-pushes, branch surgery, cherry-picks
-- local environment detail, machine-specific paths, which host or agent produced the change
-- pre-existing failures unrelated to the change, and unrelated flakes
-- "as discussed", "as requested", "per feedback", and other references to invisible context
-
-Write what the code now does and why it does it. If a sentence would confuse a reader who never saw the session, cut it.
+**Repository convention outranks this skill.** Read recent merged commits and pull requests, and use the pull request template when one exists: its subject grammar, its sectioning, its label and issue-linking practice. Introduce no section the repository does not already use.
 
 ## Commit messages
 
 - Subject in the repository's convention, imperative mood, one line, no trailing period.
-- A body when the change needs a reason. Explain why the change exists and what behavior changed. Skip the body for changes whose reason is self-evident.
+- A body when the change needs a reason: why it exists, what behavior changed. Self-evident changes take no body.
 - Reference issues in the repository's established format.
-- One commit is one coherent change. Do not bundle unrelated work to save a commit.
+- One commit is one coherent change.
 
 ## Pull request descriptions
 
-A useful description gets a reviewer to a correct judgment quickly. It is not a summary of the diff, which the reviewer can already read. Order matters: reviewers read top-down and stop early.
+A description earns its place by getting a reviewer to a correct judgment quickly. The diff already says what changed line by line; the description says what the reviewer cannot reconstruct. Reviewers read top-down and stop early, so order matters.
 
-**Lead with why.** The problem, the user-visible symptom, or the constraint that forced the change. Rationale is the element engineers value most for understanding intent, and it is what lets a reviewer judge whether the approach solves the right problem rather than only whether the code is correct.
+**Lead with why.** The problem, the user-visible symptom, or the constraint that forced the change. Rationale is what engineers value most for understanding intent, and it is what lets a reviewer judge whether the approach solves the right problem rather than only whether the code is correct.
 
-**Then what changed, at the altitude of behavior.** What the system does differently now. Name the design decisions a reviewer might otherwise question, and say why the alternative was rejected. Do not narrate file by file.
+**Then what changed, at the altitude of behavior.** What the system does differently now. Name the design decisions a reviewer might otherwise question, and say why the alternative lost.
 
-**Say what feedback you want.** Naming the kind of review you need is the strongest single predictor of reviewer engagement and acceptance, and it is the element most often omitted. Point at the files that matter, propose a review order for a multi-file change, and flag anything you are unsure about or that deserves scrutiny. "The retry logic in `client.ts` is the risky part; the rest is mechanical" is worth more than three paragraphs of summary.
+**Say what feedback you want.** Naming the review you need is the strongest single predictor of reviewer engagement and acceptance, and the element most often omitted. Point at the files that matter, propose a review order for a multi-file change, and flag what you are unsure about. "The retry logic in `client.ts` is the risky part; the rest is mechanical" is worth more than three paragraphs of summary.
 
-**State what was verified.** Which tests, which cases, which environment, what was observed. "Tested locally" asserts nothing. If verification was partial, say what remains untested rather than implying coverage that does not exist.
+**State what was verified.** Which tests, which cases, which environment, what was observed. "Tested locally" asserts nothing. Where verification was partial, name what remains untested rather than implying coverage that does not exist.
 
-**Flag anything that changes the reader's world.** Breaking changes, migrations, new configuration or environment variables, feature flags, dependency changes, and security-relevant surfaces: authentication, permissions, sensitive data handling. A reviewer who learns about a migration from the diff has already lost trust in the description.
+**Flag what changes the reader's world.** Breaking changes, migrations, new configuration or environment variables, feature flags, dependency changes, and security-relevant surfaces: authentication, permissions, sensitive data handling. A reviewer who discovers a migration in the diff has already stopped trusting the description.
 
-**Include evidence where it is cheaper than prose.** Screenshots or a short recording for user-visible changes. Before and after for behavioral changes.
+**Show evidence where it is cheaper than prose.** Screenshots or a short recording for user-visible changes; before and after for behavioral ones.
 
-**Scale the description to the change.** Completeness alone does not improve review outcomes; a one-line fix with eight headings wastes the reviewer's attention and buries the one thing that matters. A trivial change earns a sentence. Cut every heading that would be empty rather than filling it with "N/A".
+**Scale to the change.** Completeness alone does not improve review outcomes. A one-line fix under eight headings buries the one thing that matters; a trivial change earns a sentence. Cut every heading that would otherwise hold "N/A".
 
-**Keep the change reviewable.** A pull request should have one purpose. When a change is large enough that a reviewer cannot hold it, say so and propose the split rather than apologising for the size in the description.
+**Keep the change reviewable.** One pull request, one purpose. When a change is too large to hold, propose the split rather than apologising for the size.
 
-**Self-review before requesting review.** Read your own diff and confirm the checks pass. Leftover debug output, commented-out code, and unrelated formatting churn are the reviewer's time spent on your behalf.
+**Self-review first.** Read your own diff and confirm the checks pass before requesting review. Leftover debug output, commented-out code, and unrelated formatting churn spend the reviewer's attention on your behalf.
