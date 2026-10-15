@@ -6,6 +6,9 @@ Ask of every change:
 - Is there a "code judo" move — a reframing on the existing architecture that makes this dramatically simpler, not just tidier?
 - Could fewer concepts, branches, or layers carry the same behavior?
 
+## Style authority
+The project's own style is the bar for this lens. Before you apply the checklist below, read the project instructions and any style skill that the project or user has installed, such as `house-style` or `golden`. Where that authority covers a dimension, apply its rules and cite them. Where it conflicts with a line below, the authority wins. The checklist covers only the dimensions that the authority leaves open.
+
 ## Code Reuse
 For each change, search for existing utilities and helpers that could replace newly written code — common locations are utility directories, shared modules, and files adjacent to the changed ones.
 - New function that duplicates existing functionality — suggest the existing function instead
@@ -14,7 +17,7 @@ For each change, search for existing utilities and helpers that could replace ne
 
 ## Simplification
 - Code that can be deleted entirely
-- Abstractions serving one call site (inline them)
+- Abstractions serving one call site whose name adds nothing over the inline code (inline them)
 - Utility functions for one-time operations (delete them)
 - Premature configurability (YAGNI)
 - Nested ternaries (extract to early returns or lookups)
@@ -42,7 +45,7 @@ Comments are the highest-signal tell. Judge every comment **added in the diff** 
 - Decorative section dividers (`// ── Section ──`)
 - Changelog comments (git history exists)
 - Apology comments (`// Hack: ...`, `// TODO: refactor`)
-- Multi-paragraph docstrings or comment blocks where one line of *why* would do
+- Multi-paragraph comment blocks where one line of *why* would do. A doc comment on an export that states its contract is not slop.
 
 Then the non-comment slop:
 - Gratuitous intermediate variables

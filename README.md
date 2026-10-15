@@ -28,6 +28,7 @@ These run only when you invoke them. One flow never silently enrolls you in anot
 | `execute` | Implement an approved spec or clear scope with proportionate verification |
 | `review` | Perform a focused, report-only code review |
 | `document` | Capture requested durable engineering knowledge |
+| `retro` | Turn friction from a session, branch, or pull request into checks and instruction changes |
 | `auto` | Grant elevated autonomy for reversible, in-scope work |
 
 Invoking a flow authorizes its ordinary documented behavior. Separate approval is still required for destructive operations, unrequested external effects, material scope expansion, and unresolved high-cost choices.
@@ -90,6 +91,8 @@ The state base is host-specific, such as `CODEX_HOME` for Codex. GitHub Copilot 
 /plugin install meridian@meridian
 ```
 
+Meridian 0.6 and earlier shipped from the `KodingDev/claude-plugins` marketplace, with a session hook that forced the `meridian` routing skill on every request. Remove that install before you add this one, or both load. `/plugin` lists installed plugins with their marketplace. If your organization syncs plugins for you, update the synced source to this repository.
+
 ### Cursor
 
 Install Meridian from the Cursor plugin marketplace, or enable third-party skills and install the Claude plugin bundle.
@@ -100,7 +103,7 @@ Install the same plugin bundle through the host's plugin support. Meridian ships
 
 ## Project policy
 
-Use repository instructions for requirements that vary by customer or environment. The included `templates/CLAUDE.md` provides optional headings for security and compliance, required verification, deployment and rollback, repository artifacts, and allowed tools. Meridian intentionally ships no AWS-, employer-, customer-, or Stella-specific defaults.
+Use repository instructions for requirements that vary by customer or environment. The included `templates/CLAUDE.md` provides optional headings for security and compliance, required verification, deployment and rollback, repository artifacts, and allowed tools. Code style comes from the project too. The craft review lens applies the project's instructions and any installed style skill first, and uses its own checklist only where they are silent. Meridian intentionally ships no AWS-, employer-, customer-, or Stella-specific defaults.
 
 ## Development
 

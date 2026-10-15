@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const MANUAL_FLOWS = ["auto", "brainstorm", "document", "execute", "review", "sketch"];
+const MANUAL_FLOWS = ["auto", "brainstorm", "document", "execute", "retro", "review", "sketch"];
 const MODEL_DISCIPLINES = ["commit", "debug", "delegate", "research", "respond", "triangulate"];
 
 /** @param {string} rel */

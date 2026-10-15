@@ -5,6 +5,20 @@ All notable changes to Meridian are recorded here. The format follows
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). History before
 0.11.0 lives in the git log.
 
+## [0.14.0] - 2026-10-15
+
+### Added
+
+- `retro`, a user-owned flow that reviews a session, branch, or pull request for friction and proposes the strongest durable fix for each finding: a failing check first, then a deleted or rewritten instruction, then new text. It is report-only unless the user asks for the changes.
+- `respond` triages automated reviewer findings as claims: fix when a realistic failure path exists and the fix is in proportion, dismiss with the traced path otherwise, and ask the user before dismissing a security finding.
+- The professional standard settles observable forks by experiment instead of asking the user, and requires a measured number to be explained before it is reported or acted on.
+- `execute` writes the failing test first when a task adds or fixes behavior and a test seam exists.
+
+### Changed
+
+- The craft review lens defers to the project's style authority: project instructions and any installed style skill. Its checklist covers only what that authority leaves open. The one-call-helper and docstring lines no longer contradict style guides that require doc comments on exports or allow a named extraction.
+- The README documents removing the 0.6-era `claude-plugins` install, whose forced routing hook still loads alongside a current install.
+
 ## [0.13.0] - 2026-07-25
 
 ### Added
