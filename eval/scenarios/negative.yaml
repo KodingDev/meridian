@@ -61,3 +61,12 @@
         const skillCalls = context.providerResponse?.metadata?.skillCalls || [];
         return skillCalls.length === 0;
   description: "simple question uses no skill"
+
+- vars:
+    prompt: "That took longer than it should have. What went wrong?"
+  assert:
+    - type: javascript
+      value: |
+        const skillCalls = context.providerResponse?.metadata?.skillCalls || [];
+        return skillCalls.length === 0;
+  description: "reflecting on a session does not bypass manual-only retro"

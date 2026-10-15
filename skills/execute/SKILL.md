@@ -31,11 +31,12 @@ Break multi-part work into dependency-ordered tasks. Keep a small change inline.
 For each task:
 
 1. Search for existing interfaces, utilities, tests, and conventions before adding competing logic.
-2. Implement the smallest durable change that satisfies the requirement.
-3. Exercise the highest practical real seam: focused tests, typecheck, build, CLI, service, or browser behavior as appropriate.
-4. If behavior fails unexpectedly, use `meridian:debug` rather than stacking speculative patches.
-5. Check the diff against scope and the spec's User Constraints.
-6. If a spec exists, append a concise Progress Log entry containing the task outcome, verification, deviations, and open concerns that a future agent could not recover from the diff.
+2. When the task adds or fixes behavior and a test seam exists, write the failing test first and watch it fail for the expected reason. Take one behavior at a time: red, green, then refactor while the tests stay green.
+3. Implement the smallest durable change that satisfies the requirement.
+4. Exercise the highest practical real seam: focused tests, typecheck, build, CLI, service, or browser behavior as appropriate.
+5. If behavior fails unexpectedly, use `meridian:debug` rather than stacking speculative patches.
+6. Check the diff against scope and the spec's User Constraints.
+7. If a spec exists, append a concise Progress Log entry containing the task outcome, verification, deviations, and open concerns that a future agent could not recover from the diff.
 
 ### 4. Finish
 
